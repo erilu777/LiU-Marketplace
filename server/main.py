@@ -2,6 +2,8 @@ from flask import Flask, request
 from flask import Flask, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from sqlalchemy.orm import relationship
+from enum import Enum
 
 
 app = Flask(__name__, 
@@ -20,9 +22,12 @@ class User(db.Model):
     liu_id = db.Column(db.String, nullable=False)
     program = db.Column(db.String)
     year = db.Column(db.Integer)
+    is_admin = db.Column(db.Boolean)
+    numSoldItems = db.Column(db.Integer)
+    items = db.relationship('Item', backref="user")
 
     def __repr__(self):
-        return f"<User {self.id} {self.name} {self.email}  {self.liu_id} {self.program} {self.year}>"
+        return f"<User {self.id} {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.numSoldItems} {self.items}>"
 
     def serialize(self):
         return {
@@ -31,31 +36,65 @@ class User(db.Model):
             "email":self.email,
             "liu_id":self.liu_id,
             "program":self.program,
-            "year":self.year
+            "year":self.year,
+            "is_admin":self.is_admin,
+            "numSoldItems":self.numSoldItems,
         } 
         
+class Category(Enum):
+    Cyklar = 1
+    Kurslitteratur = 2
+    Böcker = 3
+    Biljetter = 4
+    Inredning = 5
+    Bostad = 6
+    Verktyg = 7
+    Övrigt = 8
+
+class Condition(Enum):
+    Nytt = 1
+    Använd_Nyskick = 2
+    Använd_Gott_skick = 3
+    Använd_Slitet_skick = 4
+
+class ItemImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120))
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
+    
+    def serialize(self):
+        return {
+            "id":self.id,
+            "image_path": self.image_path,
+            "item_id":self.item_id
+        }
+    
 class Item(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
-    price = db.Column(db.Integer)
-    category = db.Column(db.String(30))
+    title = db.Column(db.String(80))
     description = db.Column(db.String(120))
+    price = db.Column(db.Integer)
+    category = db.Column(db.Enum(Category))
     is_sold = db.Column(db.Boolean)
-    seller_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-   
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    images = relationship("ItemImage", backref="item")
+    condition = db.Column(db.Enum(Condition))
+            
     def __repr__(self):
-        return f'<Item {self.name}>'
+        return f'<Item {self.title}>'
 
     def serialize(self):
         return {
             "id":self.id,
-            "name": self.name,
-            "price":self.price,
-            "category":self.category,
+            "title": self.title,
             "description":self.description,
+            "price":self.price,
+            "category":self.category.name,
             "is_sold":self.is_sold,
-            "seller:id":self.seller_id
+            "user_id":self.user_id,
+            "images": [image.serialize() for image in self.images],
+            "condition":self.condition
         }
 
 @app.route("/")
@@ -106,7 +145,7 @@ def items():
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
         data = request.get_json()
-        new_item = Item(name=data['name'], price=data["price"], category=data["category"], description=data["description"], is_sold=data["is_sold"], seller_id=data["seller_id"])
+        new_item = Item(title=data['title'], price=data["price"], category=data["category"], description=data["description"], is_sold=data["is_sold"], user_id=data["user_id"])
         db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201
@@ -121,7 +160,7 @@ def handle_items(item_id):
     elif request.method == 'PUT':
         data = request.get_json()
         if 'name' in data:
-            item.name = data['name']
+            item.title = data['title']
         if 'price' in data:
             item.price = data['price']
         if 'category' in data:
