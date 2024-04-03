@@ -11,6 +11,8 @@ import FAQPage from './components/FAQPage.vue';
 import ContactPage from './components/ContactPage.vue';
 import AboutPage from './components/AboutPage.vue';
 import LoginPage from './components/LoginPage.vue';
+import HistoryPage from './components/HistoryPage.vue';
+import EditProfilePage from './components/EditProfilePage.vue';
 
 import LoginLayout from './layouts/login-layout.vue';
 
@@ -83,6 +85,16 @@ const routes = [
     name: 'login',
     component: LoginPage,
     meta: { layout: LoginLayout}
+  },
+  {
+    path: '/profile-history',
+    name: 'history',
+    component: HistoryPage
+  },
+  {
+    path: '/edit-profile',
+    name: 'editprofile',
+    component: EditProfilePage
   }
 ];
 

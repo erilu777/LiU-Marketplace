@@ -46,12 +46,6 @@
   </script>
 
 <style scoped>
-.page {
-    padding: 60px;
-    min-height: 100vh;
-    margin: 0 auto;
-  }
-
   h1 {
     font-weight: bold;
     font-size: 60px;
