@@ -1,7 +1,6 @@
 <template>
     <div class="page">
-      <h1>Försäljning av {{ buttonText }}</h1>
-      <p>{{ buttonText }}</p>
+      <h1>Försäljning av {{ category }}</h1>
       <div class="container">
         <form @submit.prevent="submitForm">
             <div class="row">
@@ -42,15 +41,13 @@
   export default {
   data() {
     return {
-      buttonText: '',
+      category: '',
       area: '',
       condition: ''
     };
   },
-  watch: {
-  '$route.query.newButtonText': function(newButtonText){
-      this.buttonText = newButtonText;
-    },
+  created() {
+    this.category = this.$route.params.category;
   },
   methods: {
     submitForm() {
@@ -61,8 +58,7 @@
       this.image = file;
     }
   }
-};
-
+  };
   </script>
 
 <style scoped>
@@ -102,6 +98,7 @@
     border-radius: 20px;
     color: white;
     font-weight: bold;
+    margin-top: 15px;
   }
 
   .ctrph::placeholder {
