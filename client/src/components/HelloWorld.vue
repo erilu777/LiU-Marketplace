@@ -4,13 +4,13 @@
       <!-- Update the menu items to use router-link -->
       <div class="menu-bar-left">
         <img src="../assets/LMlogo.png" alt="LMlogo">
-        <router-link to="/">LiU Marketplace</router-link>
-        <router-link to="/buy">Köpa</router-link>
-        <router-link to="/sell">Sälja</router-link>
+        <router-link to="/" active-class="active-link">LiU Marketplace</router-link>
+        <router-link to="/buy" active-class="active-link">Köpa</router-link>
+        <router-link to="/sell" active-class="active-link">Sälja</router-link>
       </div>
       <div class="menu-bar-right">
-        <router-link to="/profile">Min Profil</router-link>
-        <router-link to="/logout">Logga Ut</router-link>
+        <router-link to="/profile" active-class="active-link">Min Profil</router-link>
+        <router-link to="/logout" active-class="active-link">Logga Ut</router-link>
       </div>
     </div>
     <!-- Add router-view to display the current page content -->
@@ -18,7 +18,7 @@
   </div>
   <footer v-if= "auth" class="footer">
     <div class="column">
-      <h3>Mer info</h3>
+      <h3><strong>Mer info</strong></h3>
       <ul>
         <li><router-link to="/om-oss">Om oss</router-link></li>
         <li><router-link to="/vanliga-fragor">Vanliga Frågor</router-link></li>
@@ -26,7 +26,7 @@
       </ul>
     </div>
     <div class="column">
-      <h3>LiU Marketplace</h3>
+      <h3><strong>LiU Marketplace</strong></h3>
       <p>For Students - By Students</p>
     </div>
     <div class="column">
@@ -50,6 +50,11 @@ export default {
 </script>
 
 <style scoped>
+
+.active-link {
+  font-weight: bold;
+}
+
 .app {
   font-family: Arial, sans-serif;
 }

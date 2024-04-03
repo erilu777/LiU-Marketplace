@@ -1,4 +1,7 @@
 <template>
+  <div class="button">
+    <button @click="goBack" class="back-button" style="color: white">&lt; Tillbaka till annonser</button>
+  </div>
   <div class="ad-details">
     <div class="carousel">
     <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
@@ -47,8 +50,12 @@ export default {
     },
     prevImage() {
       this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+    },
+    goBack() {
+      // Navigate back to the all ads page
+      this.$router.push({ name: 'buy' });
+     },
     }
-  }
 };
 </script>
 
@@ -56,7 +63,7 @@ export default {
 
 .ad-details {
   display: flex;
-  align-items: center;
+  align-items: top;
   text-align: left;
 }
 
@@ -69,7 +76,7 @@ export default {
   width: 350px; 
   height: auto;
   margin-left: 50%;
-  margin-top: 100px;
+  margin-top: 20px;
 }
 
 .arrow {
@@ -104,7 +111,7 @@ export default {
 
 .ad-info {
   margin-left: 20%;
-  margin-top: 100px;
+  margin-top: 40px;
  }
 
  .contact-button  {
@@ -115,6 +122,17 @@ export default {
   border-radius: 20px;
   background-color: #0C254A;
   border-color: #0C254A;
+ }
+
+ .back-button {
+  margin-top: 10px;
+  padding: 10px;
+  width: auto;
+  height: auto;
+  border-radius: 20px;
+  background-color: #0C254A;
+  border-color: #0C254A;
+  margin-left: 10px;
  }
 
  .seller-about {
@@ -128,8 +146,8 @@ export default {
   display: flex;
   margin-left: 175px;
   text-align: left;
+  margin-bottom: 60px;
  }
-
 
  .profile-image {
   width: 5%;
@@ -138,5 +156,13 @@ export default {
 
  .seller-name, .seller-liuid {
   margin-bottom: 0;
+ }
+
+ .button {
+margin-top: 20px;
+ }
+
+ .back-button {
+  display: flex;
  }
 </style>

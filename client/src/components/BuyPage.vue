@@ -10,7 +10,7 @@
     <!-- Categories -->
     <div class="categories">
       <div v-for="category in categories" :key="category.id" 
-          :class="{ 'selected': isSelected(category.id) }" 
+          :class="{ 'selected': isSelected(category.id), 'selected-text': isSelected(category.id) }" 
           @click="toggleCategory(category.id)" 
           class="category">
         <h2 class="category-name">{{ category.name }}</h2>
@@ -107,6 +107,8 @@ export default {
 
 .category-name {
   font-size: 15px;
+  margin-bottom: 5px;
+  margin-top: 5px;
 }
 
 .search-input {
@@ -115,8 +117,12 @@ export default {
 }
 
 .selected {
-  background-color: #ffffff;
+  background-color: #102A50;
   border-color: #000000;
+}
+
+.selected-text {
+  color: #ffffff; 
 }
 
 .sort-by {
