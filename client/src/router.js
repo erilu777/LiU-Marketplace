@@ -6,6 +6,10 @@ import SellPage from './components/SellPage.vue';
 import ProfilePage from './components/ProfilePage.vue';
 import LogoutPage from './components/LogoutPage.vue';
 import AdsDetails from './components/AdsDetails.vue';
+import NewAdPage from './components/NewAdPage.vue';
+import FAQPage from './components/FAQPage.vue';
+import ContactPage from './components/ContactPage.vue';
+import AboutPage from './components/AboutPage.vue';
 
 const routes = [
   {
@@ -48,11 +52,33 @@ const routes = [
         description: route.query.description
       })
     }
+    path: '/newad',
+    name: 'newad',
+    component: NewAdPage
+  },
+  {
+    path: '/vanliga-fragor',
+    name: 'faq',
+    component: FAQPage
+  },
+  {
+    path: '/kontakta-oss',
+    name: 'contact',
+    component: ContactPage
+  },
+  {
+    path: '/om-oss',
+    name: 'about',
+    component: AboutPage
+  }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior() {
+    return{ top: 0} ;
+  }
 });
 
 export default router;
