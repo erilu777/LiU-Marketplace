@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import relationship
 from enum import Enum
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship
 
 
 app = Flask(__name__, 
@@ -18,16 +20,21 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    email = db.Column(db.String)
     liu_id = db.Column(db.String, nullable=False)
+    email = db.Column(db.String)
     program = db.Column(db.String)
     year = db.Column(db.Integer)
-    is_admin = db.Column(db.Boolean)
-    numSoldItems = db.Column(db.Integer)
-    items = db.relationship('Item', backref="user")
+    is_admin = db.Column(db.Boolean, default=False)
+    numSoldItems = db.Column(db.Integer, default=0)
+    numBoughtItems = db.Column(db.Integer, default=0)
+    items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
+
+    @property
+    def email(self):
+        return self.liu_id + "@student.liu.se"
 
     def __repr__(self):
-        return f"<User {self.id} {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.numSoldItems} {self.items}>"
+        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.numSoldItems} {self.items} {self.numBoughtItems}>"
 
     def serialize(self):
         return {
@@ -39,6 +46,7 @@ class User(db.Model):
             "year":self.year,
             "is_admin":self.is_admin,
             "numSoldItems":self.numSoldItems,
+            "numBoughtItems":self.numBoughtItems
         } 
         
 class Category(Enum):
@@ -51,11 +59,17 @@ class Category(Enum):
     Verktyg = 7
     Övrigt = 8
 
+#    def serialize(self):
+#        return self.name
+
 class Condition(Enum):
     Nytt = 1
     Använd_Nyskick = 2
     Använd_Gott_skick = 3
     Använd_Slitet_skick = 4
+
+#    def serialize(self):
+#        return self.name
 
 class ItemImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -70,31 +84,32 @@ class ItemImage(db.Model):
         }
     
 class Item(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80))
     description = db.Column(db.String(120))
     price = db.Column(db.Integer)
-    category = db.Column(db.Enum(Category))
-    is_sold = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    category = db.Column(db.Enum(Category), nullable=True)
+    condition = db.Column(db.Enum(Condition), nullable=True)
+    is_sold = db.Column(db.Boolean, default=False)
     images = relationship("ItemImage", backref="item")
-    condition = db.Column(db.Enum(Condition))
-            
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    buyer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+
     def __repr__(self):
-        return f'<Item {self.title}>'
+        return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.is_sold} {self.user_id} {self.images} {self.condition}>'
 
     def serialize(self):
+        user_data = self.user.serialize() if self.user else None
         return {
             "id":self.id,
             "title": self.title,
             "description":self.description,
             "price":self.price,
-            "category":self.category.name,
+            "category":self.category,
             "is_sold":self.is_sold,
-            "user_id":self.user_id,
             "images": [image.serialize() for image in self.images],
-            "condition":self.condition
+            "condition":self.condition,
+            "user": user_data
         }
 
 @app.route("/")
@@ -145,7 +160,11 @@ def items():
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
         data = request.get_json()
-        new_item = Item(title=data['title'], price=data["price"], category=data["category"], description=data["description"], is_sold=data["is_sold"], user_id=data["user_id"])
+        new_item = Item(title=data['title'], description=data["description"], price=data["price"], category=data["category"])
+        if 'user_id' in data:
+            user = User.query.get(data['user_id'])
+            if user:
+                new_item.user = user
         db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201
@@ -159,14 +178,16 @@ def handle_items(item_id):
         return jsonify(item.serialize())
     elif request.method == 'PUT':
         data = request.get_json()
-        if 'name' in data:
+        if 'title' in data:
             item.title = data['title']
+        if 'description' in data:
+            item.description = data['description']
         if 'price' in data:
             item.price = data['price']
         if 'category' in data:
             item.category = data['category']
-        if 'description' in data:
-            item.description = data['description']
+        if 'condition' in data:
+            item.condition = data['condition']
         if 'isSold' in data:
             item.isSold = data['isSold']
         db.session.commit()
@@ -175,9 +196,40 @@ def handle_items(item_id):
         db.session.delete(item)
         db.session.commit()
         return '', 200
-        
+
+@app.route('/items/<int:item_id>/sell', methods=['PUT'])
+def sell_item(item_id):
+    item = Item.query.get(item_id)
+    if item is None:
+        abort(404)
+
+    data = request.get_json()
+    if 'buyer_id' not in data:
+        abort(400, description="buyer_id is required")
+
+    buyer = User.query.get(data['buyer_id'])
+    if buyer is None:
+        abort(404, description="buyer_id is invalid")
+
+    user = User.query.get(item.user_id)
+    # if user is None:
+        # abort(404, description="user_id is invalid")
+    # Felhantering behövs ej för en item kommer alltid att ha en user...?
+
+    item.buyer_id = data['buyer_id']
+    item.is_sold = True
+    user.numSoldItems += 1
+    buyer.numBoughtItems += 1
+    db.session.commit()
+
+    # TODO: Send an email to the buyer
+
+    return jsonify(item.serialize()), 200
+
+
 if __name__ == "__main__":
     with app.app_context():
+        #db.drop_all() # Drop all tables before creating them, to avoid conflicts
         db.create_all()
     app.run(port=5000)
 
