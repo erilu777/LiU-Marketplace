@@ -51,7 +51,8 @@ const routes = [
         category: route.query.category,
         description: route.query.description
       })
-    }
+  },
+  {
     path: '/newad',
     name: 'newad',
     component: NewAdPage
