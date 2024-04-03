@@ -1,5 +1,5 @@
 <template>
-  <div class="buy-page">
+  <div class="page">
     <h1>{{ pageTitle }}</h1>
     <!-- Search Bar -->
     <div class="search-bar">
@@ -73,13 +73,6 @@ export default {
 </script>
 
 <style scoped>
-.page {
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
 .categories {
   display: flex;

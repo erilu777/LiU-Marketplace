@@ -1,9 +1,13 @@
 <template>
-    <div class="page">
+
         <div class="row">
             <div class="profile-container">
                 <div class="row">
                     <img src="../assets/profile.png" alt="LMlogo">
+                </div>
+                <div class="row">
+                    <label for="image" class="file-input-label">Ändra profilbild</label>
+                    <input type="file" id="image" accept="image/*" @change="handleImageUpload" style="display: none;">
                 </div>
                 <div class="row">
                     <h1>Förnamn Efternam</h1>
@@ -11,21 +15,19 @@
                 <div class="row">
                     <h4>email@email.com</h4>
                 </div>
+                <form @submit.prevent="submitForm"></form>
+                    <div class="row">
+                        <input type="text" id="education" v-model="education" placeholder="Utbildning">
+                    </div>
+                    <div class="row">
+                        <input type="text" id="grade" v-model="grade" placeholder="Årskurs">
+                    </div>
                 <div class="row">
-                    <h4>Utbildning</h4>
-                </div>
-                <div class="row">
-                    <h4>Årskurs #</h4>
-                </div>
-                <div class="row">
-                  <button class="edit-button" @click="navigateToEdit">Redigera profil</button>
-                </div>
-                <div class="row">
-                  <button class="h-button" @click="navigateToHistory">Visa nuvarande annonser och historik</button>
+                    <button class="save-button" @click="navigateToProfile">Spara</button>
                 </div>
             </div>
           </div>  
-      </div>
+
   </template>
   
   <script>
@@ -36,12 +38,9 @@
       };
     },
     methods: {
-      navigateToEdit() {
-        this.$router.push('/edit-profile');
-      },
-      navigateToHistory() {
-        this.$router.push('/profile-history');
-      }
+        navigateToProfile() {
+            this.$router.push('/profile');
+        }
     }
   };
   </script>
@@ -74,27 +73,26 @@
     margin-bottom: 5px;
   }
 
-  .edit-button {
+  .save-button{
     display: flex;
     align-items: center;
     background-color: #0c264d;
     padding: 10px;
     height: 40px;
-    color: white;
-    margin-bottom: 10px;
-    text-decoration: none;
-  }
-
-  .h-button {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    height: 40px;
     border-radius: 20px;
-    color: #0c264d;
+    color: white;
     margin-bottom: 60px;
     text-decoration: none;
   }
   
+  .file-input-label {
+    color: #0c264d;
+    border-color: #0c264d;
+    padding: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 2px solid ;
+}
+
   </style>
   
