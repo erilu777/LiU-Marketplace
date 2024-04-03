@@ -11,6 +11,8 @@ import FAQPage from './components/FAQPage.vue';
 import ContactPage from './components/ContactPage.vue';
 import AboutPage from './components/AboutPage.vue';
 import EditAdPage from './components/EditAdPage.vue';
+import LoginPage from './components/LoginPage.vue';
+import LoginLayout from './layouts/login-layout.vue';
 
 const routes = [
   {
@@ -59,6 +61,14 @@ const routes = [
       component: NewAdPage
   },
   {
+    path: '/newad/:category',
+    name: 'newad',
+    component: NewAdPage,
+    props: route => ({
+      buttonText: route.query.buttonText
+    })
+  },
+  {
     path: '/vanliga-fragor',
     name: 'faq',
     component: FAQPage
@@ -78,6 +88,12 @@ const routes = [
     name: 'edit',
     component: EditAdPage
   },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginPage,
+    meta: { layout: LoginLayout}
+  }
 ];
 
 const router = createRouter({

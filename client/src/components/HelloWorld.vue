@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <div class="menu-bar">
+    <div v-if= "auth" class="menu-bar">
       <!-- Update the menu items to use router-link -->
       <div class="menu-bar-left">
         <img src="../assets/LMlogo.png" alt="LMlogo">
@@ -16,7 +16,7 @@
     <!-- Add router-view to display the current page content -->
     <router-view></router-view>
   </div>
-  <footer class="footer">
+  <footer v-if= "auth" class="footer">
     <div class="column">
       <h3><strong>Mer info</strong></h3>
       <ul>
@@ -39,7 +39,12 @@
 export default {
   name: 'HelloWorld',
   props: {
-    msg: String
+    msg: String,
+    auth: {
+      type: Boolean,
+      required: true,
+      default: true
+    }
   }
 }
 </script>

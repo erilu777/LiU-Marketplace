@@ -3,19 +3,19 @@
       <h1>{{ pageTitle }}</h1>
       <div class="button-containter">
         <div class="row">
-            <button @click="navigateToPage(button1Text)">{{ button1Text }}</button>
-            <button @click="navigateToPage(button2Text)">{{ button2Text }}</button>
+            <button @click="navigateToPage(category1)">{{ category1 }}</button>
+            <button @click="navigateToPage(category2)">{{ category2 }}</button>
         </div>
         <div class="row">
-            <button @click="navigateToPage(button3Text)">{{ button3Text }}</button>
-            <button @click="navigateToPage(button4Text)">{{ button4Text }}</button>
+            <button @click="navigateToPage(category3)">{{ category3 }}</button>
+            <button @click="navigateToPage(category4)">{{ category4 }}</button>
         </div>
         <div class="row">
-            <button @click="navigateToPage(button5Text)">{{ button5Text }}</button>
-            <button @click="navigateToPage(button6Text)">{{ button6Text }}</button>
+            <button @click="navigateToPage(category5)">{{ category5 }}</button>
+            <button @click="navigateToPage(category6)">{{ category6 }}</button>
         </div>
         <div class="row">
-            <button class="center-button" @click="navigateToPage(button7Text)">{{ button7Text }}</button>
+            <button class="center-button" @click="navigateToPage(category7)">{{ category7 }}</button>
         </div>
       </div>
     </div>
@@ -26,19 +26,19 @@
     data() {
       return {
         pageTitle: 'Vad vill du sälja?',
-        button1Text: "Cykel",
-        button2Text: "Bok",
-        button3Text: "Biljett",
-        button4Text: "Inredning",
-        button5Text: "Bostad",
-        button6Text: "Verktyg",
-        button7Text: "Övrigt",
+        category1: "Cykel",
+        category2: "Bok",
+        category3: "Biljett",
+        category4: "Inredning",
+        category5: "Bostad",
+        category6: "Verktyg",
+        category7: "Övrigt",
       };
     },
     methods: {
-    navigateToPage(buttonText) {
-        console.log(buttonText)
-        this.$router.push({ name: 'newad', param: { newButtonText: buttonText } });
+    navigateToPage(category) {
+        console.log(category)
+        this.$router.push({ name: 'newad', params: { category: category } });
     }
   }
   };
