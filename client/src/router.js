@@ -10,8 +10,8 @@ import NewAdPage from './components/NewAdPage.vue';
 import FAQPage from './components/FAQPage.vue';
 import ContactPage from './components/ContactPage.vue';
 import AboutPage from './components/AboutPage.vue';
+import EditAdPage from './components/EditAdPage.vue';
 import LoginPage from './components/LoginPage.vue';
-
 import LoginLayout from './layouts/login-layout.vue';
 
 const routes = [
@@ -82,6 +82,11 @@ const routes = [
     path: '/om-oss',
     name: 'about',
     component: AboutPage
+  },
+  {
+    path: '/edit-ad',
+    name: 'edit',
+    component: EditAdPage
   },
   {
     path: '/login',
