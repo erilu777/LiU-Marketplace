@@ -5,6 +5,7 @@ import BuyPage from './components/BuyPage.vue';
 import SellPage from './components/SellPage.vue';
 import ProfilePage from './components/ProfilePage.vue';
 import LogoutPage from './components/LogoutPage.vue';
+import AdsDetails from './components/AdsDetails.vue';
 
 const routes = [
   {
@@ -31,7 +32,22 @@ const routes = [
     path: '/logout',
     name: 'logout',
     component: LogoutPage
-  }
+  },
+  {
+    path: '/ads/:id',
+      name: 'AdsDetails',
+      component: AdsDetails,
+      props: route => ({
+        id: parseInt(route.params.id),
+        imageUrl: route.query.imageUrl,
+        name: route.query.name,
+        price: route.query.price,
+        condition: route.query.condition,
+        location: route.query.location,
+        category: route.query.category,
+        description: route.query.description
+      })
+    }
 ];
 
 const router = createRouter({
