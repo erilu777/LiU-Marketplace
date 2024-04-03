@@ -40,12 +40,17 @@
   
   .ad {
     width: calc(33.33% - 20px); /* Three ads per row */
-    margin-bottom: 20px;
+    margin-bottom:  50px;
     border: 2px solid #ccc;
     border-radius: 15px;
     overflow: hidden;
     background-color: #E7F2F7;
     border-color: #BBD5EA;
+    text-decoration: none;
+  }
+
+  p {
+  color: #102A50;
   }
   
   .ad-image {
