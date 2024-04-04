@@ -1,12 +1,8 @@
-from flask import Flask, request
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import relationship
 from enum import Enum
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import relationship
-
 
 app = Flask(__name__, 
 static_folder='../client', 
@@ -21,20 +17,22 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     liu_id = db.Column(db.String, nullable=False)
-    email = db.Column(db.String)
+    #email = db.Column(db.String)
     program = db.Column(db.String)
     year = db.Column(db.Integer)
     is_admin = db.Column(db.Boolean, default=False)
-    numSoldItems = db.Column(db.Integer, default=0)
-    numBoughtItems = db.Column(db.Integer, default=0)
-    items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
+    num_sold_items = db.Column(db.Integer, default=0)
+    num_bought_items = db.Column(db.Integer, default=0)
+    #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
+    sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
+    bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
 
     @property
     def email(self):
         return self.liu_id + "@student.liu.se"
 
     def __repr__(self):
-        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.numSoldItems} {self.items} {self.numBoughtItems}>"
+        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items}>"
 
     def serialize(self):
         return {
@@ -45,8 +43,8 @@ class User(db.Model):
             "program":self.program,
             "year":self.year,
             "is_admin":self.is_admin,
-            "numSoldItems":self.numSoldItems,
-            "numBoughtItems":self.numBoughtItems
+            "num_sold_items":self.num_sold_items,
+            "num_bought_items":self.num_bought_items
         } 
         
 class Category(Enum):
@@ -59,17 +57,24 @@ class Category(Enum):
     Verktyg = 7
     Övrigt = 8
 
-#    def serialize(self):
-#        return self.name
+    def serialize(self):
+        return {
+            'value': self.value,
+            'name': self.name
+        }
 
 class Condition(Enum):
     Nytt = 1
     Använd_Nyskick = 2
     Använd_Gott_skick = 3
     Använd_Slitet_skick = 4
+    
+    def serialize(self):
+        return {
+            'value': self.value,
+            'name': self.name
+        }
 
-#    def serialize(self):
-#        return self.name
 
 class ItemImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -92,24 +97,26 @@ class Item(db.Model):
     condition = db.Column(db.Enum(Condition), nullable=True)
     is_sold = db.Column(db.Boolean, default=False)
     images = relationship("ItemImage", backref="item")
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    seller_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     def __repr__(self):
-        return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.is_sold} {self.user_id} {self.images} {self.condition}>'
+        return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.condition} {self.is_sold} {self.seller_id} {self.buyer_id} {self.images} >'
 
     def serialize(self):
-        user_data = self.user.serialize() if self.user else None
+        seller_data = self.seller.serialize() if self.seller else None
+        buyer_data = self.buyer.serialize() if self.buyer else None
         return {
             "id":self.id,
             "title": self.title,
             "description":self.description,
             "price":self.price,
-            "category":self.category,
+            "category": self.category.name if self.category else None,
+            "condition":self.condition.name if self.condition else None,
             "is_sold":self.is_sold,
             "images": [image.serialize() for image in self.images],
-            "condition":self.condition,
-            "user": user_data
+            "seller": seller_data,
+            "buyer": buyer_data
         }
 
 @app.route("/")
@@ -127,7 +134,6 @@ def users():
         db.session.add(new_user)
         db.session.commit()
         return jsonify(new_user.serialize()), 201
-
     
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_users(user_id):
@@ -140,8 +146,8 @@ def handle_users(user_id):
         data = request.get_json()
         if 'is_admin' in data:
             user.is_admin = data['is_admin']
-        if 'nmSoldItems' in data:
-            user.nmSoldItems = data['nmSoldItems']
+        if 'num_sold_items' in data:
+            user.num_sold_items = data['num_sold_items']
         if 'year' in data:
             user.year = data['year']
         if 'program' in data:
@@ -160,11 +166,11 @@ def items():
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
         data = request.get_json()
-        new_item = Item(title=data['title'], description=data["description"], price=data["price"], category=data["category"])
-        if 'user_id' in data:
-            user = User.query.get(data['user_id'])
-            if user:
-                new_item.user = user
+        new_item = Item(title=data.get('title'), description=data.get("description"), price=data.get("price"), category=Category[data.get("category")], condition=Condition[data.get("condition")])
+        if 'seller_id' in data:
+            seller = User.query.get(data['seller_id'])
+            if seller:
+                new_item.seller = seller
         db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201
@@ -188,8 +194,8 @@ def handle_items(item_id):
             item.category = data['category']
         if 'condition' in data:
             item.condition = data['condition']
-        if 'isSold' in data:
-            item.isSold = data['isSold']
+        if 'is_sold' in data:
+            item.is_sold = data['is_sold']
         db.session.commit()
         return jsonify(item.serialize()), 200
     elif request.method == 'DELETE':
@@ -211,15 +217,15 @@ def sell_item(item_id):
     if buyer is None:
         abort(404, description="buyer_id is invalid")
 
-    user = User.query.get(item.user_id)
+    seller = User.query.get(item.seller_id)
     # if user is None:
         # abort(404, description="user_id is invalid")
     # Felhantering behövs ej för en item kommer alltid att ha en user...?
 
-    item.buyer_id = data['buyer_id']
+    item.buyer = buyer
     item.is_sold = True
-    user.numSoldItems += 1
-    buyer.numBoughtItems += 1
+    seller.num_sold_items += 1
+    buyer.num_bought_items += 1
     db.session.commit()
 
     # TODO: Send an email to the buyer

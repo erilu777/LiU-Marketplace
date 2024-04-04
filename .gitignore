@@ -1,2 +1,4 @@
 server/venv
 server/instance/database.db
+.DS_Store
+/instance/database.db
