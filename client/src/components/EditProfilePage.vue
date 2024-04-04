@@ -1,5 +1,4 @@
 <template>
-
         <div class="row">
             <div class="profile-container">
                 <div class="row">
@@ -46,6 +45,12 @@
   </script>
   
   <style scoped>
+  .page {
+    padding: 60px;
+    min-height: 100vh;
+    margin: 0 auto;
+  }
+  
   h1 {
     font-weight: bold;
     color: black;
@@ -61,7 +66,7 @@
   }
 
   .profile-container {
-    margin-top: 40px;
+    margin-top: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;

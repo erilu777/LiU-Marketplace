@@ -7,10 +7,14 @@
         <h4>Nuvarande annonser</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
-                <div v-for="(ad, index) in ads" :key="index" class="ad-box">
+                <div v-for="(ad, index) in ads" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseLeave="hideButtons(index)">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
+                    <div class="buttons" v-show="ad.showButtons">
+                      <button @click="editAd(index)">Redigera</button>
+                      <button @click="deleteAd(index)">Ta bort</button>
+                      <button @click="viewAd(index)">Visa</button>
                 </div>
             </div>
         </div>
@@ -21,6 +25,8 @@
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
+                    
+          </div>
                 </div>
             </div>
         </div>
@@ -78,12 +84,22 @@
           // Ladda fler annonser
           this.fetchAds();
         }
+      },
+      showButtons(index) {
+        this.ads[index].showButtons = true;
+      },
+      hideButtons(index) {
+        this.ads[index].showButtons = false;  
       }
-    }
+  }
   };
   </script>
   
   <style>
+  .page {
+    padding: 60px;
+    margin: 0 auto;
+  }
 
   h1,h4 {
     font-weight: bold;
@@ -108,7 +124,6 @@
     padding: 10px;
     border-radius: 20px;
     color: #0c264d;
-    margin-top: 20px;
   }
   
   .ad-box {
@@ -120,5 +135,9 @@
     vertical-align: top; /* Justera vertikalt till toppen av containern */
     padding: 10px;
   }
+
+  .ad-box:hover .buttons {
+  display: block; /* Visa knapparna när annonsen är hovrad */
+}
   </style>
   

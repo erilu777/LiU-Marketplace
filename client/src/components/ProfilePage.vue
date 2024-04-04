@@ -47,6 +47,11 @@
   </script>
   
   <style scoped>
+  .page {
+    min-height: 100vh;
+    margin: 0 auto;
+  }
+
   h1 {
     font-weight: bold;
     color: black;
@@ -62,7 +67,6 @@
   }
 
   .profile-container {
-    margin-top: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;

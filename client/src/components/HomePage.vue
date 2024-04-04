@@ -56,7 +56,12 @@ export default {
 
 <style scoped>
 
-
+.page {
+    padding: 60px;
+    min-height: 100vh;
+    margin: 0 auto;
+  }
+  
 .categories {
   display: flex;
   flex-wrap: wrap;
