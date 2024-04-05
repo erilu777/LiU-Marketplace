@@ -158,7 +158,7 @@ created() {
     margin-left: 300px;
     margin-right: 300px;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 20px
   }
   
   .ad {
