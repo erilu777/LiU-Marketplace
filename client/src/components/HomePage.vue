@@ -1,6 +1,5 @@
 <template>
   <div class="page">
-    <h1>{{ pageTitle }}</h1>
     <!-- Search Bar -->
     <div class="search-bar">
       <input type="search" v-model="searchTerm" placeholder="&#128269;" class="search-input">
@@ -27,7 +26,6 @@ export default {
   },
   data() {
     return {
-      pageTitle: '',
       searchTerm: '',
       categories: [
         { id: 1, name: 'Cyklar' },
@@ -134,16 +132,17 @@ created() {
 .ads {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 30px;
     max-width: 100%;
     margin-left: 300px;
     margin-right: 300px;
     margin-top: 20px;
+    margin-bottom: 20px
   }
   
   .ad {
     width: calc(33.33% - 20px); /* Three ads per row */
-    margin-bottom:  50px;
     border: 2px solid #ccc;
     border-radius: 15px;
     overflow: hidden;
@@ -151,7 +150,7 @@ created() {
     border-color: #BBD5EA;
     text-decoration: none;
   }
-
+  
   p {
   color: #102A50;
   }
@@ -182,4 +181,6 @@ created() {
     text-align: left;
   }
 
+
+  
 </style>

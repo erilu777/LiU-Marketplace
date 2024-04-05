@@ -55,6 +55,20 @@ export default {
       // Navigate back to the all ads page
       this.$router.push({ name: 'buy' });
      },
+     contactSeller() {
+      // Replace 'seller@example.com' with the actual email address of the seller
+      const sellerEmail = 'seller@example.com';
+      const subject = 'Angående annons: ' + this.name; // Subject line for the email
+      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.name + '".\n\nMed vänliga hälsningar,'; // Body of the email
+
+      // Generate the mailto link with the seller's email, subject, and body
+      const mailtoLink = 'mailto:' + encodeURIComponent(sellerEmail) +
+                        '?subject=' + encodeURIComponent(subject) +
+                        '&body=' + encodeURIComponent(body);
+
+      // Open the email client with the pre-filled email
+      window.location.href = mailtoLink;
+    }
     }
 };
 </script>
