@@ -15,8 +15,6 @@ import LoginPage from './components/LoginPage.vue';
 import HistoryPage from './components/HistoryPage.vue';
 import EditProfilePage from './components/EditProfilePage.vue';
 
-import LoginLayout from './layouts/login-layout.vue';
-
 const routes = [
   {
     path: '/',
@@ -94,8 +92,7 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginPage,
-    meta: { layout: LoginLayout}
+    component: LoginPage
   },
   {
     path: '/profile-history',

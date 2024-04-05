@@ -7,14 +7,15 @@
         <h4>Nuvarande annonser</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
-                <div v-for="(ad, index) in ads" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseLeave="hideButtons(index)">
+                <div v-for="(ad, index) in ads" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseleave="hideButtons(index)">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
                     <div class="buttons" v-show="ad.showButtons">
-                      <button @click="editAd(index)">Redigera</button>
-                      <button @click="deleteAd(index)">Ta bort</button>
-                      <button @click="viewAd(index)">Visa</button>
+                      <button class="small-button" @click="editAd(index)">Redigera</button>
+                      <button class="small-button" @click="deleteAd(index)">Ta bort</button>
+                      <button class="small-button" @click="soldAd(index)">Såld</button>
+                      <!-- TODO: Göra popup där man måste skriva in vilken användare som har köpt varan -->
                 </div>
             </div>
         </div>
@@ -25,10 +26,9 @@
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
-                    
-          </div>
                 </div>
             </div>
+        </div>
         </div>
         <h4>Köpta varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
@@ -90,7 +90,18 @@
       },
       hideButtons(index) {
         this.ads[index].showButtons = false;  
-      }
+      },
+      editAd() {
+        this.$router.push('/edit-ad');
+      },
+    // deleteAd(index) {
+        //backend ta bort annons
+   //   },
+    //  soldAd(index) {
+
+    //  }
+
+
   }
   };
   </script>
@@ -124,6 +135,13 @@
     padding: 10px;
     border-radius: 20px;
     color: #0c264d;
+  }
+
+  .small-button {
+    font-size: small;
+    padding: 3px;
+    margin-left: 2px;
+    margin-right: 2px;
   }
   
   .ad-box {
