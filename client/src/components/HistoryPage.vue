@@ -20,6 +20,7 @@
             </div>
         </div>
         </div>
+        
         <h4>Sålda varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">

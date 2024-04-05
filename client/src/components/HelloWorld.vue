@@ -60,6 +60,7 @@ export default {
 }
 
 .menu-bar {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;

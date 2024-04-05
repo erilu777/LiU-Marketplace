@@ -67,7 +67,7 @@
   .row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    
   }
 
   button {
@@ -77,6 +77,8 @@
     width: 47%;
     height: 60px;
     border-radius: 20px;
+    min-width: 180px;
+    margin-bottom: 20px;
   }
 
   .center-button {
