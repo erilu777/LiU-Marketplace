@@ -19,6 +19,7 @@
                 </div>
             </div>
         </div>
+        </div>
         <h4>Sålda varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
@@ -29,7 +30,7 @@
                 </div>
             </div>
         </div>
-        </div>
+        
         <h4>Köpta varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
@@ -41,6 +42,7 @@
             </div>
         </div>
     </div>
+
     
   </template>
   
