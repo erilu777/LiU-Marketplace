@@ -137,11 +137,12 @@ created() {
     max-width: 100%;
     margin-left: 300px;
     margin-right: 300px;
+    margin-top: 20px;
+    margin-bottom: 20px
   }
   
   .ad {
     width: calc(33.33% - 20px); /* Three ads per row */
-    margin-bottom:  50px;
     border: 2px solid #ccc;
     border-radius: 15px;
     overflow: hidden;
@@ -149,7 +150,7 @@ created() {
     border-color: #BBD5EA;
     text-decoration: none;
   }
-
+  
   p {
   color: #102A50;
   }
