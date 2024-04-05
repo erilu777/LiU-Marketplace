@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import relationship
 from enum import Enum
+from flask_cors import CORS
 
 app = Flask(__name__, 
 static_folder='../client', 
@@ -10,6 +11,7 @@ static_url_path='/')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+CORS(app)
 ##jwt = JWTManager(app)
 
 class User(db.Model):
