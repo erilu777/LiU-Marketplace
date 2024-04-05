@@ -8,10 +8,14 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^3.2.0",
     "@vue/cli": "^5.0.8",
     "bootstrap": "^5.3.3",
     "core-js": "^3.8.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "jquery": "^3.7.1",
+    "stripe": "^14.24.0",
     "vue": "^3.2.13",
     "vue-router": "^4.3.0"
   },

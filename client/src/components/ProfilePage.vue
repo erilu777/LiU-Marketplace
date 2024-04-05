@@ -6,7 +6,7 @@
                     <img src="../assets/profile.png" alt="LMlogo">
                 </div>
                 <div class="row">
-                    <h1>Förnamn Efternam</h1>
+                    <h2>Förnamn Efternam</h2>
                 </div>
                 <div class="row">
                     <h4>email@email.com</h4>
@@ -48,11 +48,11 @@
   
   <style scoped>
   .page {
-    min-height: 100vh;
+    min-height: 80vh;
     margin: 0 auto;
   }
 
-  h1 {
+  h2 {
     font-weight: bold;
     color: black;
   }
@@ -85,7 +85,8 @@
     padding: 10px;
     height: 40px;
     color: white;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
+    margin-top: 7px;
     text-decoration: none;
   }
 
@@ -94,9 +95,7 @@
     align-items: center;
     padding: 10px;
     height: 40px;
-    border-radius: 20px;
     color: #0c264d;
-    margin-bottom: 60px;
     text-decoration: none;
   }
   

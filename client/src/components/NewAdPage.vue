@@ -31,7 +31,7 @@
             <div class="row">
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
-            <button type="submit" @click="navigateToHome">Lägg upp annons</button>
+            <button type="submit" @click="navigateToPay">Gå till betalning</button>
         </form>
       </div>
     </div>
@@ -57,8 +57,8 @@
       const file = event.target.files[0];
       this.image = file;
     },
-    navigateToHome() {
-      this.$router.push('/');
+    navigateToPay() {
+      this.$router.push('/payment');
     }
   }
   };
@@ -67,7 +67,7 @@
 <style scoped>
 .page {
     padding: 60px;
-    min-height: 100vh;
+    min-height: 80vh;
     margin: 0 auto;
   }
 
