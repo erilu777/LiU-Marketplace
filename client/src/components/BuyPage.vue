@@ -94,6 +94,7 @@ created() {
 <style scoped>
 
 .categories {
+  
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -103,6 +104,7 @@ created() {
 }
 
 .category {
+  min-width: 100px;
   display: flex;
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
@@ -141,7 +143,7 @@ created() {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
-  margin-right: 350px;
+  margin-right: 20%;
 }
 
 .sort-by select {
@@ -154,14 +156,15 @@ created() {
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 30px;
-    max-width: 100%;
-    margin-left: 300px;
-    margin-right: 300px;
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 20px;
     margin-bottom: 20px
   }
   
   .ad {
+    min-width: 200px;
     width: calc(33.33% - 20px); /* Three ads per row */
     border: 2px solid #ccc;
     border-radius: 15px;
@@ -181,6 +184,7 @@ created() {
     padding: 10px;
     align-items: center;
     max-width: 100%;
+    margin-top: 10px;
   }
   
   .ad-details {
