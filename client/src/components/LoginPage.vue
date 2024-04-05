@@ -5,7 +5,13 @@
             <h3>Logga in</h3>
             <button>Logga in med SSO via LiU</button>
         </div>
-        <img src="../assets/LMlogo.png" alt="LMlogo">
+          <input type="text" v-model="username" placeholder="Användarnamn">
+          <input type="password" v-model="password" placeholder="Lösenord">
+          <button @click="login">Logga in</button>
+          <div>
+            <img src="../assets/LMlogo.png" alt="LMlogo">
+          </div>
+        
     </div>
 </template>
   

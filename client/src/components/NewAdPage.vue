@@ -31,7 +31,7 @@
             <div class="row">
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
-            <button type="submit">Lägg upp annons</button>
+            <button type="submit" @click="navigateToHome">Lägg upp annons</button>
         </form>
       </div>
     </div>
@@ -56,6 +56,9 @@
     handleImageUpload(event) {
       const file = event.target.files[0];
       this.image = file;
+    },
+    navigateToHome() {
+      this.$router.push('/');
     }
   }
   };

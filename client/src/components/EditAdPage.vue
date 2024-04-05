@@ -32,7 +32,7 @@
             <div class="row">
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
-            <button type="submit">Publicera ändringar</button>
+            <button type="submit" @click="navigateToHistory">Publicera ändringar</button>
         </form>
       </div>
     </div>
@@ -59,6 +59,9 @@
     handleImageUpload(event) {
       const file = event.target.files[0];
       this.image = file;
+    },
+    navigateToHistory() {
+      this.$router.push('/profile-history')
     }
   }
 };
