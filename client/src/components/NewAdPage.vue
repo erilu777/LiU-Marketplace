@@ -31,7 +31,7 @@
             <div class="row">
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
-            <button type="submit">Lägg upp annons</button>
+            <button type="submit" @click="navigateToPay">Gå till betalning</button>
         </form>
       </div>
     </div>
@@ -78,7 +78,11 @@ import axios from 'axios';
     },
     navigateToHome() {
       this.$router.push('/');
+    },
+    navigateToPay() {
+      this.$router.push('/payment');
     }
+
   }
   };
   </script>
