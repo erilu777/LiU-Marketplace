@@ -2,11 +2,9 @@ from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 
 app = Flask(__name__, 
 static_folder='../client', 
@@ -15,13 +13,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your_very_complex_string_here'
 db = SQLAlchemy(app)
+CORS(app)
+##jwt = JWTManager(app)
+
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-
-@app.route("/")
-def client():
-  return app.send_static_file("client.html")
 
 class User(db.Model):
 

@@ -26,8 +26,8 @@
     data() {
       return {
         pageTitle: 'Vad vill du sälja?',
-        category1: "Cykel",
-        category2: "Bok",
+        category1: "Cyklar",
+        category2: "Böcker",
         category3: "Biljett",
         category4: "Inredning",
         category5: "Bostad",

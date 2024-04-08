@@ -2,9 +2,9 @@
     <div class="page">
       <h1>Försäljning av {{ category }}</h1>
       <div class="container">
-        <form @submit.prevent="submitForm">
+        <form @submit.prevent="addItem">
             <div class="row">
-                <input type="text" id="titel" v-model="titel" placeholder="Titel" class="ctrph">
+                <input type="text" id="title" v-model="title" placeholder="Titel" class="ctrph">
             </div>
             <div class="row">
                 <textarea id="description" v-model="description" placeholder="Beskrivning" class="ctrph"></textarea>
@@ -22,10 +22,10 @@
             <div class="row">
                 <select id="condition" v-model="condition">
                     <option value="" disabled selected>Skick</option>
-                    <option value="new">Nytt</option>
-                    <option value="usednew">Använd - nyskick</option>
-                    <option value="usedok">Använd - gott skick</option>
-                    <option value="used">Använd - använt skick</option>
+                    <option value="Nytt">Nytt</option>
+                    <option value="Använd_Nyskick">Använd - nyskick</option>
+                    <option value="Använd_Gott_skick">Använd - gott skick</option>
+                    <option value="Använd_Slitet_skick">Använd - använt skick</option>
                 </select>
             </div>
             <div class="row">
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import axios from 'axios';
   export default {
   data() {
     return {
@@ -53,13 +54,35 @@
     submitForm() {
       console.log('Formulärdata:', this.name, this.image);
     },
+    addItem() {
+      const data = {
+      "category": this.category,
+      "title": this.title,
+      "description": this.description,
+      "price": this.price,
+      "condition": this.condition,
+      "seller_id": 1
+    };
+      axios.post('http://localhost:5000/items', data)
+        .then(response => {
+          console.log('Svar från server:', response);
+          this.navigateToHome();
+        })
+        .catch(error => {
+          console.error('Fel vid kommunikation med server:', error);
+        });
+    },
     handleImageUpload(event) {
       const file = event.target.files[0];
       this.image = file;
     },
+    navigateToHome() {
+      this.$router.push('/');
+    },
     navigateToPay() {
       this.$router.push('/payment');
     }
+
   }
   };
   </script>
