@@ -31,8 +31,8 @@
             <div class="row">
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
-            <button type="submit" @click="navigateToPay">Gå till betalning</button>
-            <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
+            <!--<button type="submit">Gå till betalning</button>-->
+            <button type="submit" @click="navigateToPay">Gå till betalning</button>-->
         </form>
       </div>
     </div>
@@ -63,7 +63,7 @@ import axios from 'axios';
     "description": this.description,
     "price": this.price,
     "condition": this.condition,
-    "seller_id": 1
+    //"seller_id": 1
   };
 
   axios.post('http://localhost:5000/items', data, {
@@ -86,6 +86,7 @@ import axios from 'axios';
       this.$router.push('/');
     },
     navigateToPay() {
+      this.addItem();
       this.$router.push('/payment');
     }
 
