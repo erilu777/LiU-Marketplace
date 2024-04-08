@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <router-link to="/profile" v-slot="{ navigate }">
-            <button @click="navigate">Tillbaka till min profil</button>
+            <button @click="navigate">Till din profil</button>
         </router-link>
         <h1>Min köphistorik</h1>
         <h4>Nuvarande annonser</h4>
@@ -14,11 +14,29 @@
                     <div class="buttons" v-show="ad.showButtons">
                       <button class="small-button" @click="editAd(index)">Redigera</button>
                       <button class="small-button" @click="deleteAd(index)">Ta bort</button>
-                      <button class="small-button" @click="soldAd(index)">Såld</button>
-                      <!-- TODO: Göra popup där man måste skriva in vilken användare som har köpt varan -->
+                      <button class="small-button" @click="showModal">Såld</button>
+                        <div class="modal" :class="{ 'is-active': isModalActive }">
+                          <div class="modal-background" @click="closeModal"></div>
+                          <div class="modal-content">
+                            <div class="box">
+                              <p>Vem har du sålt varan till?</p>
+                              <!-- Input för att ange köpare -->
+                              <input type="text" v-model="buyer" placeholder="Köparens LiU-id">
+                              <!-- Knapp för att bekräfta försäljningen -->
+                              <button @click="confirmSale">Bekräfta försäljning</button>
+                              <div>
+                                <p class="h-button" @click="closeModal">Gå tillbaka</p>
+                              </div>
+                              
+                            </div>
+                          </div>
+                            
+                          </div>
                 </div>
             </div>
         </div>
+        </div>
+        
         <h4>Sålda varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
@@ -29,7 +47,7 @@
                 </div>
             </div>
         </div>
-        </div>
+        
         <h4>Köpta varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
@@ -41,6 +59,7 @@
             </div>
         </div>
     </div>
+
     
   </template>
   
@@ -49,7 +68,8 @@
     data() {
       return {
         ads: [], // Array för att lagra annonser
-        isLoading: false // Flagga för att visa om nya annonser laddas
+        isLoading: false, // Flagga för att visa om nya annonser laddas
+        isModalActive: false
       };
     },
     mounted() {
@@ -94,6 +114,20 @@
       editAd() {
         this.$router.push('/edit-ad');
       },
+      showModal() {
+        this.isModalActive = true;
+      },
+      closeModal() {
+        this.isModalActive = false;
+      },
+      confirmSale() {
+      // Här kan du lägga till logik för att bekräfta försäljningen
+      console.log('Varan såld till:', this.buyer);
+      // Exempel: Skicka data till backend för att uppdatera försäljningsinformationen
+      // Återställ buyer och stäng modal efter bekräftelsen
+      this.buyer = '';
+      this.closeModal();
+    }
     // deleteAd(index) {
         //backend ta bort annons
    //   },
@@ -118,6 +152,14 @@
     margin-top: 40px;
   }
 
+  .h-button:hover {
+    cursor: pointer;
+  }
+
+  .h-button {
+    margin-top: 10px;
+  }
+
   .container {
     width: 100%;
     overflow-x: auto; /* Tillåt horisontell scrollning */
@@ -135,6 +177,7 @@
     padding: 10px;
     border-radius: 20px;
     color: #0c264d;
+    margin-left: 10px;
   }
 
   .small-button {
@@ -156,6 +199,37 @@
 
   .ad-box:hover .buttons {
   display: block; /* Visa knapparna när annonsen är hovrad */
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.is-active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
 }
   </style>
   

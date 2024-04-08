@@ -90,7 +90,7 @@ import axios from 'axios';
 <style scoped>
 .page {
     padding: 60px;
-    min-height: 100vh;
+    min-height: 80vh;
     margin: 0 auto;
   }
 

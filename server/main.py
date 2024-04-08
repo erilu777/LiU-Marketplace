@@ -11,6 +11,7 @@ static_folder='../client',
 static_url_path='/')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'your_very_complex_string_here'
 db = SQLAlchemy(app)
 CORS(app)
 ##jwt = JWTManager(app)
@@ -33,6 +34,7 @@ class User(db.Model):
     #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
     sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
     bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
+    password_hash = db.Column(db.String, nullable=False)
 
     @property
     def email(self):
@@ -53,6 +55,10 @@ class User(db.Model):
             "num_sold_items":self.num_sold_items,
             "num_bought_items":self.num_bought_items
         } 
+    
+    def set_password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
+
         
 class Category(Enum):
     Cyklar = 1
@@ -126,11 +132,9 @@ class Item(db.Model):
             "buyer": buyer_data
         }
 
-@app.route("/")
-def client():
-  return app.send_static_file("client.html")
 
 @app.route('/users', methods=['GET', 'POST'])
+@jwt_required()
 def users():
     if request.method == 'GET':
         all_users = User.query.all()
@@ -143,6 +147,7 @@ def users():
         return jsonify(new_user.serialize()), 201
     
 @app.route('/users/<int:user_id>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
 def handle_users(user_id):
     user = User.query.get(user_id)
     if user is None:
@@ -167,6 +172,7 @@ def handle_users(user_id):
         return '', 200
     
 @app.route('/items', methods=['GET', 'POST'])
+@jwt_required()
 def items():
     if request.method == 'GET':
         all_items = Item.query.all()
@@ -183,6 +189,7 @@ def items():
         return jsonify(new_item.serialize()), 201
     
 @app.route('/items/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
 def handle_items(item_id):
     item = Item.query.get(item_id)
     if item is None:
@@ -211,6 +218,7 @@ def handle_items(item_id):
         return '', 200
 
 @app.route('/items/<int:item_id>/sell', methods=['PUT'])
+@jwt_required()
 def sell_item(item_id):
     item = Item.query.get(item_id)
     if item is None:
@@ -238,6 +246,32 @@ def sell_item(item_id):
     # TODO: Send an email to the buyer
 
     return jsonify(item.serialize()), 200
+
+
+@app.route('/sign-up', methods=['POST'])
+def signup():
+    data = request.get_json()
+    new_user = User(liu_id=data['liu_id'])
+    password = data['password']
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'User created successfully'}), 201
+
+
+@app.route('/login', methods = ['POST'])
+def login():
+    data = request.get_json()
+    if not data or not data.get('liu_id') or not data.get('password'):
+        return jsonify({'msg': 'Missing liu_id or password'}), 400
+    
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+
+    if user and bcrypt.check_password_hash(user.password_hash, data['password']):
+        access_token = create_access_token(identity=user.id)
+        return jsonify({"token": access_token, "user": user.serialize()}), 200    
+    else:
+        return jsonify({'msg': 'Invalid email or password'}), 401
 
 
 if __name__ == "__main__":
