@@ -2,8 +2,14 @@ import axios from 'axios';
 
 export async function fetchAdsData() {
   try {
-    const response = await axios.get('http://localhost:5000/items');
-    console.log(response.data);
+    const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
+    console.log('Token:', token); // Log the value of the token
+
+    const response = await axios.get('http://localhost:5000/items', {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
     return response.data;
   } catch (error) {
     console.error(error);
