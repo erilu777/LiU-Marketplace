@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import * as ads from '@/components/AdsItems.js';
+import {fetchAdsData} from '@/components/AdsItems.js';
 
 export default {
   components: {
@@ -60,18 +60,20 @@ export default {
       ],
       selectedCategories: [],
       filteredItems: [],
+      items: [],
     };
-},
-watch: {
-  searchTerm: function () {
-    this.filteredItems = ads.adsData.filter((ad) =>
-      ad.category && ad.category.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
   },
-},
-created() {
-  this.filteredItems = ads.adsData
-},
+  async mounted() {
+    this.items = await fetchAdsData();
+    this.filteredItems = this.items;
+  },
+  watch: {
+    searchTerm: function () {
+      this.filteredItems = this.items.filter((item) =>
+        item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    },
+  },
   methods: {
     toggleCategory(categoryId) {
       const index = this.selectedCategories.indexOf(categoryId);

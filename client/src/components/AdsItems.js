@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-export let adsData = [];
-
-axios.get('http://localhost:5000/items')  // replace with your Flask server URL
-  .then(response => {
-    adsData = response.data;
-    console.log(adsData);
-  })
-  .catch(error => console.error(error));
+export async function fetchAdsData() {
+  try {
+    const response = await axios.get('http://localhost:5000/items');
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
