@@ -16,10 +16,41 @@
 </template>
   
   <script>
+  import axios from 'axios';
+  
   export default{
     name: 'LoginPage',
-    layout: 'LoginLayout'
+    layout: 'LoginLayout',
+    
+    data() {
+      return {
+        liu_id: '',
+        password: '',
+      };
+    },
+  
+    methods: {
+      async login() {
+      try {
+       const response = await axios.post("http://localhost:5000/login",{
+         liu_id: this.username,
+         password: this.password
+       });
+      if (response.data) {
+        sessionStorage.setItem('auth', JSON.stringify(response.data));
+        sessionStorage.setItem('is_admin', response.data.is_admin);
+        alert("Inloggad");
+        console.log(response.data);
+      } else {
+        alert("Fel användarnamn eller lösenord.");
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
+  },
+  };
   </script>
   
   <style scoped>

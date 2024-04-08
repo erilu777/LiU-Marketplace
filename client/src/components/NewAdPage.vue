@@ -32,6 +32,7 @@
                 <input type="file" id="image" accept="image/*" @change="handleImageUpload">
             </div>
             <button type="submit" @click="navigateToPay">Gå till betalning</button>
+            <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
         </form>
       </div>
     </div>
@@ -51,27 +52,32 @@ import axios from 'axios';
     this.category = this.$route.params.category;
   },
   methods: {
-    submitForm() {
-      console.log('Formulärdata:', this.name, this.image);
-    },
+    
     addItem() {
-      const data = {
-      "category": this.category,
-      "title": this.title,
-      "description": this.description,
-      "price": this.price,
-      "condition": this.condition,
-      "seller_id": 1
-    };
-      axios.post('http://localhost:5000/items', data)
-        .then(response => {
-          console.log('Svar från server:', response);
-          this.navigateToHome();
-        })
-        .catch(error => {
-          console.error('Fel vid kommunikation med server:', error);
-        });
-    },
+  const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
+  console.log('Token:', token); // Log the value of the token
+
+  const data = {
+    "category": this.category,
+    "title": this.title,
+    "description": this.description,
+    "price": this.price,
+    "condition": this.condition,
+    "seller_id": 1
+  };
+
+  axios.post('http://localhost:5000/items', data, {
+    headers: {
+        "Authorization": "Bearer " + token
+      }
+  })
+  .then(response => {
+    console.log('Response:', response);
+  })
+  .catch(error => {
+    console.log('Error:', error);
+  });
+},
     handleImageUpload(event) {
       const file = event.target.files[0];
       this.image = file;
