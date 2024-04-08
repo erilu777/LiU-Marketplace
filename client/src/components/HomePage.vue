@@ -134,14 +134,15 @@ created() {
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 30px;
-    max-width: 100%;
-    margin-left: 300px;
-    margin-right: 300px;
+    max-width: 70%;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 20px;
     margin-bottom: 20px
   }
   
   .ad {
+    min-width: 200px;
     width: calc(33.33% - 20px); /* Three ads per row */
     border: 2px solid #ccc;
     border-radius: 15px;
@@ -150,7 +151,7 @@ created() {
     border-color: #BBD5EA;
     text-decoration: none;
   }
-  
+
   p {
   color: #102A50;
   }
@@ -161,6 +162,7 @@ created() {
     padding: 10px;
     align-items: center;
     max-width: 100%;
+    margin-top: 10px;
   }
   
   .ad-details {
@@ -180,7 +182,6 @@ created() {
     margin: 0;
     text-align: left;
   }
-
 
   
 </style>
