@@ -19,6 +19,7 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+#det här är ändringar!
 
 class User(db.Model):
 
@@ -35,6 +36,7 @@ class User(db.Model):
     sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
     bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
     password_hash = db.Column(db.String, nullable=False)
+
 
     @property
     def email(self):
@@ -88,6 +90,15 @@ class Condition(Enum):
             'name': self.name
         }
 
+class Area(Enum):
+    Linköping = 1
+    Norrköping = 2
+
+    def serialize(self):
+        return {
+            'value': self.value,
+            'name': self.name
+        }
 
 class ItemImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,9 +123,10 @@ class Item(db.Model):
     images = relationship("ItemImage", backref="item")
     seller_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    area = db.Column(db.Enum(Area), nullable=True)
 
     def __repr__(self):
-        return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.condition} {self.is_sold} {self.seller_id} {self.buyer_id} {self.images} >'
+        return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.condition} {self.is_sold} {self.seller_id} {self.buyer_id} {self.images} {self.area} >'
 
     def serialize(self):
         seller_data = self.seller.serialize() if self.seller else None
@@ -129,7 +141,8 @@ class Item(db.Model):
             "is_sold":self.is_sold,
             "images": [image.serialize() for image in self.images],
             "seller": seller_data,
-            "buyer": buyer_data
+            "buyer": buyer_data,
+            "area": self.area.name if self.area else None
         }
 
 
@@ -179,11 +192,16 @@ def items():
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
         data = request.get_json()
-        new_item = Item(title=data.get('title'), description=data.get("description"), price=data.get("price"), category=Category[data.get("category")], condition=Condition[data.get("condition")])
-        if 'seller_id' in data:
-            seller = User.query.get(data['seller_id'])
-            if seller:
-                new_item.seller = seller
+        new_item = Item(title=data.get('title'), description=data.get("description"), price=data.get("price"), category=Category[data.get("category")], condition=Condition[data.get("condition")], area=Area[data.get("area")])
+        #if 'seller_id' in data:
+            #seller = User.query.get(data['seller_id'])
+            #if seller:
+                #new_item.seller = seller
+        new_item.seller_id = get_jwt_identity()
+        if 'images' in data:
+            for image in data['images']:
+                new_image = ItemImage(image_path=image)
+                new_item.images.append(new_image)
         db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201
@@ -208,6 +226,8 @@ def handle_items(item_id):
             item.category = data['category']
         if 'condition' in data:
             item.condition = data['condition']
+        if 'area' in data:
+            item.area = data['area']
         if 'is_sold' in data:
             item.is_sold = data['is_sold']
         db.session.commit()
