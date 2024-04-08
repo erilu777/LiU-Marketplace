@@ -15,6 +15,10 @@ db = SQLAlchemy(app)
 CORS(app)
 ##jwt = JWTManager(app)
 
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
+
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
