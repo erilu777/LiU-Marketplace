@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'; // Importera nödvändiga funktioner från vue-router
+import { createRouter, createWebHashHistory } from 'vue-router'; // Importera nödvändiga funktioner från vue-router
 
 import HomePage from './components/HomePage.vue';
 import BuyPage from './components/BuyPage.vue';
@@ -119,7 +119,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
   scrollBehavior() {
     return{ top: 0} ;
