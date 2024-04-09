@@ -66,7 +66,7 @@ import axios from 'axios';
     //"seller_id": 1
   };
 
-  axios.post('http://localhost:5000/items', data, {
+  axios.post('/items', data, {
     headers: {
         "Authorization": "Bearer " + token
       }
