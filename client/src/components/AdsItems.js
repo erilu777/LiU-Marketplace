@@ -5,7 +5,7 @@ export async function fetchAdsData() {
     const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
     console.log('Token:', token); // Log the value of the token
 
-    const response = await axios.get('http://localhost:5000/items', {
+    const response = await axios.get('/items', {
       headers: {
         "Authorization": "Bearer " + token
       }

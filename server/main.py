@@ -7,14 +7,13 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 
 app = Flask(__name__, 
-static_folder='../client', 
+static_folder='../client/dist', 
 static_url_path='/')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your_very_complex_string_here'
 db = SQLAlchemy(app)
 CORS(app)
-##jwt = JWTManager(app)
 
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
@@ -145,6 +144,10 @@ class Item(db.Model):
             "area": self.area.name if self.area else None
         }
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return app.send_static_file('index.html')
 
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
@@ -279,7 +282,7 @@ def signup():
     return jsonify({'message': 'User created successfully'}), 201
 
 
-@app.route('/login', methods = ['POST'])
+@app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
     data = request.get_json()
     if not data or not data.get('liu_id') or not data.get('password'):
