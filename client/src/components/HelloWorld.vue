@@ -7,6 +7,7 @@
         <router-link to="/" active-class="active-link">LiU Marketplace</router-link>
         <router-link to="/buy" active-class="active-link">Köpa</router-link>
         <router-link to="/sell" active-class="active-link">Sälja</router-link>
+        <router-link to="/login" active-class="active-link">Logga In</router-link>
       </div>
       <div class="menu-bar-right">
         <router-link to="/profile" active-class="active-link">Min Profil</router-link>

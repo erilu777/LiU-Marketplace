@@ -32,9 +32,11 @@
     methods: {
       async login() {
       try {
-       const response = await axios.post("http://localhost:5000/login",{
+       const response = await axios.post("/login",{
          liu_id: this.username,
          password: this.password
+       }, {
+          withCredentials: true
        });
       if (response.data) {
         sessionStorage.setItem('auth', JSON.stringify(response.data));
