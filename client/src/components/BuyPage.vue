@@ -47,6 +47,7 @@ export default {
   data() {
     return {
       searchTerm: '',
+      sortBy: '',
       categories: [
         { id: 1, name: 'Cyklar' },
         { id: 2, name: 'Böcker' },
@@ -71,6 +72,11 @@ export default {
         item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     },
+    sortBy(newVal) {
+      if (newVal === 'price'){
+        this.sortByPrice();
+      }
+    }
   },
   methods: {
     toggleCategory(categoryId) {
@@ -88,6 +94,9 @@ export default {
     },
     clearSearch() {
       this.searchTerm = ''; // Clear the search term
+    },
+    sortByPrice() {
+      this.items.sort((a, b) => a.price - b.price);
     }
   }
 };
