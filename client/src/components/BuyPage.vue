@@ -4,57 +4,62 @@
     <div class="search-bar">
       <input type="search" v-model="searchTerm" placeholder="&#128269;" class="search-input">
     </div>
-    
+
     <!-- Categories -->
     <div class="categories">
-      <div v-for="category in categories" :key="category.id" 
-          :class="{ 'selected': isSelected(category.id), 'selected-text': isSelected(category.id) }" 
-          @click="toggleCategory(category.id)" 
-          class="category">
+      <div v-for="category in categories" :key="category.id"
+        :class="{ 'selected': isSelected(category.id), 'selected-text': isSelected(category.id) }"
+        @click="toggleCategory(category.id)" class="category">
         <h2 class="category-name">{{ category.name }}</h2>
       </div>
     </div>
-    
+
     <!--Sort By-->
-    <div class="sort-by" @change="sortByLocation">
+    <div class="sort-by">
       <span>Välj område:</span>
-      <select v-model="choose">
+      <select v-model="choose" @change="sortByArea">
+        <option value="alla">Alla områden</option>
         <option value="linkoping">Linköping</option>
         <option value="norrkoping">Norrköping</option>
       </select>
       <span>Sortera efter:</span>
-      <select v-model="sortBy">
-        <option value="latest">Senast tillagd</option>
+      <select v-model="sortBy" @change="handleSort">
+        <option disabled value="">Sortera efter</option>
         <option value="price">Lägst pris</option>
+        <option value="latest">Senaste</option>
       </select>
-      
     </div>
 
 
-<div class="ads">
-  <router-link v-for="ad in filteredItems" :key="ad.id" :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description }}" class="ad">
-    <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
-    <div class="ad-details">
-    <h3 class="ad-title">{{ ad.title }}</h3>
-    <p class="ad-price">{{ ad.price }} kr</p>
-    <p class="ad-area">{{ ad.area }}</p>
+
+
+    <div class="ads">
+      <router-link v-for="ad in filteredItems" :key="ad.id"
+        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description } }"
+        class="ad">
+        <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
+        <div class="ad-details">
+          <h3 class="ad-title">{{ ad.title }}</h3>
+          <p class="ad-price">{{ ad.price }} kr</p>
+          <p class="ad-area">{{ ad.area }}</p>
+        </div>
+      </router-link>
     </div>
-  </router-link>
-</div>
-</div>
+  </div>
 </template>
 
 <script>
-import {fetchAdsData} from '@/components/AdsItems.js';
+import { fetchAdsData } from '@/components/AdsItems.js';
 
 export default {
   components: {
-    
+
   },
   data() {
     return {
       searchTerm: '',
       sortBy: '',
+      choose: 'alla',
       categories: [
         { id: 1, name: 'Cyklar' },
         { id: 2, name: 'Böcker' },
@@ -72,20 +77,16 @@ export default {
   async mounted() {
     this.items = await fetchAdsData();
     this.filteredItems = this.items;
+    this.items.forEach(item => {
+      console.log('Item area:', item.area);
+    });
   },
   watch: {
     searchTerm: function () {
       this.filteredItems = this.items.filter((item) =>
         item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
-  },
-    sortBy(newVal) {
-      if (newVal === 'price') {
-        this.sortByPrice();
-      } else if (newVal === 'latest') {
-        this.sortByDate();
-    }
-  }
+    },
   },
   methods: {
     toggleCategory(categoryId) {
@@ -110,17 +111,35 @@ export default {
     sortByDate() {
       this.items.sort((a, b) => b.id - a.id);
     },
-    sortByLocation() {
-    this.filteredItems = this.items.filter(item => item.location.includes('Norrköping') || item.location.includes('Linköping'));
-}
+    sortByArea() {
+      if (this.choose === 'linkoping' || this.choose === 'norrkoping') {
+        const chosenArea = this.choose === 'linkoping' ? 'Linköping' : 'Norrköping';
+        this.filteredItems = this.items.filter(item => {
+          console.log('Item area:', item.area);
+          return item.area === chosenArea;
+        });
+      } else if (this.choose === 'alla') {
+        this.filteredItems = this.items;
+      }
+      // Reset sortBy property when choosing an area
+      this.sortBy = '';
+      console.log('Filtered items:', this.filteredItems);
+    },
+    handleSort() {
+      if (this.sortBy === 'price') {
+        this.sortByPrice();
+      } else if (this.sortBy === 'latest') {
+        this.sortByDate();
+      }
+    }
+
   }
 };
 </script>
 
 <style scoped>
-
 .categories {
-  
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -132,14 +151,18 @@ export default {
 .category {
   min-width: 100px;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
   margin: 5px;
-  padding: 3px 30px; /* Adjust top and bottom padding */
+  padding: 3px 30px;
+  /* Adjust top and bottom padding */
   border: 2px solid #ccc;
   border-radius: 30px;
-  width: calc(25% - 20px); 
-  max-width: 200px; /* Maximum width of each category */
+  width: calc(25% - 20px);
+  max-width: 200px;
+  /* Maximum width of each category */
   background-color: #E7F2F7;
   border-color: #BBD5EA;
 }
@@ -162,7 +185,7 @@ export default {
 }
 
 .selected-text {
-  color: #ffffff; 
+  color: #ffffff;
 }
 
 .sort-by {
@@ -173,7 +196,7 @@ export default {
 }
 
 .sort-by select:first-of-type {
-  margin-right: 20px; 
+  margin-right: 20px;
 }
 
 .sort-by select {
@@ -182,62 +205,62 @@ export default {
 }
 
 .ads {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 30px;
-    max-width: 70%;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 20px;
-    margin-bottom: 20px
-  }
-  
-  .ad {
-    min-width: 200px;
-    width: calc(33.33% - 20px); /* Three ads per row */
-    border: 2px solid #ccc;
-    border-radius: 15px;
-    overflow: hidden;
-    background-color: #E7F2F7;
-    border-color: #BBD5EA;
-    text-decoration: none;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 30px;
+  max-width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px
+}
 
-  p {
+.ad {
+  min-width: 200px;
+  width: calc(33.33% - 20px);
+  /* Three ads per row */
+  border: 2px solid #ccc;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #E7F2F7;
+  border-color: #BBD5EA;
+  text-decoration: none;
+}
+
+p {
   color: #102A50;
-  }
-  
-  .ad-image {
-    width: 250px;
-    height: auto;
-    padding: 10px;
-    align-items: center;
-    max-width: 100%;
-    margin-top: 10px;
-  }
-  
-  .ad-details {
-    padding: 10px;
-  }
-  
-  .ad-title {
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 15px;
-    color: #102A50;
-    font-weight: bold;
-    text-align: left;
-  }
-  
-  .ad-price {
-    margin: 0;
-    text-align: left;
-  }
+}
 
-  .ad-area {
-    margin: 0;
-    text-align: left;
-  }
+.ad-image {
+  width: 250px;
+  height: auto;
+  padding: 10px;
+  align-items: center;
+  max-width: 100%;
+  margin-top: 10px;
+}
 
+.ad-details {
+  padding: 10px;
+}
+
+.ad-title {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 15px;
+  color: #102A50;
+  font-weight: bold;
+  text-align: left;
+}
+
+.ad-price {
+  margin: 0;
+  text-align: left;
+}
+
+.ad-area {
+  margin: 0;
+  text-align: left;
+}
 </style>
