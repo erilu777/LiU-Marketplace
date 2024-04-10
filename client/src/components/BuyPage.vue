@@ -106,10 +106,10 @@ export default {
       this.searchTerm = ''; // Clear the search term
     },
     sortByPrice() {
-      this.items.sort((a, b) => a.price - b.price);
+      this.filteredItems.sort((a, b) => a.price - b.price);
     },
     sortByDate() {
-      this.items.sort((a, b) => b.id - a.id);
+      this.filteredItems.sort((a, b) => b.id - a.id);
     },
     sortByArea() {
       if (this.choose === 'linkoping' || this.choose === 'norrkoping') {
@@ -120,11 +120,12 @@ export default {
         });
       } else if (this.choose === 'alla') {
         this.filteredItems = this.items;
+        this.sortBy = ''; // Reset sortBy when selecting "Alla Områden"
       }
-      // Reset sortBy property when choosing an area
-      this.sortBy = '';
       console.log('Filtered items:', this.filteredItems);
+      this.handleSort();
     },
+
     handleSort() {
       if (this.sortBy === 'price') {
         this.sortByPrice();
