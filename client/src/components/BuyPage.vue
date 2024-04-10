@@ -16,21 +16,28 @@
     </div>
     
     <!--Sort By-->
-    <div class="sort-by">
+    <div class="sort-by" @change="sortByLocation">
+      <span>Välj område:</span>
+      <select v-model="choose">
+        <option value="linkoping">Linköping</option>
+        <option value="norrkoping">Norrköping</option>
+      </select>
       <span>Sortera efter:</span>
       <select v-model="sortBy">
         <option value="latest">Senast tillagd</option>
         <option value="price">Lägst pris</option>
       </select>
+      
     </div>
 
 
 <div class="ads">
-  <router-link v-for="ad in filteredItems" :key="ad.id" :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, name: ad.name, price: ad.price, condition: ad.condition, location: ad.location, category: ad.category, description: ad.description }}" class="ad">
+  <router-link v-for="ad in filteredItems" :key="ad.id" :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description }}" class="ad">
     <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
     <div class="ad-details">
-    <h3 class="ad-title">{{ ad.name }}</h3>
-    <p class="ad-price">{{ ad.price }}</p>
+    <h3 class="ad-title">{{ ad.title }}</h3>
+    <p class="ad-price">{{ ad.price }} kr</p>
+    <p class="ad-area">{{ ad.area }}</p>
     </div>
   </router-link>
 </div>
@@ -71,14 +78,14 @@ export default {
       this.filteredItems = this.items.filter((item) =>
         item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
-    },
+  },
     sortBy(newVal) {
       if (newVal === 'price') {
         this.sortByPrice();
       } else if (newVal === 'latest') {
         this.sortByDate();
-      }
     }
+  }
   },
   methods: {
     toggleCategory(categoryId) {
@@ -102,7 +109,10 @@ export default {
     },
     sortByDate() {
       this.items.sort((a, b) => b.id - a.id);
-    }
+    },
+    sortByLocation() {
+    this.filteredItems = this.items.filter(item => item.location.includes('Norrköping') || item.location.includes('Linköping'));
+}
   }
 };
 </script>
@@ -162,6 +172,10 @@ export default {
   margin-right: 20%;
 }
 
+.sort-by select:first-of-type {
+  margin-right: 20px; 
+}
+
 .sort-by select {
   margin-left: 20px;
   padding: 5px;
@@ -217,6 +231,11 @@ export default {
   }
   
   .ad-price {
+    margin: 0;
+    text-align: left;
+  }
+
+  .ad-area {
     margin: 0;
     text-align: left;
   }
