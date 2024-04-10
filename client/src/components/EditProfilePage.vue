@@ -12,15 +12,21 @@
         <h1>Förnamn Efternam</h1>
       </div>
       <div class="row">
-        <h4>email@email.com</h4>
+        <h4>{{ Liu_ID }}@email.com</h4>
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
           <input type="text" id="education" v-model="education" placeholder="Utbildning">
         </div>
         <div class="row">
-          <input type="text" id="grade" v-model="grade" placeholder="Årskurs">
-        </div>
+          <select id="year" v-model="year">
+            <option value="" disabled selected>Årskurs</option>
+            <option value= 1 >1</option>
+            <option value= 2 >2</option>
+            <option value= 3 >3</option>
+            <option value= 4 >4</option>
+            <option value= 5 >5</option>
+          </select>        </div>
         <div class="row">
           <button class="submit">Spara</button>
         </div>
@@ -31,33 +37,39 @@
 </template>
 
 <script>
-import  axios  from 'axios';
+import axios from 'axios';
 
 export default {
   data() {
     return {
       pageTitle: 'Profile Page',
-      category: '',
-      area: '',
-      condition: ''
+      program: '',
+      year: '',
+      Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id
     };
   },
   methods: {
 
     editProfile() {
+      const auth = JSON.parse(sessionStorage.getItem('auth'));
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token);
       const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
       const data = {
-        "category": this.category,
-        "area": this.area,
-        "condition": this.condition
+        "program": this.education,
+         "year": this.year,
       };
       axios.put('/users/' + userId, data, {
         headers: {
           "Authorization": "Bearer " + token
         }
       })
+        .then(response => {
+          // Update sessionStorage with the new data
+          auth.user = response.data;
+          sessionStorage.setItem('auth', JSON.stringify(auth));
+          this.$router.push('/profile');
+        })
       this.$router.push('/profile');
     },
 
