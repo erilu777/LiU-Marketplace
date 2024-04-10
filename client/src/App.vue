@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <LoginPage v-if="!isLoggedIn" @login-success="handleLoginSuccess"/>
-    <HelloWorld v-else msg="Welcome to Your Vue.js App"/>
+    <LoginPage v-if="!isLoggedIn" @login-success="handleLoginSuccess" />
+    <HelloWorld v-else msg="Welcome to Your Vue.js App" />
   </div>
 </template>
 
@@ -22,7 +22,15 @@ export default {
     checkLoginStatus() {
       const token = sessionStorage.getItem('auth');
       if (token) {
-        this.isLoggedIn = true;
+        const expiryDate = new Date(token.expiryDate);
+        if (expiryDate > new Date()) {
+          this.isLoggedIn = true;
+        } else {
+          this.isLoggedIn = false;
+          sessionStorage.removeItem('auth');
+        }
+      } else {
+        this.isLoggedIn = false;
       }
     },
     handleLoginSuccess() {
