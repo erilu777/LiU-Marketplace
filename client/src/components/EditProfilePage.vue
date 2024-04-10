@@ -28,7 +28,8 @@
             <option value= 5 >5</option>
           </select>        </div>
         <div class="row">
-          <button class="submit">Spara</button>
+          <button class="submit-button">Spara</button>
+          <button class="cancel-button" @click="navigateToProfile">Avbryt</button>
         </div>
       </form>
     </div>
@@ -86,7 +87,14 @@ export default {
   min-height: 100vh;
   margin: 0 auto;
 }
-
+.cancel-button {
+  background-color: gainsboro;
+  color: black;
+}
+.submit-button {
+  background-color: lightblue;
+  color: black;
+}
 h1 {
   font-weight: bold;
   color: black;
