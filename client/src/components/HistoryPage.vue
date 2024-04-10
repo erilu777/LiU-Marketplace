@@ -7,7 +7,7 @@
         <h4>Nuvarande annonser</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
-                <div v-for="(ad, index) in ads" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseleave="hideButtons(index)">
+                <div v-for="(ad, index) in availableAds" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseleave="hideButtons(index)">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
@@ -40,7 +40,7 @@
         <h4>Sålda varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
-                <div v-for="(ad, index) in ads" :key="index" class="ad-box">
+                <div v-for="(ad, index) in soldAds" :key="index" class="ad-box">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
@@ -51,7 +51,7 @@
         <h4>Köpta varor</h4>
         <div class="container" ref="container" @scroll="checkScroll">
             <div class="ads-container">
-                <div v-for="(ad, index) in ads" :key="index" class="ad-box">
+                <div v-for="(ad, index) in boughtAds" :key="index" class="ad-box">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
                     <p>{{ ad.description }}</p>
@@ -64,37 +64,61 @@
   </template>
   
   <script>
+
+  import axios from 'axios';
+
   export default {
     data() {
       return {
-        ads: [], // Array för att lagra annonser
+        availableAds: [], // Array för att lagra tillgängliga annonser
+        soldAds: [], // Array för att lagra sålda annonser
+        boughtAds: [], // Array för att lagra köpta annonser
         isLoading: false, // Flagga för att visa om nya annonser laddas
-        isModalActive: false
       };
     },
-    mounted() {
-      // Hämta initiala annonser när komponenten laddas
-      this.fetchAds();
-    },
+
     methods: {
-      fetchAds() {
-        // Här skulle du göra en AJAX-förfrågan för att hämta annonser från din backend
-        // Exempelvis:
-        // this.isLoading = true;
-        // axios.get('/api/ads').then(response => {
-        //   this.ads = response.data;
-        //   this.isLoading = false;
-        // });
-        // Då skulle du behöva skapa en backend som svarar med en lista av annonser
-        // Jag skapar bara några falska annonser här för exempeländamål:
-        for (let i = 0; i < 20; i++) {
-          this.ads.push({
-            title: `Annons ${i + 1}`,
-            description: `Det här är en beskrivning för annons ${i + 1}`
+    async fetchAds() {
+      this.isLoading = true;
+      try {
+        const auth = JSON.parse(sessionStorage.getItem('auth'));
+        if (auth) {
+          const token = auth.token;
+
+          const availableResponse = await axios.get('/available_items', {
+            headers: {
+              "Authorization": "Bearer " + token
+            },
           });
+          this.availableAds = availableResponse.data.map(ad => ({
+          ...ad,
+          showButtons: false,
+        }));
+
+          const soldResponse = await axios.get('/sold_items', {
+            headers: {
+              "Authorization": "Bearer " + token
+            },
+          });
+          this.soldAds = soldResponse.data;
+
+          const boughtResponse = await axios.get('/bought_items', {
+            headers: {
+              "Authorization": "Bearer " + token
+            },
+          });
+          this.boughtAds = boughtResponse.data;
+        } else {
+          console.error('Auth token not found in sessionStorage');
         }
-      },
-      checkScroll() {
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    checkScroll() {
         const container = this.$refs.container;
         // Om användaren har skrollat till botten av container-elementet
         if (
@@ -106,10 +130,11 @@
         }
       },
       showButtons(index) {
-        this.ads[index].showButtons = true;
+        console.log(this.availableAds[index]);  // Add this line
+        this.availableAds[index].showButtons = true;
       },
       hideButtons(index) {
-        this.ads[index].showButtons = false;  
+        this.availableAds[index].showButtons = false;  
       },
       editAd() {
         this.$router.push('/edit-ad');
@@ -128,15 +153,22 @@
       this.buyer = '';
       this.closeModal();
     }
+
+  },
+
+    mounted() {
+      // Hämta initiala annonser när komponenten laddas
+      this.fetchAds();
+    },
+
+      
+     
     // deleteAd(index) {
         //backend ta bort annons
    //   },
     //  soldAd(index) {
 
     //  }
-
-
-  }
   };
   </script>
   
