@@ -73,8 +73,10 @@ export default {
       );
     },
     sortBy(newVal) {
-      if (newVal === 'price'){
+      if (newVal === 'price') {
         this.sortByPrice();
+      } else if (newVal === 'latest') {
+        this.sortByDate();
       }
     }
   },
@@ -97,6 +99,9 @@ export default {
     },
     sortByPrice() {
       this.items.sort((a, b) => a.price - b.price);
+    },
+    sortByDate() {
+      this.items.sort((a, b) => b.id - a.id);
     }
   }
 };
