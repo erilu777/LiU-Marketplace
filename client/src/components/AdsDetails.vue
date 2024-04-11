@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { getCondition} from '@/components/getCondition.js';
 export default {
   props: ['id'],
   data () {
@@ -41,7 +42,7 @@ export default {
       imageUrl: this.$route.query.imageUrl,
       title: this.$route.query.title,
       price: this.$route.query.price,
-      condition: this.$route.query.condition,
+      condition: getCondition(this.$route.query.condition),
       area: this.$route.query.area,
       category: this.$route.query.category,
       description: this.$route.query.description,
