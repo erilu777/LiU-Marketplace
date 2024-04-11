@@ -14,6 +14,30 @@
       <button @click="showModal = true">Registrera dig här</button>
     </div>
     <div v-if="showModal" class="modal">
+      
+      <!--<h3>Registrera dig</h3>-->
+    
+      <div>
+      <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
+    </div>
+      <form @submit.prevent="register">
+        <div>
+          <label>
+            <h3>Liu-ID:</h3>
+            <input v-model="new_username" type="text" required placeholder="LiU-ID">
+          </label>
+        </div>
+        <div>
+          <label>
+            <h3>Lösenord:</h3>
+            <input v-model="new_password" type="password" required placeholder="Lösenord">
+          </label>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      <button class="close-button" @click="showModal = false">Close</button>
+    </div>
+    <div v-if="showModal" class="modal">
 
       <div>
         <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
@@ -255,5 +279,30 @@ p {
 .menu-bar img {
   max-width: 50px;
   margin-right: 10px;
+}
+.modal {
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left:50%;
+  width: 40%;
+  height: 47%;
+  padding: 20px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  border: 1px solid black;
+  align-items: flex-start;
+  background-color: white;
+  border-radius: 10px;
+}
+.close-button {
+  margin-top: 60px;
+}
+.img_login {
+  width: 100%;
+  height: auto;
+  margin: 20px;
+  margin-top: 40px;
 }
 </style>
