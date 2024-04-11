@@ -6,16 +6,16 @@
                     <img src="../assets/profile.png" alt="LMlogo">
                 </div>
                 <div class="row">
-                    <h2>Förnamn Efternam</h2>
+                    <h2>{{ user.firstName }} {{ user.lastName}}</h2>
                 </div>
                 <div class="row">
-                    <h4>email@email.com</h4>
+                    <h4>{{ user.email }}</h4>
                 </div>
                 <div class="row">
-                    <h4>Utbildning</h4>
+                    <h4>{{ user.education }}</h4>
                 </div>
                 <div class="row">
-                    <h4>Årskurs #</h4>
+                    <h4>Årskurs {{ user.year }}</h4>
                 </div>
                 <div class="row">
                   <button class="edit-button" @click="navigateToEdit">Redigera profil</button>
@@ -26,15 +26,35 @@
             </div>
           </div>  
       </div>
-  </template>
+</template>
   
   <script>
+  import axios from 'axios';
+
   export default {
     data() {
       return {
-        pageTitle: 'Profile Page',
+        user: {
+          firstName: '',
+          lastName: '',
+          email: '',
+          education: '',
+          year: '',
+        },
       };
     },
+
+    async created() {
+      const token = JSON.parse(sessionStorage.getItem('auth')).token;
+      const response = await axios.get('/current_user', {
+        headers: {
+          "Authorization": "Bearer " + token
+        },
+      });
+      this.user = response.data;
+    },
+
+
     methods: {
       navigateToEdit() {
         this.$router.push('/edit-profile');
