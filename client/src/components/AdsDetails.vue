@@ -4,18 +4,21 @@
   </div>
   <div class="ad-details">
     <div class="carousel">
-    <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
-      <div class="arrow left" @click="prevImage">&#10094;</div>
-      <div class="arrow right" @click="nextImage">&#10095;</div>
-   </div>
+      <div class="thumbnails">
+        <img v-for="(image, index) in images" :src="image" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
+      </div>
+      <div class="large-image">
+        <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
+      </div>
+    </div>
     <div class="ad-info">
       <h1 class="ad-title"><strong>{{ title }}</strong></h1>
-      <p class="ad-price"><strong>Pris: {{ price }}</strong> </p>
+      <p class="ad-description"> {{ description }}</p>
+      <p class="ad-price"><strong>Pris: {{ price }} kr</strong> </p>
       <p class="ad-condition"><strong>Skick: {{ condition }}</strong></p>
       <p class="ad-area"><strong>Plats: {{ area }}</strong></p>
       <p class="ad-category"><strong>Kategori: {{ category }}</strong></p>
-      <p class="ad-description"> {{ description }}</p>
-      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
+      <p class="ad-date">🕒 {{ new Date(date).toLocaleDateString('sv-SE') + ', ' + new Date(date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
    
     <!-- Seller info -->
@@ -24,8 +27,8 @@
   <div class="seller-info">
       <img src='/images/profile.png' alt="Profile Image" class="profile-image">
       <div class="seller-id">
-        <p class="seller-name"><strong>Anna Andersson</strong></p>
-        <p class="seller-liuid"><strong>abc123</strong></p>
+        <p class="seller-name"><strong>{{ sellerName }}</strong></p> 
+        <p class="seller-liuid"><strong>{{ sellerEmail }}</strong></p>
       </div>
     </div>
 </template>
@@ -44,6 +47,10 @@ export default {
       description: this.$route.query.description,
       currentIndex: 0,
       images: ['/images/cykel.png', '/images/apartment.png'],
+      date: this.$route.query.date,
+      sellerId: this.$route.query.sellerId,
+      sellerName: this.$route.query.sellerName,
+      sellerEmail: this.$route.query.sellerEmail
     }
   },
   computed: {
@@ -120,19 +127,35 @@ export default {
 }
 
 .ad-title {
-  font-size: 24px;
+  font-size: 30px;
+  margin-top: -20px;
   margin-left: 1000 px;
 }
 
-.ad-price, .ad-condition, .ad-area, .ad-category, .ad-description {
+.ad-description{
+  font-size: 20px;
+  margin-top: 20px;
+  margin-right: 300px;
+  margin-bottom: 20px;
+  width: 90%;
+}
+
+.ad-price, .ad-condition, .ad-area, .ad-category {
   font-size: 16px; /* Example: Decrease font size for price */
   margin-bottom: 0;
   margin-right: 300px;
 }
 
+.ad-date {
+  font-size: 12px;
+  margin-top: 10px;
+  margin-right: 300px;
+}
+
 .ad-info {
-  margin-left: 20%;
+  margin-left: 25%;
   margin-top: 40px;
+  width: 90%;
  }
 
  .contact-button  {
@@ -180,10 +203,33 @@ export default {
  }
 
  .button {
-margin-top: 20px;
+  margin-top: 20px;
  }
 
  .back-button {
   display: flex;
  }
+
+ .carousel {
+  display: flex;
+ } 
+
+  /* Får inte karusellen att funka, blir galen. kollar på det sen. */
+ .thumbnails {
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; 
+  }
+
+  .thumbnail {
+    width: 50px;
+    height: auto;
+    cursor: pointer;
+  }
+
+  .large-image {
+  align-self: flex-start; 
+  width: 400px;
+  height: auto;
+}
 </style>

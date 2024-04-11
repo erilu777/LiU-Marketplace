@@ -123,6 +123,7 @@ class Item(db.Model):
     seller_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     buyer_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     area = db.Column(db.Enum(Area), nullable=True)
+    date = db.Column(db.DateTime, default=db.func.now())
 
     def __repr__(self):
         return f'<Item {self.id} : {self.title} {self.description} {self.price} {self.category} {self.condition} {self.is_sold} {self.seller_id} {self.buyer_id} {self.images} {self.area} >'
@@ -139,9 +140,11 @@ class Item(db.Model):
             "condition":self.condition.name if self.condition else None,
             "is_sold":self.is_sold,
             "images": [image.serialize() for image in self.images],
+            "seller_id": self.seller_id,
             "seller": seller_data,
             "buyer": buyer_data,
-            "area": self.area.name if self.area else None
+            "area": self.area.name if self.area else None,
+            "date": self.date.isoformat() if self.date else None
         }
 
 @app.route('/', defaults={'path': ''})

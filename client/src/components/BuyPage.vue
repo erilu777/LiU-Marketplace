@@ -35,13 +35,14 @@
 
     <div class="ads">
       <router-link v-for="ad in filteredItems" :key="ad.id"
-        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description } }"
+        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description, date: ad.date, sellerId: ad.seller.id, sellerName: ad.seller.name, sellerEmail: ad.seller.email} }"
         class="ad">
         <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
         <div class="ad-details">
           <h3 class="ad-title">{{ ad.title }}</h3>
           <p class="ad-price">{{ ad.price }} kr</p>
           <p class="ad-area">{{ ad.area }}</p>
+          <p class="ad-date">{{ new Date(ad.date).toLocaleDateString('sv-SE')  }}</p>
         </div>
       </router-link>
     </div>
@@ -261,18 +262,14 @@ p {
 .ad-title {
   margin-top: 0;
   margin-bottom: 5px;
-  font-size: 15px;
+  font-size: 25px;
   color: #102A50;
   font-weight: bold;
   text-align: left;
 }
 
-.ad-price {
-  margin: 0;
-  text-align: left;
-}
 
-.ad-area {
+.ad-area, .ad-date, .ad-price {
   margin: 0;
   text-align: left;
 }

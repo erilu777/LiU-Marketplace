@@ -63,8 +63,8 @@ export default {
         "description": this.description,
         "price": this.price,
         "condition": this.condition,
-        "area": this.area
-        //"seller_id": 1
+        "area": this.area,
+        "date": new Date().toISOString(),
       };
 
       axios.post('/items', data, {
