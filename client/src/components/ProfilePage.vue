@@ -55,7 +55,6 @@ export default {
     this.user = response.data;
   },
 
-
   methods: {
     navigateToEdit() {
       this.$router.push('/edit-profile');
@@ -102,6 +101,7 @@ img {
 .edit-button {
   display: flex;
   align-items: center;
+  justify-content: center;
   background-color: #0c264d;
   padding: 10px;
   height: 40px;
@@ -114,6 +114,7 @@ img {
 .h-button {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 10px;
   height: 40px;
   color: #0c264d;
