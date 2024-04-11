@@ -136,8 +136,10 @@
       hideButtons(index) {
         this.availableAds[index].showButtons = false;  
       },
-      editAd() {
-        this.$router.push('/edit-ad');
+      editAd(index) {
+        const ad = this.availableAds[index];
+        console.log(ad); // Log the ad to the console
+        this.$router.push(`/edit-ad/${ad.id}`);
       },
       showModal() {
         this.isModalActive = true;
@@ -221,7 +223,7 @@
   
   .ad-box {
     width: 200px; /* Bredden på varje annons */
-    height: 150px; /* Höjden på varje annons */
+    min-height: 150px; /* Höjden på varje annons */
     margin-right: 10px; /* Avstånd mellan annonserna */
     background-color: #f0f0f0;
     display: inline-block; /* Håll annonserna i en rad */
