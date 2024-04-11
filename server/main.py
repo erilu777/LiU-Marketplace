@@ -262,7 +262,7 @@ def sell_item(item_id):
     if 'buyer_id' not in data:
         abort(400, description="buyer_id is required")
 
-    buyer = User.query.get(data['buyer_id'])
+    buyer = User.query.filter_by(liu_id=data['buyer_id']).first()    
     if buyer is None:
         abort(404, description="buyer_id is invalid")
 

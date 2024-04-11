@@ -88,14 +88,15 @@ const routes = [
     component: AboutPage
   },
   {
-    path: '/edit-ad',
+    path: '/edit-ad/:id',
     name: 'edit',
     component: EditAdPage
   },
   {
     path: '/login',
     name: 'login',
-    component: LoginPage
+    component: LoginPage,
+    props: true
   },
   {
     path: '/profile-history',
