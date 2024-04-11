@@ -84,32 +84,33 @@ export default {
   watch: {
     searchTerm: function () {
       this.filteredItems = this.items.filter((item) =>
-        item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())
+        (item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (item.title && item.title.toLowerCase().includes(this.searchTerm.toLowerCase()))
       );
     },
   },
   methods: {
     toggleCategory(categoryName) {
-  if (!this.selectedCategories.includes(categoryName)) {
-    // Category is not selected, add it to selected categories
-    this.selectedCategories.push(categoryName);
-  } else {
-    // Category is already selected, remove it from selected categories
-    const index = this.selectedCategories.indexOf(categoryName);
-    this.selectedCategories.splice(index, 1);
-  }
-  this.filterByCategory();
-},
+      if (!this.selectedCategories.includes(categoryName)) {
+        // Category is not selected, add it to selected categories
+        this.selectedCategories.push(categoryName);
+      } else {
+        // Category is already selected, remove it from selected categories
+        const index = this.selectedCategories.indexOf(categoryName);
+        this.selectedCategories.splice(index, 1);
+      }
+      this.filterByCategory();
+    },
 
-filterByCategory() {
-  if (this.selectedCategories.length === 0) {
-    // No category selected, show all items
-    this.filteredItems = this.items;
-  } else {
-    // Filter items based on selected categories
-    this.filteredItems = this.items.filter(item => this.selectedCategories.includes(item.category));
-  }
-},
+    filterByCategory() {
+      if (this.selectedCategories.length === 0) {
+        // No category selected, show all items
+        this.filteredItems = this.items;
+      } else {
+        // Filter items based on selected categories
+        this.filteredItems = this.items.filter(item => this.selectedCategories.includes(item.category));
+      }
+    },
     isSelected(categoryName) {
       return this.selectedCategories.includes(categoryName);
     },
