@@ -28,7 +28,7 @@
         pageTitle: 'Vad vill du sälja?',
         category1: "Cyklar",
         category2: "Böcker",
-        category3: "Biljett",
+        category3: "Biljetter",
         category4: "Inredning",
         category5: "Bostad",
         category6: "Verktyg",
