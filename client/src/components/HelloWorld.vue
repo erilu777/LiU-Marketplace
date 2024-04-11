@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <div v-if= "auth" class="menu-bar">
+    <div class="menu-bar">
       <!-- Update the menu items to use router-link -->
       <div class="menu-bar-left">
         <img src="../assets/LMlogo.png" alt="LMlogo">
@@ -16,7 +16,7 @@
     <!-- Add router-view to display the current page content -->
     <router-view></router-view>
   </div>
-  <footer v-if= "auth" class="footer">
+  <footer class="footer">
     <div class="column">
       <h3><strong>Mer info</strong></h3>
       <ul>
@@ -36,7 +36,6 @@
 </template>
 
 <script>
-import { checkAuthStatus } from '@/components/checkAuth.js';
 export default {
   name: 'HelloWorld',
   props: {
@@ -47,9 +46,6 @@ export default {
       default: true
     }
   },
-  methods: {
-    checkAuthStatus
- }
 }
 </script>
 

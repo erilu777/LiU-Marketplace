@@ -8,6 +8,7 @@
 <script>
 import HelloWorld from './components/HelloWorld.vue'
 import LoginPage from './components/LoginPage.vue';
+import { checkLoginStatus } from './components/checkAuth';
 
 export default {
   data() {
@@ -16,15 +17,9 @@ export default {
     };
   },
   created() {
-    this.checkLoginStatus();
+    this.isLoggedIn = checkLoginStatus();
   },
   methods: {
-    checkLoginStatus() {
-      const token = sessionStorage.getItem('auth');
-      if (token) {
-        this.isLoggedIn = true;
-      }
-    },
     handleLoginSuccess() {
       this.isLoggedIn = true;
     }
