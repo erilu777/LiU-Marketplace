@@ -9,7 +9,8 @@
         <input type="file" id="image" accept="image/*" @change="handleImageUpload" style="display: none;">
       </div>
       <div class="row">
-        <h1>Förnamn Efternam</h1>
+        <h1 v-if="real_name">{{ real_name }}</h1>
+        <h1 v-else>Förnamn Efternamn</h1>
       </div>
       <div class="row">
         <h4>{{ Liu_ID }}@student.liu.se</h4>
@@ -24,12 +25,13 @@
         <div class="row">
           <select id="year" v-model="year">
             <option value="" disabled selected>Årskurs</option>
-            <option value= 1 >1</option>
-            <option value= 2 >2</option>
-            <option value= 3 >3</option>
-            <option value= 4 >4</option>
-            <option value= 5 >5</option>
-          </select>        </div>
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+          </select>
+        </div>
         <div class="row">
           <button class="submit-button">Spara</button>
           <button class="cancel-button" @click="navigateToProfile">Avbryt</button>
@@ -49,6 +51,7 @@ export default {
       pageTitle: 'Profile Page',
       program: '',
       year: '',
+      real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
       Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id
     };
   },
@@ -61,8 +64,8 @@ export default {
       const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
       const data = {
         "program": this.education,
-         "year": this.year,
-         "name": this.name,
+        "year": this.year,
+        "name": this.name,
       };
       axios.put('/users/' + userId, data, {
         headers: {
@@ -91,14 +94,17 @@ export default {
   min-height: 100vh;
   margin: 0 auto;
 }
+
 .cancel-button {
   background-color: gainsboro;
   color: black;
 }
+
 .submit-button {
   background-color: lightblue;
   color: black;
 }
+
 h1 {
   font-weight: bold;
   color: black;
