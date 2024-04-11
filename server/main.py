@@ -180,6 +180,8 @@ def handle_users(user_id):
             user.year = data['year']
         if 'program' in data:
             user.program = data['program']
+        if 'name' in data:
+            user.name = data['name']
         db.session.commit()
         return jsonify(user.serialize()), 200
     elif request.method == 'DELETE':

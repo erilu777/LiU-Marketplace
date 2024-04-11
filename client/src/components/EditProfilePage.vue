@@ -12,9 +12,12 @@
         <h1>Förnamn Efternam</h1>
       </div>
       <div class="row">
-        <h4>{{ Liu_ID }}@email.com</h4>
+        <h4>{{ Liu_ID }}@student.liu.se</h4>
       </div>
       <form @submit.prevent="editProfile">
+        <div class="row">
+          <input type="text" id="name" v-model="name" placeholder="Namn">
+        </div>
         <div class="row">
           <input type="text" id="education" v-model="education" placeholder="Utbildning">
         </div>
@@ -59,6 +62,7 @@ export default {
       const data = {
         "program": this.education,
          "year": this.year,
+         "name": this.name,
       };
       axios.put('/users/' + userId, data, {
         headers: {
