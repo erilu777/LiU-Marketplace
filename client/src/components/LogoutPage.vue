@@ -16,7 +16,7 @@
     methods: {
       logout() {
         sessionStorage.removeItem('auth');
-        this.$router.push('/login');
+        this.$router.push('/login').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
       }
     }
   };
@@ -44,4 +44,4 @@
     text-decoration: none;
   }
   </style>
-  
+  ./event-bus.js

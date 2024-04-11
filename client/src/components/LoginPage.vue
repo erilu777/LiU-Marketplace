@@ -8,12 +8,34 @@
     <input type="text" v-model="username" placeholder="LiU-ID">
     <input type="password" v-model="password" placeholder="Lösenord">
     <button @click="login">Logga in</button>
+
     <div>
       <h3>Registrera dig!</h3>
-      <input type="text" v-model="new_username" placeholder="LiU-ID">
-      <input type="password" v-model="new_password" placeholder="Lösenord">
-      <button @click="register">Registrera dig här</button>
+      <button @click="showModal = true">Registrera dig här</button>
     </div>
+    <div v-if="showModal" class="modal">
+
+      <div>
+        <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
+      </div>
+      <form @submit.prevent="register">
+        <div>
+          <label>
+            <h3>Liu-ID:</h3>
+            <input v-model="new_username" type="text" required placeholder="LiU-ID">
+          </label>
+        </div>
+        <div>
+          <label>
+            <h3>Lösenord:</h3>
+            <input v-model="new_password" type="password" required placeholder="Lösenord">
+          </label>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      <button class="close-button" @click="showModal = false">Close</button>
+    </div>
+
     <div>
       <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
     </div>
@@ -50,6 +72,7 @@ export default {
 
   data() {
     return {
+      showModal: false,
       liu_id: '',
       password: '',
     };
@@ -67,10 +90,11 @@ export default {
         if (response.status >= 200 && response.status < 300) {
           sessionStorage.setItem('auth', JSON.stringify(response.data));
           sessionStorage.setItem('is_admin', response.data.is_admin);
-          this.$emit('login-success');  
+          this.$emit('login-success');
           alert("Inloggad.");
           console.log(response.data);
-        } 
+          this.$router.push('/').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+        }
       } catch (error) {
         if (error.response.status == 401 || error.response.status == 400) {
           alert("Fel LiU-ID eller lösenord.");
@@ -155,10 +179,36 @@ button {
   margin-top: 40px;
 }
 
+.modal {
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left:50%;
+  width: 40%;
+  height: 47%;
+  padding: 20px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  border: 1px solid black;
+  align-items: flex-start;
+  background-color: white;
+  border-radius: 10px;
+}
+.close-button {
+  margin-top: 60px;
+}
+.img_login {
+  width: 100%;
+  height: auto;
+  margin: 20px;
+  margin-top: 40px;
+}
+
 /* Footer styles */
 .footer-line {
-  height: 2px; 
-  background-color: white; 
+  height: 2px;
+  background-color: white;
   width: 100%;
 }
 
@@ -169,6 +219,8 @@ button {
   height: 300px;
   padding: 60px;
   text-align: center;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-weight: normal;
 }
 
 .column {
@@ -190,8 +242,10 @@ p {
 }
 
 .footer a {
-  color: white; /* White text color for menu items */
-  text-decoration: none; /* Remove underline */
+  color: white;
+  /* White text color for menu items */
+  text-decoration: none;
+  /* Remove underline */
 }
 
 .column img {
@@ -202,5 +256,4 @@ p {
   max-width: 50px;
   margin-right: 10px;
 }
-
 </style>

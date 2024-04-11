@@ -9,6 +9,8 @@
 import HelloWorld from './components/HelloWorld.vue'
 import LoginPage from './components/LoginPage.vue';
 import { checkLoginStatus } from './components/checkAuth';
+//import { EventBus } from './components/event-bus.js';
+
 
 export default {
   data() {
