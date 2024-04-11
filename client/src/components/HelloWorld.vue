@@ -57,10 +57,15 @@ export default {
 
 .app {
   font-family: Arial, sans-serif;
+  padding-top: 80px;
 }
 
 .menu-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;

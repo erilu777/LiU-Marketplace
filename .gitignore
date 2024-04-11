@@ -3,3 +3,4 @@ server/database.db
 server/instance/database.db
 .DS_Store
 /instance/database.db
+venv
