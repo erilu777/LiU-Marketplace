@@ -8,8 +8,8 @@
     <!-- Categories -->
     <div class="categories">
       <div v-for="category in categories" :key="category.id"
-        :class="{ 'selected': isSelected(category.id), 'selected-text': isSelected(category.id) }"
-        @click="toggleCategory(category.id)" class="category">
+        :class="{ 'selected': isSelected(category.name), 'selected-text': isSelected(category.name) }"
+        @click="toggleCategory(category.name)" class="category">
         <h2 class="category-name">{{ category.name }}</h2>
       </div>
     </div>
@@ -89,18 +89,29 @@ export default {
     },
   },
   methods: {
-    toggleCategory(categoryId) {
-      const index = this.selectedCategories.indexOf(categoryId);
-      if (index === -1) {
-        // Category is not selected, add it to selected categories
-        this.selectedCategories.push(categoryId);
-      } else {
-        // Category is already selected, remove it from selected categories
-        this.selectedCategories.splice(index, 1);
-      }
-    },
-    isSelected(categoryId) {
-      return this.selectedCategories.includes(categoryId);
+    toggleCategory(categoryName) {
+  if (!this.selectedCategories.includes(categoryName)) {
+    // Category is not selected, add it to selected categories
+    this.selectedCategories.push(categoryName);
+  } else {
+    // Category is already selected, remove it from selected categories
+    const index = this.selectedCategories.indexOf(categoryName);
+    this.selectedCategories.splice(index, 1);
+  }
+  this.filterByCategory();
+},
+
+filterByCategory() {
+  if (this.selectedCategories.length === 0) {
+    // No category selected, show all items
+    this.filteredItems = this.items;
+  } else {
+    // Filter items based on selected categories
+    this.filteredItems = this.items.filter(item => this.selectedCategories.includes(item.category));
+  }
+},
+    isSelected(categoryName) {
+      return this.selectedCategories.includes(categoryName);
     },
     clearSearch() {
       this.searchTerm = ''; // Clear the search term
