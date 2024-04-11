@@ -23,7 +23,7 @@
                               <!-- Input för att ange köpare -->
                               <input type="text" v-model="buyer" placeholder="Köparens LiU-id">
                               <!-- Knapp för att bekräfta försäljningen -->
-                              <button @click="confirmSale">Bekräfta försäljning</button>
+                              <button @click="confirmSale(index)">Bekräfta försäljning</button>
                               <div>
                                 <p class="h-button" @click="closeModal">Gå tillbaka</p>
                               </div>
@@ -74,6 +74,7 @@
         soldAds: [], // Array för att lagra sålda annonser
         boughtAds: [], // Array för att lagra köpta annonser
         isLoading: false, // Flagga för att visa om nya annonser laddas
+        buyer: this.buyer, // Köparens LiU-id
       };
     },
 
@@ -147,30 +148,76 @@
       closeModal() {
         this.isModalActive = false;
       },
-      confirmSale() {
-      // Här kan du lägga till logik för att bekräfta försäljningen
-      console.log('Varan såld till:', this.buyer);
-      // Exempel: Skicka data till backend för att uppdatera försäljningsinformationen
-      // Återställ buyer och stäng modal efter bekräftelsen
-      this.buyer = '';
-      this.closeModal();
-    }
+      deleteAd(index) {
+        const ad = this.availableAds[index];
+        if (ad && ad.id) {
+      // Get the token from the session storage
+          const auth = JSON.parse(sessionStorage.getItem('auth'));
+          if (auth) {
+            const token = auth.token;
 
+        // Send a DELETE request to delete the ad
+            axios.delete(`/items/${ad.id}`, {
+            headers: {
+              "Authorization": "Bearer " + token
+            }
+          })
+          .then(() => {
+            console.log('Ad deleted successfully');
+          // Remove the ad from the availableAds array
+            this.availableAds.splice(index, 1);
+          })
+        .catch(error => {
+          console.error('Error deleting ad:', error);
+        });
+      } else {
+        console.error('Auth token not found in sessionStorage');
+      }
+    } else {
+      console.error('Ad ID not found');
+    }
   },
+      confirmSale(index) {
+        const ad = this.availableAds[index];
+        if (ad && ad.id) {
+          // Get the token from the session storage
+          const auth = JSON.parse(sessionStorage.getItem('auth'));
+          if (auth) {
+            const token = auth.token;
+
+            console.log('buyer_id:', this.buyer);
+            // Send a PUT request to mark the ad as sold
+            axios.put(`/items/${ad.id}/sell`, {
+              buyer_id: this.buyer,
+            }, {
+              headers: {
+                "Authorization": "Bearer " + token
+              }
+            })
+            .then(() => {
+              console.log('Ad marked as sold successfully');
+              // Remove the ad from the availableAds array
+              this.availableAds.splice(index, 1);
+              window.location.reload();
+            })
+            .catch(error => {
+              console.error('Error marking ad as sold:', error);
+            });
+          } else {
+            console.error('Auth token not found in sessionStorage');
+          }
+        } else {
+          console.error('Ad ID not found');
+        }
+      },
+   },
+
 
     mounted() {
       // Hämta initiala annonser när komponenten laddas
       this.fetchAds();
     },
 
-      
-     
-    // deleteAd(index) {
-        //backend ta bort annons
-   //   },
-    //  soldAd(index) {
-
-    //  }
   };
   </script>
   
