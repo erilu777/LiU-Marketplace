@@ -281,6 +281,12 @@ def sell_item(item_id):
 
     return jsonify(item.serialize()), 200
 
+@app.route('/all_available_items', methods=['GET'])
+@jwt_required()
+def get_all_available_items():
+    available_items = [item.serialize() for item in Item.query.filter_by(is_sold=False).all()]
+    return jsonify(available_items), 200
+
 @app.route('/available_items', methods=['GET'])
 @jwt_required()
 def get_available_items():
