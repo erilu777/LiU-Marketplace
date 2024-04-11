@@ -23,7 +23,7 @@ export default {
         lineItems: [{ price: 'price_1P2BtYRxv3wNoBa5KtgSnE4g', quantity: 1 }],
         mode: 'payment',
         successUrl: 'https://example.com/success',
-        cancelUrl: 'http://localhost:8080/payment',
+        cancelUrl: 'http://localhost:5000/payment',
       });
 
       if (error) {
