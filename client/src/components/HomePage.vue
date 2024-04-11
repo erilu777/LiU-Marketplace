@@ -6,10 +6,10 @@
     </div>
 
 <div class="ads">
-  <router-link v-for="ad in filteredItems" :key="ad.id" :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, name: ad.name, price: ad.price, condition: ad.condition, location: ad.location, category: ad.category, description: ad.description }}" class="ad">
+  <router-link v-for="ad in filteredItems" :key="ad.id" :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description }}" class="ad">
     <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
     <div class="ad-details">
-    <h3 class="ad-title">{{ ad.name }}</h3>
+    <h3 class="ad-title">{{ ad.title }}</h3>
     <p class="ad-price">{{ ad.price }}</p>
     </div>
   </router-link>

@@ -9,10 +9,10 @@
       <div class="arrow right" @click="nextImage">&#10095;</div>
    </div>
     <div class="ad-info">
-      <h1 class="ad-name"><strong>{{ name }}</strong></h1>
+      <h1 class="ad-title"><strong>{{ title }}</strong></h1>
       <p class="ad-price"><strong>Pris: {{ price }}</strong> </p>
       <p class="ad-condition"><strong>Skick: {{ condition }}</strong></p>
-      <p class="ad-location"><strong>Plats: {{ location }}</strong></p>
+      <p class="ad-area"><strong>Plats: {{ area }}</strong></p>
       <p class="ad-category"><strong>Kategori: {{ category }}</strong></p>
       <p class="ad-description"> {{ description }}</p>
       <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
@@ -32,9 +32,16 @@
 
 <script>
 export default {
-  props: ['id', 'imageUrl', 'name', 'price', 'condition', 'location', 'category', 'description'],
+  props: ['id'],
   data () {
     return {
+      imageUrl: this.$route.query.imageUrl,
+      title: this.$route.query.title,
+      price: this.$route.query.price,
+      condition: this.$route.query.condition,
+      area: this.$route.query.area,
+      category: this.$route.query.category,
+      description: this.$route.query.description,
       currentIndex: 0,
       images: ['/images/cykel.png', '/images/apartment.png'],
     }
@@ -58,8 +65,8 @@ export default {
      contactSeller() {
       // Replace 'seller@example.com' with the actual email address of the seller
       const sellerEmail = 'seller@example.com';
-      const subject = 'Angående annons: ' + this.name; // Subject line for the email
-      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.name + '".\n\nMed vänliga hälsningar,'; // Body of the email
+      const subject = 'Angående annons: ' + this.title; // Subject line for the email
+      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.title + '".\n\nMed vänliga hälsningar,'; // Body of the email
 
       // Generate the mailto link with the seller's email, subject, and body
       const mailtoLink = 'mailto:' + encodeURIComponent(sellerEmail) +
@@ -112,12 +119,12 @@ export default {
   right: -65%;
 }
 
-.ad-name {
+.ad-title {
   font-size: 24px;
   margin-left: 1000 px;
 }
 
-.ad-price, .ad-condition, .ad-location, .ad-category, .ad-description {
+.ad-price, .ad-condition, .ad-area, .ad-category, .ad-description {
   font-size: 16px; /* Example: Decrease font size for price */
   margin-bottom: 0;
   margin-right: 300px;

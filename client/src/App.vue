@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <LoginPage v-if="!isLoggedIn" @login-success="handleLoginSuccess"/>
-    <HelloWorld v-else msg="Welcome to Your Vue.js App"/>
+    <LoginPage v-if="!isLoggedIn" @login-success="handleLoginSuccess" />
+    <HelloWorld v-else msg="Welcome to Your Vue.js App" />
   </div>
 </template>
 

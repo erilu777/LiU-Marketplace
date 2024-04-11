@@ -54,7 +54,7 @@ class User(db.Model):
             "year":self.year,
             "is_admin":self.is_admin,
             "num_sold_items":self.num_sold_items,
-            "num_bought_items":self.num_bought_items
+            "num_bought_items":self.num_bought_items,
         } 
     
     def set_password(self, password):
@@ -187,6 +187,15 @@ def handle_users(user_id):
         db.session.commit()
         return '', 200
     
+@app.route('/current_user', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if user is None:
+        abort(404)
+    return jsonify(user.serialize())
+    
 @app.route('/items', methods=['GET', 'POST'])
 @jwt_required()
 def items():
@@ -269,6 +278,36 @@ def sell_item(item_id):
     # TODO: Send an email to the buyer
 
     return jsonify(item.serialize()), 200
+
+@app.route('/available_items', methods=['GET'])
+@jwt_required()
+def get_available_items():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if user is None:
+        abort(404, description="User not found")
+    available_items = [item.serialize() for item in user.sold_items if not item.is_sold]
+    return jsonify(available_items), 200
+
+@app.route('/sold_items', methods=['GET'])
+@jwt_required()
+def get_sold_items():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if user is None:
+        abort(404, description="User not found")
+    sold_items = [item.serialize() for item in user.sold_items if item.is_sold]
+    return jsonify(sold_items), 200
+
+@app.route('/bought_items', methods=['GET'])
+@jwt_required()
+def get_bought_items():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if user is None:
+        abort(404, description="User not found")
+    bought_items = [item.serialize() for item in user.bought_items]
+    return jsonify(bought_items), 200
 
 
 @app.route('/sign-up', methods=['POST'])
