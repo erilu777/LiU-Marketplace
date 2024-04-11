@@ -5,19 +5,40 @@
       <h3>Logga in</h3>
       <button>Logga in med SSO via LiU</button>
     </div>
-    <input type="text" v-model="username" placeholder="Användarnamn">
+    <input type="text" v-model="username" placeholder="LiU-ID">
     <input type="password" v-model="password" placeholder="Lösenord">
     <button @click="login">Logga in</button>
     <div>
       <h3>Registrera dig!</h3>
-      <input type="text" v-model="new_username" placeholder="Användarnamn">
+      <input type="text" v-model="new_username" placeholder="LiU-ID">
       <input type="password" v-model="new_password" placeholder="Lösenord">
       <button @click="register">Registrera dig här</button>
     </div>
     <div>
-      <img src="../assets/LMlogo.png" alt="LMlogo">
+      <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
     </div>
   </div>
+
+  <!-- Footer -->
+  <div class="footer-line"></div>
+  <footer class="footer">
+    <div class="column">
+      <h3 class="h3_footer"><strong>Mer info</strong></h3>
+      <ul>
+        <li><router-link to="/om-oss">Om oss</router-link></li>
+        <li><router-link to="/vanliga-fragor">Vanliga Frågor</router-link></li>
+        <li><router-link to="/kontakta-oss">Kontakta oss</router-link></li>
+      </ul>
+    </div>
+    <div class="column">
+      <h3 class="h3_footer"><strong>LiU Marketplace</strong></h3>
+      <p>For Students - By Students</p>
+    </div>
+    <div class="column">
+      <img src="../assets/LMlogo.png" alt="LMlogo">
+    </div>
+  </footer>
+
 </template>
 
 <script>
@@ -43,18 +64,19 @@ export default {
         }, {
           withCredentials: true
         });
-        if (response.data) {
+        if (response.status >= 200 && response.status < 300) {
           sessionStorage.setItem('auth', JSON.stringify(response.data));
           sessionStorage.setItem('is_admin', response.data.is_admin);
           this.$emit('login-success');  
-          alert("Inloggad");
+          alert("Inloggad.");
           console.log(response.data);
-        } else {
-          alert("Fel användarnamn eller lösenord.");
-          console.log(response.data);
-        }
+        } 
       } catch (error) {
-        console.error(error);
+        if (error.response.status == 401 || error.response.status == 400) {
+          alert("Fel LiU-ID eller lösenord.");
+        } else {
+          console.error(error);
+        }
       }
     },
 
@@ -78,7 +100,7 @@ export default {
             sessionStorage.setItem('is_admin', loginResponse.data.is_admin);
             this.$emit('login-success');
             this.$router.push('/edit-profile');
-            alert("Registrerad och inloggad");
+            alert("Registrerad och inloggad.");
             console.log(loginResponse.data);
           }
         } else {
@@ -98,6 +120,7 @@ export default {
   padding: 20px;
   min-height: 100vh;
   background-color: #0c264d;
+  font-family: Arial, sans-serif;
 }
 
 h1 {
@@ -127,8 +150,57 @@ button {
   margin-top: 40px;
 }
 
-img {
+.img_login {
   max-width: 100px;
   margin-top: 40px;
 }
+
+/* Footer styles */
+.footer-line {
+  height: 2px; 
+  background-color: white; 
+  width: 100%;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  background-color: #0c264d;
+  height: 300px;
+  padding: 60px;
+  text-align: center;
+}
+
+.column {
+  width: 30%;
+}
+
+.column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+p {
+  color: white;
+}
+
+.h3_footer {
+  color: white
+}
+
+.footer a {
+  color: white; /* White text color for menu items */
+  text-decoration: none; /* Remove underline */
+}
+
+.column img {
+  max-width: 150px;
+}
+
+.menu-bar img {
+  max-width: 50px;
+  margin-right: 10px;
+}
+
 </style>

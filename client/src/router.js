@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'; // Importera nödvändiga funktioner från vue-router
+import { checkLoginStatus } from './components/checkAuth.js'; // Importera funktionen checkLoginStatus från checkAuth.js
 
 import HomePage from './components/HomePage.vue';
 import BuyPage from './components/BuyPage.vue';
@@ -125,5 +126,13 @@ const router = createRouter({
     return{ top: 0} ;
   }
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.path == '/login' && checkLoginStatus()) {
+    next({ name: 'home'}) // Om användaren är inloggad och försöker gå till /login, skicka användaren till /home
+    } else {
+    next() // Om användaren inte är inloggad och försöker gå till /login, skicka användaren till /login
+  }
+})
 
 export default router;
