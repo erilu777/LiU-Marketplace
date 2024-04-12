@@ -5,6 +5,8 @@ from enum import Enum
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__, 
 static_folder='../client/dist', 
@@ -208,17 +210,25 @@ def items():
         all_items = Item.query.all()
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
-        data = request.get_json()
-        new_item = Item(title=data.get('title'), description=data.get("description"), price=data.get("price"), category=Category[data.get("category")], condition=Condition[data.get("condition")], area=Area[data.get("area")])
-        #if 'seller_id' in data:
-            #seller = User.query.get(data['seller_id'])
-            #if seller:
-                #new_item.seller = seller
-        new_item.seller_id = get_jwt_identity()
-        if 'images' in data:
-            for image in data['images']:
-                new_image = ItemImage(image_path=image)
-                new_item.images.append(new_image)
+        data = request.form.to_dict()
+        new_item = Item(title=data.get('title'), 
+                        description=data.get("description"), 
+                        price=data.get("price"), 
+                        category=Category[data.get("category")], 
+                        condition=Condition[data.get("condition")], 
+                        area=Area[data.get("area")],
+                        seller_id=get_jwt_identity()
+                        )
+
+        if request.files['image']:
+            print(f"picture added??")
+            for image in request.files.getlist('image'):
+                filename = secure_filename(image.filename)
+                print(f"Added image: {image.filename}")
+                print(f"Filename: {filename}")
+
+                image.save(os.path.join('static/uploads', image.filename))
+
         db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201

@@ -57,21 +57,24 @@ export default {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
 
-      const data = {
-        "category": this.category,
-        "title": this.title,
-        "description": this.description,
-        "price": this.price,
-        "condition": this.condition,
-        "area": this.area,
-        "date": new Date().toISOString(),
-      };
+      const formData = new FormData();
+      formData.append('category', this.category);
+      formData.append('title', this.title);
+      formData.append('description', this.description);
+      formData.append('price', this.price);
+      formData.append('condition', this.condition);
+      formData.append('area', this.area);
+      formData.append('date', new Date().toISOString());
+      if(this.image){
+        formData.append('image', this.image);
+      }
 
-      axios.post('/items', data, {
-        headers: {
-          "Authorization": "Bearer " + token
-        }
-      })
+  axios.post('/items', formData, {
+    headers: {
+      "Authorization": "Bearer " + token,
+      'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+    }
+  })
         .then(response => {
           console.log('Response:', response);
         })
