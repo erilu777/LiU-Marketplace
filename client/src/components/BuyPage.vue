@@ -30,9 +30,6 @@
       </select>
     </div>
 
-
-
-
     <div class="ads">
       <router-link v-for="ad in filteredItems" :key="ad.id"
         :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description, date: ad.date, sellerId: ad.seller.id, sellerName: ad.seller.name, sellerEmail: ad.seller.email} }"

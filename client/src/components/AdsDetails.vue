@@ -1,16 +1,20 @@
 <template>
   <div class="button">
-    <button @click="goBack" class="back-button" style="color: white">&lt; Tillbaka till annonser</button>
+    <button @click="goBack" class="back-button" style="color: white">Tillbaka till annonser</button>
   </div>
   <div class="ad-details">
+    <div class="image-container">
     <div class="carousel">
-      <div class="thumbnails">
+      
+    <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
+      <div class="arrow left" @click="prevImage">&#10094;</div>
+      <div class="arrow right" @click="nextImage">&#10095;</div>
+   </div>
+   <div class="thumbnails">
         <img v-for="(image, index) in images" :src="image" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
       </div>
-      <div class="large-image">
-        <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
-      </div>
     </div>
+
     <div class="ad-info">
       <h1 class="ad-title"><strong>{{ title }}</strong></h1>
       <p class="ad-description"> {{ description }}</p>
@@ -90,22 +94,31 @@ export default {
 
 <style scoped>
 
+.image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 15%;
+}
+
 .ad-details {
   display: flex;
   align-items: top;
   text-align: left;
+  margin-top: 80px;
 }
 
 .carousel {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
 
 .ad-image {
   width: 350px; 
-  height: auto;
-  margin-left: 50%;
-  margin-top: 20px;
+  height: 350px;
+  object-fit: cover;
 }
 
 .arrow {
@@ -120,11 +133,16 @@ export default {
 }
 
 .left {
-  left: 35%;
+  left: -40px;
 }
 
 .right {
-  right: -65%;
+  right: -40px;
+}
+
+.thumbnail {
+  margin: 5px 5px;
+  border: 1px solid black;
 }
 
 .ad-title {
@@ -133,16 +151,9 @@ export default {
   margin-left: 1000 px;
 }
 
-.ad-description{
-  font-size: 20px;
-  margin-top: 20px;
-  margin-right: 300px;
-  margin-bottom: 20px;
-  width: 90%;
-}
 
-.ad-price, .ad-condition, .ad-area, .ad-category {
-  font-size: 16px; /* Example: Decrease font size for price */
+.ad-price, .ad-condition, .ad-area, .ad-category .ad-description {
+  font-size: 16px;
   margin-bottom: 0;
   margin-right: 300px;
 }
@@ -154,9 +165,13 @@ export default {
 }
 
 .ad-info {
-  margin-left: 25%;
-  margin-top: 40px;
-  width: 90%;
+  margin-left: 10%;
+  margin-top: 0px;
+  width: 600px;
+  background-color: #e7f2f7;
+  border: 3px solid #bbd5e9;
+  border-radius: 20px;
+  padding: 50px;
  }
 
  .contact-button  {
@@ -185,13 +200,15 @@ export default {
   text-align: left;
   margin-left: 175px;
   margin-top: 20px;
-  
+  margin-bottom: 0px;
  }
+
  .seller-info {
   display: flex;
   margin-left: 175px;
   text-align: left;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
+  margin-top: 10px;
  }
 
  .profile-image {
