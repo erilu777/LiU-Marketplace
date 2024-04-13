@@ -2,16 +2,16 @@
   <div class="button">
     <button @click="goBack" class="back-button" style="color: white">&lt; Tillbaka till annonser</button>
   </div>
-  <div class="ad-details">
+  <div class="ad-details" v-if="item">
     <div class="carousel">
       <div class="thumbnails">
-        <img v-for="(image, index) in images" :src="image" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
+        <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
       </div>
       <div class="large-image">
-        <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
+        <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
       </div>
     </div>
-    <div class="ad-info" v-if="item">
+    <div class="ad-info">
       <h1 class="ad-title"><strong>{{ item.title }}</strong></h1>
       <p class="ad-description"> {{ item.description }}</p>
       <p class="ad-price"><strong>Pris: {{ item.price }} kr</strong> </p>
@@ -21,17 +21,16 @@
       <p class="ad-date">🕒 {{ new Date(item.date).toLocaleDateString('sv-SE') + ', ' + new Date(item.date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      
       <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
-   
-    <!-- Seller info -->
   </div>
+      <!-- Seller info -->
   <h1 class="seller-about"><strong>Om säljaren</strong></h1>
-  <div class="seller-info">
+  <div class="seller-info" v-if="item">
       <img src='/images/profile.png' alt="Profile Image" class="profile-image">
       <div class="seller-id">
-        <p class="seller-name"><strong>{{ item.images }}</strong></p> 
+        <p class="seller-name"><strong>{{ item.seller.name }}</strong></p> 
         <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
       </div>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -44,7 +43,6 @@ export default {
     return {
       item: null,
       currentIndex: 0,
-      images: []
     }
   },
   async created() {
@@ -60,15 +58,15 @@ export default {
   },
   computed: {
     currentImageUrl() {
-      return this.images[this.currentIndex].image_path;
+      return this.currentIndex;
     }
   },
   methods: {
     nextImage() {
-      this.currentIndex = (this.currentIndex + 1) % this.images.length;
+      this.currentIndex = (this.currentIndex + 1) % this.item.images.length;
     },
     prevImage() {
-      this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+      this.currentIndex = (this.currentIndex - 1 + this.item.images.length) % this.item.length;
     },
     goBack() {
       // Navigate back to the all ads page
