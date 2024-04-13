@@ -34,7 +34,7 @@
       <router-link v-for="ad in filteredItems" :key="ad.id"
         :to="{ name: 'AdsDetails', params: { id: ad.id } }"
         class="ad">
-        <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
+        <img :src="ad.images[0].image_path" alt="Product Image" class="ad-image">
         <div class="ad-details">
           <h3 class="ad-title">{{ ad.title }}</h3>
           <p class="ad-price">{{ ad.price }} kr</p>

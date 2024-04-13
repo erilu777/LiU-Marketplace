@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     currentImageUrl() {
-      return this.images[this.currentIndex];
+      return this.images[this.currentIndex].image_path;
     }
   },
   methods: {

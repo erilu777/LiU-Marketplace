@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, abort, request
+from flask import Flask, jsonify, abort, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -235,10 +235,18 @@ def items():
                 image.save(image_path)
                 new_image = ItemImage(image_path=image_path, item_id=new_item.id)
                 db.session.add(new_image)
+                print(f"Image at path: {image_path}")
 
         db.session.commit()
+        for image in new_item.images:
+            print(f"Image path: {image.image_path}")
+
         return jsonify(new_item.serialize()), 201
     
+@app.route('/static/uploads/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static/uploads', filename)
+
 @app.route('/items/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def handle_items(item_id):
