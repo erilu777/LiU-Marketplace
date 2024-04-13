@@ -11,14 +11,15 @@
         <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
       </div>
     </div>
-    <div class="ad-info">
-      <h1 class="ad-title"><strong>{{ title }}</strong></h1>
-      <p class="ad-description"> {{ description }}</p>
-      <p class="ad-price"><strong>Pris: {{ price }} kr</strong> </p>
-      <p class="ad-condition"><strong>Skick: {{ condition }}</strong></p>
-      <p class="ad-area"><strong>Plats: {{ area }}</strong></p>
-      <p class="ad-category"><strong>Kategori: {{ category }}</strong></p>
-      <p class="ad-date">🕒 {{ new Date(date).toLocaleDateString('sv-SE') + ', ' + new Date(date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
+    <div class="ad-info" v-if="item">
+      <h1 class="ad-title"><strong>{{ item.title }}</strong></h1>
+      <p class="ad-description"> {{ item.description }}</p>
+      <p class="ad-price"><strong>Pris: {{ item.price }} kr</strong> </p>
+      <p class="ad-condition"><strong>Skick: {{ item.condition }}</strong></p>
+      <p class="ad-area"><strong>Plats: {{ item.area }}</strong></p>
+      <p class="ad-category"><strong>Kategori: {{ item.category }}</strong></p>
+      <p class="ad-date">🕒 {{ new Date(item.date).toLocaleDateString('sv-SE') + ', ' + new Date(item.date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      
+      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
    
     <!-- Seller info -->
@@ -27,31 +28,34 @@
   <div class="seller-info">
       <img src='/images/profile.png' alt="Profile Image" class="profile-image">
       <div class="seller-id">
-        <p class="seller-name"><strong>{{ sellerName }}</strong></p> 
-        <p class="seller-liuid"><strong>{{ sellerEmail }}</strong></p>
+        <p class="seller-name"><strong>{{ item.images }}</strong></p> 
+        <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
       </div>
     </div>
 </template>
 
 <script>
+import { fetchAdData } from '@/components/AdsItems.js';
 import { getCondition} from '@/components/getCondition.js';
+
 export default {
   props: ['id'],
   data () {
     return {
-      imageUrl: this.$route.query.imageUrl,
-      title: this.$route.query.title,
-      price: this.$route.query.price,
-      condition: getCondition(this.$route.query.condition),
-      area: this.$route.query.area,
-      category: this.$route.query.category,
-      description: this.$route.query.description,
+      item: null,
       currentIndex: 0,
-      images: ['/images/cykel.png', '/images/apartment.png'],
-      date: this.$route.query.date,
-      sellerId: this.$route.query.sellerId,
-      sellerName: this.$route.query.sellerName,
-      sellerEmail: this.$route.query.sellerEmail
+      images: []
+    }
+  },
+  async created() {
+    console.log('Trying to create ad with ID: ', this.id);
+    try {
+      this.item = await fetchAdData(this.id);
+      console.log('Ad data:', this.id);
+      console.log('this.item.title: ', this.item.title);
+      this.item.condition = getCondition(this.item.condition);
+    } catch (error) {
+      console.error('Error fetching ad data:', error);
     }
   },
   computed: {

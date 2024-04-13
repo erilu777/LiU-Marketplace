@@ -106,10 +106,13 @@ class ItemImage(db.Model):
     image_path = db.Column(db.String(120))
     item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
     
+    def __repr__(self):
+        return f'<ItemImage {self.id} : {self.image_path} {self.item_id}>'
+
     def serialize(self):
         return {
             "id":self.id,
-            "image_path": self.image_path,
+            "image_path": request.url_root + self.image_path,
             "item_id":self.item_id
         }
     
@@ -220,16 +223,19 @@ def items():
                         seller_id=get_jwt_identity()
                         )
 
+        db.session.add(new_item)
+        db.session.flush()
+
         if request.files['image']:
             print(f"picture added??")
             for image in request.files.getlist('image'):
                 filename = secure_filename(image.filename)
-                print(f"Added image: {image.filename}")
-                print(f"Filename: {filename}")
+                
+                image_path = os.path.join('static/uploads', filename)
+                image.save(image_path)
+                new_image = ItemImage(image_path=image_path, item_id=new_item.id)
+                db.session.add(new_image)
 
-                image.save(os.path.join('static/uploads', image.filename))
-
-        db.session.add(new_item)
         db.session.commit()
         return jsonify(new_item.serialize()), 201
     
@@ -280,9 +286,6 @@ def sell_item(item_id):
         abort(404, description="buyer_id is invalid")
 
     seller = User.query.get(item.seller_id)
-    # if user is None:
-        # abort(404, description="user_id is invalid")
-    # Felhantering behövs ej för en item kommer alltid att ha en user...?
 
     item.buyer = buyer
     item.is_sold = True
