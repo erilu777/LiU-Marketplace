@@ -29,7 +29,7 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" @change="handleImageUpload">
+          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
         </div>
         <button type="submit">Gå till betalning</button>
         <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
@@ -66,7 +66,9 @@ export default {
       formData.append('area', this.area);
       formData.append('date', new Date().toISOString());
       if(this.image){
-        formData.append('image', this.image);
+        for(let i = 0; i < this.image.length; i++){
+          formData.append('image', this.image[i]);
+        }
       }
 
   axios.post('/items', formData, {
@@ -84,8 +86,7 @@ export default {
         this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      const file = event.target.files[0];
-      this.image = file;
+      this.image = Array.from(event.target.files);
     },
     navigateToHome() {
       this.$router.push('/');
