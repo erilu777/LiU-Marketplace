@@ -1,12 +1,11 @@
 <template>
   <div class="page">
     <h1>THE TEAM</h1>
-    <p>Det här är ett kandidatarbete på Linköpings Universitet. Vi är 7 studenter på I-sektionen med teknisk inriktning
-      Datateknik.</p>
     <div class="team">
       <div class="team-member" v-for="member in teamMembers" :key="member.name">
         <img :src="member.image" :alt="member.name" class="team-member-image">
-        <h2 class="team-member-title">{{ member.name }}: {{ member.title }}</h2>
+        <h2 class="team-member-name">{{ member.name }}</h2>
+        <p class="team-member-title">{{ member.title }}</p>
       </div>
     </div>
   </div>
@@ -52,7 +51,8 @@ h1 {
 }
 
 .team-member {
-  flex: 1 0 21%; /* Adjust this value as needed */
+  flex: 1 0 21%;
+  /* Adjust this value as needed */
   margin: 10px;
   text-align: center;
 }
@@ -60,5 +60,13 @@ h1 {
 .team-member-image {
   width: 100%;
   height: auto;
+}
+
+.team-member-name {
+  font-weight: bold;
+}
+
+.team-member-title {
+  text-align: center;
 }
 </style>

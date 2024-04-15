@@ -3,7 +3,7 @@
     <h1>LiU Marketplace</h1>
     <div class="container">
       <h3>Logga in</h3>
-      <button>Logga in med SSO via LiU</button>
+      <button @click="loginSSO">Logga in med SSO via LiU</button>
     </div>
     <input type="text" v-model="username" placeholder="LiU-ID">
     <input type="password" v-model="password" placeholder="Lösenord">
@@ -14,12 +14,12 @@
       <button @click="showModal = true">Registrera dig här</button>
     </div>
     <div v-if="showModal" class="modal">
-      
+
       <!--<h3>Registrera dig</h3>-->
-    
+
       <div>
-      <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
-    </div>
+        <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
+      </div>
       <form @submit.prevent="register">
         <div>
           <label>
@@ -89,6 +89,7 @@
 
 <script>
 import axios from 'axios';
+import { PublicClientApplication } from "@azure/msal-browser";
 
 export default {
   name: 'LoginPage',
@@ -99,10 +100,45 @@ export default {
       showModal: false,
       liu_id: '',
       password: '',
+      msalConfig: {
+        auth: {
+          clientId: "a43a60fc-0797-469d-b195-722df39d414a",
+          authority: "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd",
+          redirectUri: "http://localhost:8080",
+          //redirectUri: "http://127.0.0.1:5000"
+        },
+        cache: {
+          cacheLocation: "sessionStorage", // This configures where your cache will be stored
+          storeAuthStateInCookie: false, // If you set this to "true", you must also set "cacheLocation" to "sessionStorage"
+        }
+      },
+      loginRequest: {
+        scopes: ["openid", "profile", "User.Read"],
+      },
+      myMSALObj: null,
     };
   },
 
+  created() {
+    this.initializeMSAL();
+  },
+
   methods: {
+    async initializeMSAL() {
+      this.myMSALObj = await new PublicClientApplication(this.msalConfig);
+    },
+
+    loginSSO() {
+      console.log('loginSSO method called');
+      //const myMSALObj = new PublicClientApplication(this.msalConfig);
+      this.myMSALObj.loginPopup(this.loginRequest).then((loginResponse) => {
+        // login success
+        console.log(loginResponse);
+      }).catch((error) => {
+        console.error(error);
+      });
+    },
+
     async login() {
       try {
         const response = await axios.post("/login", {
@@ -207,7 +243,7 @@ button {
   z-index: 1000;
   position: fixed;
   top: 50%;
-  left:50%;
+  left: 50%;
   width: 40%;
   height: 47%;
   padding: 20px;
@@ -219,9 +255,11 @@ button {
   background-color: white;
   border-radius: 10px;
 }
+
 .close-button {
   margin-top: 60px;
 }
+
 .img_login {
   width: 100%;
   height: auto;
@@ -280,11 +318,12 @@ p {
   max-width: 50px;
   margin-right: 10px;
 }
+
 .modal {
   z-index: 1000;
   position: fixed;
   top: 50%;
-  left:50%;
+  left: 50%;
   width: 40%;
   height: 47%;
   padding: 20px;
@@ -296,9 +335,11 @@ p {
   background-color: white;
   border-radius: 10px;
 }
+
 .close-button {
   margin-top: 60px;
 }
+
 .img_login {
   width: 100%;
   height: auto;

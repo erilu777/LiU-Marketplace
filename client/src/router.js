@@ -129,10 +129,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  const publicPages = ['/vanliga-fragor', '/kontakta-oss', '/om-oss'];
+  
   if (to.path == '/login' && checkLoginStatus()) {
     next({ name: 'home'}) // Om användaren är inloggad och försöker gå till /login, skicka användaren till /home
+    } else if (publicPages.includes(to.path) && !checkLoginStatus()) {
+      next()
     } else {
-    next() // Om användaren inte är inloggad och försöker gå till /login, skicka användaren till /login
+      next() // Om användaren inte är inloggad och försöker gå till /login, skicka användaren till /login
   }
 })
 
