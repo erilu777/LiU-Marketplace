@@ -29,7 +29,7 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" @change="handleImageUpload">
+          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
         </div>
         <button type="submit">Gå till betalning</button>
         <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
@@ -57,21 +57,26 @@ export default {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
 
-      const data = {
-        "category": this.category,
-        "title": this.title,
-        "description": this.description,
-        "price": this.price,
-        "condition": this.condition,
-        "area": this.area,
-        "date": new Date().toISOString(),
-      };
-
-      axios.post('/items', data, {
-        headers: {
-          "Authorization": "Bearer " + token
+      const formData = new FormData();
+      formData.append('category', this.category);
+      formData.append('title', this.title);
+      formData.append('description', this.description);
+      formData.append('price', this.price);
+      formData.append('condition', this.condition);
+      formData.append('area', this.area);
+      formData.append('date', new Date().toISOString());
+      if(this.image){
+        for(let i = 0; i < this.image.length; i++){
+          formData.append('image', this.image[i]);
         }
-      })
+      }
+
+  axios.post('/items', formData, {
+    headers: {
+      "Authorization": "Bearer " + token,
+      'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+    }
+  })
         .then(response => {
           console.log('Response:', response);
         })
@@ -81,8 +86,7 @@ export default {
         this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      const file = event.target.files[0];
-      this.image = file;
+      this.image = Array.from(event.target.files);
     },
     navigateToHome() {
       this.$router.push('/');

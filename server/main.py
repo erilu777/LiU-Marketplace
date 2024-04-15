@@ -1,10 +1,12 @@
-from flask import Flask, jsonify, abort, request
+from flask import Flask, jsonify, abort, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__, 
 static_folder='../client/dist', 
@@ -18,7 +20,6 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-#det här är ändringar!
 
 class User(db.Model):
 
@@ -60,7 +61,23 @@ class User(db.Model):
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
 
-        
+
+class userImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    
+    def __repr__(self):
+        return f'<userImage {self.id} : {self.image_path} {self.user_id}>'
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "image_path": request.url_root + self.image_path,
+            "user_id":self.user_id
+        }
+
+
 class Category(Enum):
     Cyklar = 1
     Kurslitteratur = 2
@@ -98,18 +115,6 @@ class Area(Enum):
             'value': self.value,
             'name': self.name
         }
-
-class ItemImage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image_path = db.Column(db.String(120))
-    item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
-    
-    def serialize(self):
-        return {
-            "id":self.id,
-            "image_path": self.image_path,
-            "item_id":self.item_id
-        }
     
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -145,6 +150,21 @@ class Item(db.Model):
             "buyer": buyer_data,
             "area": self.area.name if self.area else None,
             "date": self.date.isoformat() if self.date else None
+        }
+
+class ItemImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120))
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
+    
+    def __repr__(self):
+        return f'<ItemImage {self.id} : {self.image_path} {self.item_id}>'
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "image_path": request.url_root + self.image_path,
+            "item_id":self.item_id
         }
 
 @app.route('/', defaults={'path': ''})
@@ -208,21 +228,39 @@ def items():
         all_items = Item.query.all()
         return jsonify([item.serialize() for item in all_items])
     elif request.method == 'POST':
-        data = request.get_json()
-        new_item = Item(title=data.get('title'), description=data.get("description"), price=data.get("price"), category=Category[data.get("category")], condition=Condition[data.get("condition")], area=Area[data.get("area")])
-        #if 'seller_id' in data:
-            #seller = User.query.get(data['seller_id'])
-            #if seller:
-                #new_item.seller = seller
-        new_item.seller_id = get_jwt_identity()
-        if 'images' in data:
-            for image in data['images']:
-                new_image = ItemImage(image_path=image)
-                new_item.images.append(new_image)
+        data = request.form.to_dict()
+        new_item = Item(title=data.get('title'), 
+                        description=data.get("description"), 
+                        price=data.get("price"), 
+                        category=Category[data.get("category")], 
+                        condition=Condition[data.get("condition")], 
+                        area=Area[data.get("area")],
+                        seller_id=get_jwt_identity()
+                        )
+
         db.session.add(new_item)
+        db.session.flush()
+
+        if request.files['image']:
+            print(f"picture added??")
+            for image in request.files.getlist('image'):
+                filename = secure_filename(image.filename)
+                image_path = os.path.join('static/uploads', filename)
+                image.save(image_path)
+                new_image = ItemImage(image_path=image_path, item_id=new_item.id)
+                db.session.add(new_image)
+                print(f"Image at path: {image_path}")
+
         db.session.commit()
+        for image in new_item.images:
+            print(f"Image path: {image.image_path}")
+
         return jsonify(new_item.serialize()), 201
     
+@app.route('/static/uploads/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static/uploads', filename)
+
 @app.route('/items/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def handle_items(item_id):
@@ -270,9 +308,6 @@ def sell_item(item_id):
         abort(404, description="buyer_id is invalid")
 
     seller = User.query.get(item.seller_id)
-    # if user is None:
-        # abort(404, description="user_id is invalid")
-    # Felhantering behövs ej för en item kommer alltid att ha en user...?
 
     item.buyer = buyer
     item.is_sold = True

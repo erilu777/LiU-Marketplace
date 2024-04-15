@@ -38,9 +38,9 @@
 
     <div class="ads">
       <router-link v-for="ad in filteredItems" :key="ad.id"
-        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description, date: ad.date, sellerId: ad.seller.id, sellerName: ad.seller.name, sellerEmail: ad.seller.email} }"
+        :to="{ name: 'AdsDetails', params: { id: ad.id } }"
         class="ad">
-        <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
+        <img :src="ad.images[0].image_path" alt="Product Image" class="ad-image">
         <div class="ad-details">
           <h3 class="ad-title">{{ ad.title }}</h3>
           <p class="ad-price">{{ ad.price }} kr</p>
@@ -57,7 +57,6 @@ import { fetchAdsData } from '@/components/AdsItems.js';
 
 export default {
   components: {
-
   },
   data() {
     return {

@@ -1,5 +1,4 @@
-<template>
- 
+<template> 
   <div class="breadcrumbs">
     <a href="/#">LiU Marketplace</a> >
     <a href="/#/buy">Köpa</a> >
@@ -10,69 +9,71 @@
     <div class="image-container">
     <div class="carousel">
       
-    <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
+    <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
       <div class="arrow left" @click="prevImage">&#10094;</div>
       <div class="arrow right" @click="nextImage">&#10095;</div>
    </div>
    <div class="thumbnails">
-        <img v-for="(image, index) in images" :src="image" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
+        <img v-for="(image, index) in images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
       </div>
     </div>
 
     <div class="ad-info">
-      <h1 class="ad-title"><strong>{{ title }}</strong></h1>
-      <p class="ad-description"> {{ description }}</p>
-      <p class="ad-price"><strong>Pris: {{ price }} kr</strong> </p>
-      <p class="ad-condition"><strong>Skick: {{ condition }}</strong></p>
-      <p class="ad-area"><strong>Plats: {{ area }}</strong></p>
-      <p class="ad-category"><strong>Kategori: {{ category }}</strong></p>
-      <p class="ad-date">🕒 {{ new Date(date).toLocaleDateString('sv-SE') + ', ' + new Date(date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
+      <h1 class="ad-title"><strong>{{ item.title }}</strong></h1>
+      <p class="ad-description"> {{ item.description }}</p>
+      <p class="ad-price"><strong>Pris: {{ item.price }} kr</strong> </p>
+      <p class="ad-condition"><strong>Skick: {{ item.condition }}</strong></p>
+      <p class="ad-area"><strong>Plats: {{ item.area }}</strong></p>
+      <p class="ad-category"><strong>Kategori: {{ item.category }}</strong></p>
+      <p class="ad-date">🕒 {{ new Date(item.date).toLocaleDateString('sv-SE') + ', ' + new Date(item.date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      
+      <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
-   
-    <!-- Seller info -->
   </div>
+      <!-- Seller info -->
   <h1 class="seller-about"><strong>Om säljaren</strong></h1>
-  <div class="seller-info">
+  <div class="seller-info" v-if="item">
       <img src='/images/profile.png' alt="Profile Image" class="profile-image">
       <div class="seller-id">
-        <p class="seller-name"><strong>{{ sellerName }}</strong></p> 
-        <p class="seller-liuid"><strong>{{ sellerEmail }}</strong></p>
+        <p class="seller-name"><strong>{{ item.seller.name }}</strong></p> 
+        <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
       </div>
-    </div>
+  </div>
 </template>
 
 <script>
+import { fetchAdData } from '@/components/AdsItems.js';
 import { getCondition} from '@/components/getCondition.js';
+
 export default {
   props: ['id'],
   data () {
     return {
-      imageUrl: this.$route.query.imageUrl,
-      title: this.$route.query.title,
-      price: this.$route.query.price,
-      condition: getCondition(this.$route.query.condition),
-      area: this.$route.query.area,
-      category: this.$route.query.category,
-      description: this.$route.query.description,
+      item: null,
       currentIndex: 0,
-      images: ['/images/cykel.png', '/images/apartment.png'],
-      date: this.$route.query.date,
-      sellerId: this.$route.query.sellerId,
-      sellerName: this.$route.query.sellerName,
-      sellerEmail: this.$route.query.sellerEmail
+    }
+  },
+  async created() {
+    console.log('Trying to create ad with ID: ', this.id);
+    try {
+      this.item = await fetchAdData(this.id);
+      console.log('Ad data:', this.id);
+      console.log('this.item.title: ', this.item.title);
+      this.item.condition = getCondition(this.item.condition);
+    } catch (error) {
+      console.error('Error fetching ad data:', error);
     }
   },
   computed: {
     currentImageUrl() {
-      return this.images[this.currentIndex];
+      return this.currentIndex;
     }
   },
   methods: {
     nextImage() {
-      this.currentIndex = (this.currentIndex + 1) % this.images.length;
+      this.currentIndex = (this.currentIndex + 1) % this.item.images.length;
     },
     prevImage() {
-      this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+      this.currentIndex = (this.currentIndex - 1 + this.item.images.length) % this.item.length;
     },
     goBack() {
       // Navigate back to the all ads page
