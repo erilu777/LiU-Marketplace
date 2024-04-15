@@ -12,7 +12,7 @@
           <h4>{{ user.email }}</h4>
         </div>
         <div class="row">
-          <h4>{{ user.education }}</h4>
+          <h4>{{ user.program }}</h4>
         </div>
         <div class="row">
           <h4>Årskurs {{ user.year }}</h4>
@@ -39,7 +39,7 @@ export default {
         firstName: '',
         lastName: '',
         email: '',
-        education: '',
+        program: '',
         year: '',
       },
     };

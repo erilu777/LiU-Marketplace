@@ -1,7 +1,11 @@
 <template>
-  <div class="button">
-    <button @click="goBack" class="back-button" style="color: white">Tillbaka till annonser</button>
-  </div>
+ 
+  <div class="breadcrumbs">
+    <a href="/#">LiU Marketplace</a> >
+    <a href="/#/buy">Köpa</a> >
+    <strong style="color: #0C254A">{{title}}</strong>
+</div>
+
   <div class="ad-details">
     <div class="image-container">
     <div class="carousel">
@@ -116,28 +120,42 @@ export default {
 }
 
 .ad-image {
-  width: 350px; 
-  height: 350px;
+  width: 450px; 
+  height: 450px;
   object-fit: cover;
 }
 
 .arrow {
+  cursor: pointer;
   position: absolute;
-  top: 60%;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 24px;
-  color: rgb(0, 0, 0);
-  background-color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+  color: darkgrey;
+  background-color: white;
   padding: 10px;
+}
+
+.arrow:hover {
+  color: black;
 }
 
 .left {
   left: -40px;
+  border-radius: 3px 0 0 3px;
+
 }
 
 .right {
   right: -40px;
+  border-radius: 0 3px 3px 0;
+
 }
 
 .thumbnail {
@@ -151,31 +169,32 @@ export default {
   margin-left: 1000 px;
 }
 
-
 .ad-price, .ad-condition, .ad-area, .ad-category .ad-description {
   font-size: 16px;
   margin-bottom: 0;
-  margin-right: 300px;
+  margin-right: 0;
 }
 
 .ad-date {
   font-size: 12px;
   margin-top: 10px;
-  margin-right: 300px;
+  margin-right: 0;
 }
 
 .ad-info {
-  margin-left: 10%;
+  margin-left: 5%;
   margin-top: 0px;
-  width: 600px;
-  background-color: #e7f2f7;
-  border: 3px solid #bbd5e9;
+  /*background-color: clear;
+  border: 3px solid #bbd5e9;*/
   border-radius: 20px;
   padding: 50px;
+  width: 500px;
+  height: auto;
  }
 
  .contact-button  {
-  margin-top: 50px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   padding: 10px;
   width: 47%;
   height: 60px;
@@ -198,14 +217,14 @@ export default {
  .seller-about {
   font-size: 20px;
   text-align: left;
-  margin-left: 175px;
+  margin-left: 15%;
   margin-top: 20px;
   margin-bottom: 0px;
  }
 
  .seller-info {
   display: flex;
-  margin-left: 175px;
+  margin-left: 15%;
   text-align: left;
   margin-bottom: 20px;
   margin-top: 10px;
@@ -245,9 +264,19 @@ export default {
     cursor: pointer;
   }
 
-  .large-image {
-  align-self: flex-start; 
-  width: 400px;
-  height: auto;
+.breadcrumbs {
+    font-size: 14px;
+    color: black;
+    margin-top: 10px;
 }
+
+.breadcrumbs a {
+    text-decoration: none;
+    color: black;
+}
+
+.breadcrumbs a:hover {
+    color: #0C254A;
+}
+
 </style>
