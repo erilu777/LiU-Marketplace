@@ -1,20 +1,19 @@
 <template> 
-  <div class="breadcrumbs">
+  <div class="breadcrumbs" v-if="item">
     <a href="/#">LiU Marketplace</a> >
     <a href="/#/buy">Köpa</a> >
-    <strong style="color: #0C254A">{{title}}</strong>
+    <strong style="color: #0C254A">{{item.title}}</strong>
 </div>
 
-  <div class="ad-details">
+  <div class="ad-details" v-if="item">
     <div class="image-container">
-    <div class="carousel">
-      
+    <div class="carousel">    
     <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
       <div class="arrow left" @click="prevImage">&#10094;</div>
       <div class="arrow right" @click="nextImage">&#10095;</div>
-   </div>
-   <div class="thumbnails">
-        <img v-for="(image, index) in images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
+    </div>
+    <div class="thumbnails">
+          <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" :class="{ 'active-thumbnail': currentIndex === index }" @click="currentIndex = index">
       </div>
     </div>
 
@@ -73,7 +72,7 @@ export default {
       this.currentIndex = (this.currentIndex + 1) % this.item.images.length;
     },
     prevImage() {
-      this.currentIndex = (this.currentIndex - 1 + this.item.images.length) % this.item.length;
+      this.currentIndex = (this.currentIndex - 1 + this.item.images.length) % this.item.images.length;
     },
     goBack() {
       // Navigate back to the all ads page
@@ -278,6 +277,10 @@ export default {
 
 .breadcrumbs a:hover {
     color: #0C254A;
+}
+
+.active-thumbnail {
+  border: 3px solid #0C254A;
 }
 
 </style>
