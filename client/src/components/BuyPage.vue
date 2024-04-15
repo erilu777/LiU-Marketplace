@@ -6,6 +6,7 @@
 </div>
 
   <div class="page">
+    <h1 class="page-title">{{ pageTitle }}</h1>
     <!-- Search Bar -->
     <div class="search-bar">
       <input type="search" v-model="searchTerm" placeholder="&#128269;" class="search-input">
@@ -60,6 +61,7 @@ export default {
   },
   data() {
     return {
+      pageTitle: 'Vad vill du köpa?',
       searchTerm: '',
       sortBy: '',
       choose: 'alla',
@@ -152,6 +154,11 @@ export default {
 </script>
 
 <style scoped>
+
+.page-title {
+  margin-top: 0px;
+}
+
 .categories {
 
   display: flex;
@@ -248,11 +255,12 @@ p {
 
 .ad-image {
   width: 250px;
-  height: auto;
+  height: 250px;
   padding: 10px;
   align-items: center;
   max-width: 100%;
   margin-top: 10px;
+  object-fit: cover;
 }
 
 .ad-details {

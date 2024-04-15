@@ -25,7 +25,7 @@
       <p class="ad-condition"><strong>Skick: {{ item.condition }}</strong></p>
       <p class="ad-area"><strong>Plats: {{ item.area }}</strong></p>
       <p class="ad-category"><strong>Kategori: {{ item.category }}</strong></p>
-      <p class="ad-date">🕒 {{ new Date(item.date).toLocaleDateString('sv-SE') + ', ' + new Date(item.date).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) }}</p>      
+      <p class="ad-date">🕒 {{ formatDate(item.date) }}</p>
       <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
   </div>
@@ -92,8 +92,18 @@ export default {
 
       // Open the email client with the pre-filled email
       window.location.href = mailtoLink;
+    },
+    formatDate(dateString) {
+      // Convert the dateString to UTC
+      let date = new Date(dateString + 'Z');
+
+      // Format the date and time
+      let formattedDate = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Stockholm' });
+      let formattedTime = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
+
+      return formattedDate + ', ' + formattedTime;
     }
-    }
+  }
 };
 </script>
 

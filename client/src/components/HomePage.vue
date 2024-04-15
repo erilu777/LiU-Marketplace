@@ -7,6 +7,15 @@
         <img src="../assets/LMlogo.png" alt="Liu Marketplace Logo" class="logo">
       </div>
     </div>
+
+    <div class="do-today">
+      <h2>Vad vill du göra idag?</h2>
+      <div class="buttons">
+        <button class="buy-button" @click="navigateToBuy">Köpa</button>
+        <button class="sell-button" @click="navigateToSell">Sälja</button>
+      </div>
+      <img src="../assets/books.png" alt="Books" class="books-image">
+    </div>
     
     
     <!-- Rest of your page content -->
@@ -19,9 +28,9 @@
 
       <div class="ads">
       <router-link v-for="ad in filteredItems" :key="ad.id"
-        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description, date: ad.date, sellerId: ad.seller.id, sellerName: ad.seller.name, sellerEmail: ad.seller.email} }"
+        :to="{ name: 'AdsDetails', params: { id: ad.id } }"
         class="ad">
-        <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
+        <img :src="ad.images[0].image_path" alt="Product Image" class="ad-image">
         <div class="ad-details">
           <h3 class="ad-title">{{ ad.title }}</h3>
           <p class="ad-price">{{ ad.price }} kr</p>
@@ -68,6 +77,12 @@ export default {
   methods: {
     clearSearch() {
       this.searchTerm = ''; // Clear the search term
+    },
+    navigateToBuy() {
+      this.$router.push('/buy');
+    },
+    navigateToSell() {
+      this.$router.push('/sell');
     }
   }
 };
@@ -81,6 +96,7 @@ export default {
 .banner {
   position: relative;
   width: 100%;
+  z-index: -1;
 }
 
 .banner-image {
@@ -98,23 +114,24 @@ export default {
 
 h1 {
   color: white;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .logo {
-  margin-top: 100px;
-  max-width: 150px;
+  margin-top: 80px;
+  max-width: 20%;
+  width: auto;
+  object-fit: cover;
 }
 
 .search-input {
-  margin-top: 20px;
+  margin-top: 10px;
   width: 400px;
 }
 
 .selected-text {
   color: #ffffff;
 }
-
 
 .ads {
   display: flex;
@@ -125,7 +142,7 @@ h1 {
   margin-left: auto;
   margin-right: auto;
   margin-top: 20px;
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
 .ad {
@@ -144,13 +161,22 @@ p {
   color: #102A50;
 }
 
+h2 {
+    font-weight: bold;
+    font-size: 60px;
+    color: #0c264d;
+    padding-bottom: 20px;
+    margin-top: 40px;
+  }
+
 .ad-image {
   width: 250px;
-  height: auto;
+  height: 250px;
   padding: 10px;
   align-items: center;
   max-width: 100%;
   margin-top: 10px;
+  object-fit: cover;
 }
 
 .ad-details {
@@ -166,9 +192,29 @@ p {
   text-align: left;
 }
 
-
 .ad-area, .ad-date, .ad-price {
   margin: 0;
   text-align: left;
 }
+
+.buy-button, .sell-button{
+  background-color: #E7F2F7;
+  border-color: #bbd5e9;
+  padding: 10px;
+  width: 250px;
+  height: 60px;
+  border-radius: 20px;
+  min-width: 180px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  margin-right: 10px;
+  margin-left: 10px;
+  }
+
+  .books-image {
+    width: 100%;
+    height: auto;
+    margin-top: 40px;
+    opacity: 0.7;
+  }
 </style>

@@ -28,6 +28,7 @@
     <div class="column">
       <h3><strong>LiU Marketplace</strong></h3>
       <p>For Students - By Students</p>
+      <p class="copyright">© LiU Marketplace 2024</p>
     </div>
     <div class="column">
       <img src="../assets/LMlogo.png" alt="LMlogo">
@@ -138,4 +139,8 @@ h3 {
   margin-right: 10px;
 }
 
+.copyright {
+  font-size: 12px;
+  margin-top: 100px;
+}
 </style>
