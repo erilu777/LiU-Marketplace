@@ -1,16 +1,24 @@
 <template>
-  <div class="button">
-    <button @click="goBack" class="back-button" style="color: white">&lt; Tillbaka till annonser</button>
-  </div>
+ 
+  <div class="breadcrumbs">
+    <a href="/#">LiU Marketplace</a> >
+    <a href="/#/buy">Köpa</a> >
+    <strong style="color: #0C254A">{{title}}</strong>
+</div>
+
   <div class="ad-details">
+    <div class="image-container">
     <div class="carousel">
-      <div class="thumbnails">
+      
+    <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
+      <div class="arrow left" @click="prevImage">&#10094;</div>
+      <div class="arrow right" @click="nextImage">&#10095;</div>
+   </div>
+   <div class="thumbnails">
         <img v-for="(image, index) in images" :src="image" :key="index" alt="Product Thumbnail" class="thumbnail" @click="currentIndex = index">
       </div>
-      <div class="large-image">
-        <img :src="currentImageUrl" :key="currentImageUrl" alt="Product Image" class="ad-image">
-      </div>
     </div>
+
     <div class="ad-info">
       <h1 class="ad-title"><strong>{{ title }}</strong></h1>
       <p class="ad-description"> {{ description }}</p>
@@ -90,41 +98,69 @@ export default {
 
 <style scoped>
 
+.image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 15%;
+}
+
 .ad-details {
   display: flex;
   align-items: top;
   text-align: left;
+  margin-top: 80px;
 }
 
 .carousel {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-
 .ad-image {
-  width: 350px; 
-  height: auto;
-  margin-left: 50%;
-  margin-top: 20px;
+  width: 450px; 
+  height: 450px;
+  object-fit: cover;
 }
 
 .arrow {
+  cursor: pointer;
   position: absolute;
-  top: 60%;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 24px;
-  color: rgb(0, 0, 0);
-  background-color: rgb(255, 255, 255);
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+  color: darkgrey;
+  background-color: white;
   padding: 10px;
 }
 
+.arrow:hover {
+  color: black;
+}
+
 .left {
-  left: 35%;
+  left: -40px;
+  border-radius: 3px 0 0 3px;
+
 }
 
 .right {
-  right: -65%;
+  right: -40px;
+  border-radius: 0 3px 3px 0;
+
+}
+
+.thumbnail {
+  margin: 5px 5px;
+  border: 1px solid black;
 }
 
 .ad-title {
@@ -133,34 +169,32 @@ export default {
   margin-left: 1000 px;
 }
 
-.ad-description{
-  font-size: 20px;
-  margin-top: 20px;
-  margin-right: 300px;
-  margin-bottom: 20px;
-  width: 90%;
-}
-
-.ad-price, .ad-condition, .ad-area, .ad-category {
-  font-size: 16px; /* Example: Decrease font size for price */
+.ad-price, .ad-condition, .ad-area, .ad-category .ad-description {
+  font-size: 16px;
   margin-bottom: 0;
-  margin-right: 300px;
+  margin-right: 0;
 }
 
 .ad-date {
   font-size: 12px;
   margin-top: 10px;
-  margin-right: 300px;
+  margin-right: 0;
 }
 
 .ad-info {
-  margin-left: 25%;
-  margin-top: 40px;
-  width: 90%;
+  margin-left: 5%;
+  margin-top: 0px;
+  /*background-color: clear;
+  border: 3px solid #bbd5e9;*/
+  border-radius: 20px;
+  padding: 50px;
+  width: 500px;
+  height: auto;
  }
 
  .contact-button  {
-  margin-top: 50px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   padding: 10px;
   width: 47%;
   height: 60px;
@@ -183,15 +217,17 @@ export default {
  .seller-about {
   font-size: 20px;
   text-align: left;
-  margin-left: 175px;
+  margin-left: 15%;
   margin-top: 20px;
-  
+  margin-bottom: 0px;
  }
+
  .seller-info {
   display: flex;
-  margin-left: 175px;
+  margin-left: 15%;
   text-align: left;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
+  margin-top: 10px;
  }
 
  .profile-image {
@@ -228,9 +264,19 @@ export default {
     cursor: pointer;
   }
 
-  .large-image {
-  align-self: flex-start; 
-  width: 400px;
-  height: auto;
+.breadcrumbs {
+    font-size: 14px;
+    color: black;
+    margin-top: 10px;
 }
+
+.breadcrumbs a {
+    text-decoration: none;
+    color: black;
+}
+
+.breadcrumbs a:hover {
+    color: #0C254A;
+}
+
 </style>

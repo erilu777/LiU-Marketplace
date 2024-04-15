@@ -1,4 +1,10 @@
 <template>
+
+<div class="breadcrumbs">
+    <a href="/#">LiU Marketplace</a> >
+    <strong style="color: #0C254A">Köpa</strong>
+</div>
+
   <div class="page">
     <!-- Search Bar -->
     <div class="search-bar">
@@ -29,9 +35,6 @@
         <option value="latest">Senaste</option>
       </select>
     </div>
-
-
-
 
     <div class="ads">
       <router-link v-for="ad in filteredItems" :key="ad.id"
@@ -90,7 +93,7 @@ export default {
       );
     },
   },
-  methods: {
+  methods: { 
     toggleCategory(categoryName) {
       if (!this.selectedCategories.includes(categoryName)) {
         // Category is not selected, add it to selected categories
@@ -102,7 +105,6 @@ export default {
       }
       this.filterByCategory();
     },
-
     filterByCategory() {
       if (this.selectedCategories.length === 0) {
         // No category selected, show all items
@@ -138,7 +140,6 @@ export default {
       console.log('Filtered items:', this.filteredItems);
       this.handleSort();
     },
-
     handleSort() {
       if (this.sortBy === 'price') {
         this.sortByPrice();
@@ -189,7 +190,7 @@ export default {
 }
 
 .search-input {
-  margin-top: 20px;
+  margin-top: 0px;
   width: 400px;
 }
 
@@ -268,9 +269,23 @@ p {
   text-align: left;
 }
 
-
 .ad-area, .ad-date, .ad-price {
   margin: 0;
   text-align: left;
+}
+
+.breadcrumbs {
+    font-size: 14px;
+    color: black;
+    margin-top: 10px;
+}
+
+.breadcrumbs a {
+    text-decoration: none;
+    color: black;
+}
+
+.breadcrumbs a:hover {
+    color: #0C254A;
 }
 </style>

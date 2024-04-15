@@ -20,7 +20,7 @@
           <input type="text" id="name" v-model="name" placeholder="Namn">
         </div>
         <div class="row">
-          <input type="text" id="education" v-model="education" placeholder="Utbildning">
+          <input type="text" id="program" v-model="program" placeholder="Utbildning">
         </div>
         <div class="row">
           <select id="year" v-model="year">
@@ -63,7 +63,7 @@ export default {
       console.log('Token:', token);
       const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
       const data = {
-        "program": this.education,
+        "program": this.program,
         "year": this.year,
         "name": this.name,
       };
