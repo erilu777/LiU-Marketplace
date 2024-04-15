@@ -10,6 +10,7 @@
     "dev": "concurrently \"npm run serve\" \"npm run start-flask\""
   },
   "dependencies": {
+    "@azure/msal-browser": "^3.13.0",
     "@stripe/stripe-js": "^3.2.0",
     "@vue/cli": "^5.0.8",
     "axios": "^1.6.8",

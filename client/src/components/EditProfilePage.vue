@@ -55,6 +55,7 @@ export default {
       Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id
     };
   },
+
   methods: {
 
     editProfile() {
@@ -78,7 +79,7 @@ export default {
           sessionStorage.setItem('auth', JSON.stringify(auth));
           this.$router.push('/profile');
         })
-      this.$router.push('/profile');
+      this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
     },
 
     navigateToProfile() {
@@ -101,8 +102,8 @@ export default {
 }
 
 .submit-button {
-  background-color: lightblue;
-  color: black;
+  background-color: #0c264d;
+  color: white;
 }
 
 h1 {
