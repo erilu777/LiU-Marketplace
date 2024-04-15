@@ -20,7 +20,6 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-#det här är ändringar!
 
 class User(db.Model):
 
@@ -62,7 +61,23 @@ class User(db.Model):
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
 
-        
+
+class userImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    
+    def __repr__(self):
+        return f'<userImage {self.id} : {self.image_path} {self.user_id}>'
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "image_path": request.url_root + self.image_path,
+            "user_id":self.user_id
+        }
+
+
 class Category(Enum):
     Cyklar = 1
     Kurslitteratur = 2
@@ -100,21 +115,6 @@ class Area(Enum):
             'value': self.value,
             'name': self.name
         }
-
-class ItemImage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image_path = db.Column(db.String(120))
-    item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
-    
-    def __repr__(self):
-        return f'<ItemImage {self.id} : {self.image_path} {self.item_id}>'
-
-    def serialize(self):
-        return {
-            "id":self.id,
-            "image_path": request.url_root + self.image_path,
-            "item_id":self.item_id
-        }
     
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -150,6 +150,21 @@ class Item(db.Model):
             "buyer": buyer_data,
             "area": self.area.name if self.area else None,
             "date": self.date.isoformat() if self.date else None
+        }
+
+class ItemImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(120))
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"))
+    
+    def __repr__(self):
+        return f'<ItemImage {self.id} : {self.image_path} {self.item_id}>'
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "image_path": request.url_root + self.image_path,
+            "item_id":self.item_id
         }
 
 @app.route('/', defaults={'path': ''})
@@ -230,7 +245,6 @@ def items():
             print(f"picture added??")
             for image in request.files.getlist('image'):
                 filename = secure_filename(image.filename)
-                
                 image_path = os.path.join('static/uploads', filename)
                 image.save(image_path)
                 new_image = ItemImage(image_path=image_path, item_id=new_item.id)
