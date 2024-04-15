@@ -14,9 +14,9 @@
                     <div class="buttons" v-show="ad.showButtons">
                       <button class="small-button" @click="editAd(index)">Redigera</button>
                       <button class="small-button" @click="deleteAd(index)">Ta bort</button>
-                      <button class="small-button" @click="showModal">Såld</button>
+                      <button class="small-button" @click="showModal(index)">Såld</button>
                         <div class="modal" :class="{ 'is-active': isModalActive }">
-                          <div class="modal-background" @click="closeModal"></div>
+                          <div class="modal-background" @click="closeModal(index)"></div>
                           <div class="modal-content">
                             <div class="box">
                               <p>Vem har du sålt varan till?</p>
@@ -25,7 +25,7 @@
                               <!-- Knapp för att bekräfta försäljningen -->
                               <button @click="confirmSale(index)">Bekräfta försäljning</button>
                               <div>
-                                <p class="h-button" @click="closeModal">Gå tillbaka</p>
+                                <p class="h-button" @click="closeModal(index)">Gå tillbaka</p>
                               </div>
                               
                             </div>
@@ -142,11 +142,15 @@
         console.log(ad); // Log the ad to the console
         this.$router.push(`/edit-ad/${ad.id}`);
       },
-      showModal() {
+      showModal(index) {
         this.isModalActive = true;
+        this.availableAds[index].showButtons = false; 
+        this.availableAds[index].showButtons = true;
       },
-      closeModal() {
+      closeModal(index) {
         this.isModalActive = false;
+        this.availableAds[index].showButtons = false; 
+        this.availableAds[index].showButtons = true;
       },
       deleteAd(index) {
         const ad = this.availableAds[index];
