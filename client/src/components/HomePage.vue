@@ -18,17 +18,19 @@
       </div>
 
       <div class="ads">
-        <router-link v-for="ad in filteredItems" :key="ad.id"
-          :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description } }"
-          class="ad">
-          <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
-          <div class="ad-details">
-            <h3 class="ad-title">{{ ad.title }}</h3>
-            <p class="ad-price">{{ ad.price }}</p>
-          </div>
-        </router-link>
-      </div>
+      <router-link v-for="ad in filteredItems" :key="ad.id"
+        :to="{ name: 'AdsDetails', params: { id: ad.id }, query: { imageUrl: ad.imageUrl, title: ad.title, price: ad.price, condition: ad.condition, area: ad.area, category: ad.category, description: ad.description, date: ad.date, sellerId: ad.seller.id, sellerName: ad.seller.name, sellerEmail: ad.seller.email} }"
+        class="ad">
+        <img :src="ad.imageUrl" alt="Product Image" class="ad-image">
+        <div class="ad-details">
+          <h3 class="ad-title">{{ ad.title }}</h3>
+          <p class="ad-price">{{ ad.price }} kr</p>
+          <p class="ad-area">{{ ad.area }}</p>
+          <p class="ad-date">{{ new Date(ad.date).toLocaleDateString('sv-SE')  }}</p>
+        </div>
+      </router-link>
     </div>
+  </div>
 
   </div>
 
@@ -36,7 +38,7 @@
 </template>
 
 <script>
-import * as ads from '@/components/AdsItems.js';
+import { fetchAdsData } from '@/components/AdsItems.js';
 
 export default {
   components: {
@@ -45,43 +47,25 @@ export default {
   data() {
     return {
       searchTerm: '',
-      categories: [
-        { id: 1, name: 'Cyklar' },
-        { id: 2, name: 'Böcker' },
-        { id: 3, name: 'Biljetter' },
-        { id: 4, name: 'Inredning' },
-        { id: 5, name: 'Bostad' },
-        { id: 6, name: 'Verktyg' },
-        { id: 7, name: 'Övrigt' }
-      ],
-      selectedCategories: [],
       filteredItems: [],
     };
   },
+  async mounted() {
+    this.items = await fetchAdsData();
+    this.filteredItems = this.items;
+    this.items.forEach(item => {
+      console.log('Item area:', item.area);
+    });
+  },
   watch: {
     searchTerm: function () {
-      this.filteredItems = ads.adsData.filter((ad) =>
-        ad.category && ad.category.toLowerCase().includes(this.searchTerm.toLowerCase())
+      this.filteredItems = this.items.filter((item) =>
+        (item.category && item.category.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (item.title && item.title.toLowerCase().includes(this.searchTerm.toLowerCase()))
       );
     },
   },
-  created() {
-    this.filteredItems = ads.adsData
-  },
   methods: {
-    toggleCategory(categoryId) {
-      const index = this.selectedCategories.indexOf(categoryId);
-      if (index === -1) {
-        // Category is not selected, add it to selected categories
-        this.selectedCategories.push(categoryId);
-      } else {
-        // Category is already selected, remove it from selected categories
-        this.selectedCategories.splice(index, 1);
-      }
-    },
-    isSelected(categoryId) {
-      return this.selectedCategories.includes(categoryId);
-    },
     clearSearch() {
       this.searchTerm = ''; // Clear the search term
     }
@@ -122,66 +106,15 @@ h1 {
   max-width: 150px;
 }
 
-
-.categories {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: (60px);
-  margin-top: 20px;
-  padding: 0 250px;
-}
-
-.category {
-  display: flex;
-  justify-content: center;
-  /* Center horizontally */
-  align-items: center;
-  /* Center vertically */
-  margin: 5px;
-  padding: 3px 30px;
-  /* Adjust top and bottom padding */
-  border: 2px solid #ccc;
-  border-radius: 30px;
-  width: calc(25% - 20px);
-  max-width: 200px;
-  /* Maximum width of each category */
-  background-color: #E7F2F7;
-  border-color: #BBD5EA;
-}
-
-
-.category-name {
-  font-size: 15px;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-
 .search-input {
   margin-top: 20px;
   width: 400px;
-}
-
-.selected {
-  background-color: #102A50;
-  border-color: #000000;
 }
 
 .selected-text {
   color: #ffffff;
 }
 
-.sort-by {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  margin-right: 350px;
-}
-
-.sort-by select {
-  margin-left: 20px;
-  padding: 5px;
-}
 
 .ads {
   display: flex;
@@ -227,13 +160,14 @@ p {
 .ad-title {
   margin-top: 0;
   margin-bottom: 5px;
-  font-size: 15px;
+  font-size: 25px;
   color: #102A50;
   font-weight: bold;
   text-align: left;
 }
 
-.ad-price {
+
+.ad-area, .ad-date, .ad-price {
   margin: 0;
   text-align: left;
 }
