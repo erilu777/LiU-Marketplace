@@ -57,6 +57,11 @@ export default {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
 
+      if (!this.image || this.image.length === 0) {
+        alert('Glöm inte att lägga till en bild.');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('category', this.category);
       formData.append('title', this.title);
@@ -65,25 +70,25 @@ export default {
       formData.append('condition', this.condition);
       formData.append('area', this.area);
       formData.append('date', new Date().toISOString());
-      if(this.image){
-        for(let i = 0; i < this.image.length; i++){
+      if (this.image) {
+        for (let i = 0; i < this.image.length; i++) {
           formData.append('image', this.image[i]);
         }
       }
 
-  axios.post('/items', formData, {
-    headers: {
-      "Authorization": "Bearer " + token,
-      'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
-    }
-  })
+      axios.post('/items', formData, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+        }
+      })
         .then(response => {
           console.log('Response:', response);
         })
         .catch(error => {
           console.log('Error:', error);
         });
-        this.$router.push('/payment');
+      this.$router.push('/payment');
     },
     handleImageUpload(event) {
       this.image = Array.from(event.target.files);
