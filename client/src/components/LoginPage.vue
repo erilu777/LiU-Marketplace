@@ -5,9 +5,11 @@
       <h3>Logga in</h3>
       <button @click="loginSSO">Logga in med SSO via LiU</button>
     </div>
-    <input type="text" v-model="username" placeholder="LiU-ID">
-    <input type="password" v-model="password" placeholder="Lösenord">
-    <button @click="login">Logga in</button>
+    <form @submit.prevent="login">
+      <input type="text" v-model="username" required placeholder="LiU-ID">
+      <input type="password" v-model="password" required placeholder="Lösenord">
+      <button type="submit">Logga in</button>
+    </form>
 
     <div>
       <h3>Registrera dig!</h3>
@@ -156,7 +158,7 @@ export default {
           this.$router.push('/').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
         }
       } catch (error) {
-        if (error.response.status == 401 || error.response.status == 400) {
+        if (error.response.status == 401) {
           alert("Fel LiU-ID eller lösenord.");
         } else {
           console.error(error);
@@ -172,7 +174,7 @@ export default {
         }, {
           withCredentials: true
         });
-        if (signupResponse.data) {
+        if (signupResponse.status >= 200 && signupResponse.status < 300) {
           const loginResponse = await axios.post("/login", {
             liu_id: this.new_username,
             password: this.new_password
@@ -187,12 +189,13 @@ export default {
             alert("Registrerad och inloggad.");
             console.log(loginResponse.data);
           }
-        } else {
-          alert("Användarnamnet är upptaget.");
-          console.log(signupResponse.data);
-        }
+        } 
       } catch (error) {
-        console.error(error);
+        if (error.response.status == 400) {
+          alert("LiU_ID upptaget.");
+        } else {
+          console.error(error);
+        }
       }
     },
   },
