@@ -359,12 +359,16 @@ def get_bought_items():
 @app.route('/sign-up', methods=['POST'])
 def signup():
     data = request.get_json()
-    new_user = User(liu_id=data['liu_id'])
-    password = data['password']
-    new_user.set_password(password)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message': 'User created successfully'}), 201
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+    if user:
+        return jsonify({'message': 'User already exists'}), 400
+    else:
+        new_user = User(liu_id=data['liu_id'])
+        password = data['password']
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({'message': 'User created successfully'}), 201
 
 
 @app.route('/login', methods=['POST', 'OPTIONS'])
