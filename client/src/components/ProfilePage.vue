@@ -74,11 +74,11 @@ export default {
 
 h2 {
   font-weight: bold;
-  color: black;
+  color: #0c264d;
 }
 
 h4 {
-  color: black;
+  color: #0c264d;
 }
 
 img {
@@ -90,11 +90,12 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .row {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 5px;
 }
 

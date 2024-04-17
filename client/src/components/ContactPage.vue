@@ -4,13 +4,13 @@
       <div class="container">
         <form @submit.prevent="submitForm">
             <div class="row">
-                <input type="text" id="name" v-model="name" placeholder="Namn" class="ctrph">
+                <input type="text" id="name" v-model="name" placeholder="Namn" class="ctrph" required>
             </div>
             <div class="row">
-                <input type="email" id="email" v-model="email" placeholder="Email" class="ctrph">
+                <input type="email" id="email" v-model="email" placeholder="Email" class="ctrph" required>
             </div>
             <div class="row">
-                <textarea id="description" v-model="description" placeholder="Din Fråga" class="ctrph"></textarea>
+                <textarea id="description" v-model="description" placeholder="Din Fråga" class="ctrph" required></textarea>
             </div>
             <button type="submit">Skicka</button>
         </form>

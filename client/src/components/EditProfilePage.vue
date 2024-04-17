@@ -104,15 +104,17 @@ export default {
 .submit-button {
   background-color: #0c264d;
   color: white;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 h1 {
   font-weight: bold;
-  color: black;
+  color: #0c264d;
 }
 
 h4 {
-  color: black;
+  color: #0c264d;
 }
 
 img {
@@ -129,8 +131,9 @@ img {
 
 .row {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 5px;
+  align-items: center;
 }
 
 .save-button {

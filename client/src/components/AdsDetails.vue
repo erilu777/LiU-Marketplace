@@ -81,8 +81,8 @@ export default {
      contactSeller() {
       // Replace 'seller@example.com' with the actual email address of the seller
       const sellerEmail = 'seller@example.com';
-      const subject = 'Angående annons: ' + this.title; // Subject line for the email
-      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.title + '".\n\nMed vänliga hälsningar,'; // Body of the email
+      const subject = 'Angående annons: ' + this.item.title; // Subject line for the email
+      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.item.title + '".\n\nMed vänliga hälsningar,'; // Body of the email
 
       // Generate the mailto link with the seller's email, subject, and body
       const mailtoLink = 'mailto:' + encodeURIComponent(sellerEmail) +

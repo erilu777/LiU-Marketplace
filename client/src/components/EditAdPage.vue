@@ -30,11 +30,10 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" @change="handleImageUpload">
+          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
         </div>
         <button type="submit" @click.prevent="submitForm">Publicera ändringar</button>
         <button type="button" @click="cancelForm">Avbryt</button>
-
       </form>
     </div>
   </div>
@@ -74,8 +73,9 @@ export default {
           this.title = response.data.title;
           this.description = response.data.description;
           this.price = response.data.price;
-          this.area = response.data.area;
-          this.condition = response.data.condition;
+          this.area = response.data.area || '';
+          this.condition = response.data.condition || '';
+
           // ... handle the image field ...
         })
         .catch(error => {
@@ -93,6 +93,8 @@ export default {
   },
   methods: {
     submitForm() {
+      console.log('Submit form method called');
+
       // Prepare the form data
       // Prepare the form data
       const itemData = {
@@ -128,8 +130,7 @@ export default {
       }
     },
     handleImageUpload(event) {
-      const file = event.target.files[0];
-      this.image = file;
+      this.image = Array.from(event.target.files);
     },
     navigateToHistory() {
       this.$router.push('/profile-history')
