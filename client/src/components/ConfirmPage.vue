@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <h1>Klart!</h1>
-        <h3>Nu är din annons publicerad</h3>
+        <h3>Nu är din annons publicerad.</h3>
         <button @click="navigateToHistory">Gå till dina annonser</button>
         <button @click="navigateToSell">Skapa en ny annons</button>
     </div>
