@@ -45,7 +45,8 @@ export default {
     return {
       category: '',
       area: '',
-      condition: ''
+      condition: '',
+      images: [],
     };
   },
   created() {
@@ -57,7 +58,7 @@ export default {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
 
-      if (!this.image || this.image.length === 0) {
+      if (!this.images || this.images.length === 0) {
         alert('Glöm inte att lägga till en bild.');
         return;
       }
@@ -70,11 +71,11 @@ export default {
       formData.append('condition', this.condition);
       formData.append('area', this.area);
       formData.append('date', new Date().toISOString());
-      if (this.image) {
-        for (let i = 0; i < this.image.length; i++) {
-          formData.append('image', this.image[i]);
-        }
+      
+      for (let i = 0; i < this.images.length; i++) {
+        formData.append('images', this.images[i]);
       }
+      
 
       axios.post('/items', formData, {
         headers: {
@@ -91,7 +92,7 @@ export default {
       this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      this.image = Array.from(event.target.files);
+      this.images = Array.from(event.target.files);
     },
     navigateToHome() {
       this.$router.push('/');

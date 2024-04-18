@@ -241,9 +241,9 @@ def items():
         db.session.add(new_item)
         db.session.flush()
 
-        if request.files['image']:
+        if request.files['images']:
             print(f"picture added??")
-            for image in request.files.getlist('image'):
+            for image in request.files.getlist('images'):
                 filename = secure_filename(image.filename)
                 image_path = os.path.join('static/uploads', filename)
                 image.save(image_path)
