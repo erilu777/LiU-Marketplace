@@ -16,17 +16,17 @@
         <div class="row">
           <select id="area" v-model="area">
             <option value="" disabled>Område</option>
-            <option value="linkoping">Linköping</option>
-            <option value="norrkoping">Norrköping</option>
+            <option value="Linköping">Linköping</option>
+            <option value="Norrköping">Norrköping</option>
           </select>
         </div>
         <div class="row">
           <select id="condition" v-model="condition">
             <option value="" disabled>Skick</option>
-            <option value="new">Nytt</option>
-            <option value="usednew">Använd - nyskick</option>
-            <option value="usedok">Använd - gott skick</option>
-            <option value="used">Använd - använt skick</option>
+            <option value="Nytt">Nytt</option>
+            <option value="Använd_Nyskick">Använd - nyskick</option>
+            <option value="Använd_Gott_skick">Använd - gott skick</option>
+            <option value="Använd_Slitet_skick">Använd - använt skick</option>
           </select>
         </div>
         <div class="row">

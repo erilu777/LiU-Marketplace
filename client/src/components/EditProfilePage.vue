@@ -9,7 +9,7 @@
         <input type="file" id="image" accept="image/*" @change="handleImageUpload" style="display: none;">
       </div>
       <div class="row">
-        <h1 v-if="real_name">{{ real_name }}</h1>
+        <h1 v-if="name">{{ name }}</h1>
         <h1 v-else>Förnamn Efternamn</h1>
       </div>
       <div class="row">
@@ -51,12 +51,29 @@ export default {
       pageTitle: 'Profile Page',
       program: '',
       year: '',
-      real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
+      name: JSON.parse(sessionStorage.getItem('auth')).user.name,
       Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id
     };
   },
 
+  created() {
+    this.fetchProfileData();
+  },
+
   methods: {
+
+    async fetchProfileData() {
+      const token = JSON.parse(sessionStorage.getItem('auth')).token;
+      const response = await axios.get('/current_user', {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+      this.program = response.data.program;
+      this.year = response.data.year;
+      this.name = response.data.name;
+      this.Liu_ID = response.data.liu_id;
+    },
 
     editProfile() {
       const auth = JSON.parse(sessionStorage.getItem('auth'));
