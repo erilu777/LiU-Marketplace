@@ -73,14 +73,14 @@
     <div class="column">
       <h3 class="h3_footer"><strong>Mer info</strong></h3>
       <ul>
-        <li><router-link to="/om-oss">Om oss</router-link></li>
-        <li><router-link to="/vanliga-fragor">Vanliga Frågor</router-link></li>
-        <li><router-link to="/kontakta-oss">Kontakta oss</router-link></li>
+        <p><a href="mailto:liu@marketplace.com" target="_blank">liu@marketplace.com</a></p>
+        <p><a href="tel:+46123456789" target="_blank">+46 123 45 67 89</a></p>
       </ul>
     </div>
     <div class="column">
       <h3 class="h3_footer"><strong>LiU Marketplace</strong></h3>
       <p>For Students - By Students</p>
+      <p class="copyright">© LiU Marketplace 2024</p>
     </div>
     <div class="column">
       <img src="../assets/LMlogo.png" alt="LMlogo">
@@ -303,7 +303,8 @@ p {
 }
 
 .h3_footer {
-  color: white
+  color: white;
+  font-weight: normal;
 }
 
 .footer a {
@@ -348,5 +349,10 @@ p {
   height: auto;
   margin: 20px;
   margin-top: 40px;
+}
+
+.copyright {
+  font-size: 12px;
+  margin-top: 100px;
 }
 </style>
