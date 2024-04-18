@@ -64,6 +64,11 @@ export default {
     addItem() {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
+      
+      if (!this.category || !this.title || !this.description || !this.price || !this.condition || !this.area) {
+        alert('Fyll i alla fält.');
+        return;
+      }
 
       if (!this.images || this.images.length === 0) {
         alert('Glöm inte att lägga till en bild.');
@@ -98,8 +103,11 @@ export default {
       this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      this.images = Array.from(event.target.files);
-      this.imagePreviews = this.images.map(image => URL.createObjectURL(image));
+      const newImages = Array.from(event.target.files);
+      const newImagePreviews = newImages.map(image => URL.createObjectURL(image));
+  
+      this.images = [...this.images, ...newImages];
+      this.imagePreviews = [...this.imagePreviews, ...newImagePreviews];
     },
     removeImage(index) {
       event.preventDefault();
