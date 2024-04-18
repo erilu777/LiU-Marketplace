@@ -10,9 +10,12 @@
                 <input type="email" id="email" v-model="email" placeholder="Email" class="ctrph" required>
             </div>
             <div class="row">
+                <input type="subject" v-model="subject" placeholder="Ämnesrad" class="ctrph" required>
+            </div>
+            <div class="row">
                 <textarea id="description" v-model="description" placeholder="Din Fråga" class="ctrph" required></textarea>
             </div>
-            <button type="submit">Skicka</button>
+            <button @click="submit" class="contact-button" style="color: white">Skicka</button>
         </form>
       </div>
     </div>
@@ -24,7 +27,9 @@
     return {
       buttonText: '',
       area: '',
-      condition: ''
+      condition: '',
+      name: '',
+      email: '',
     };
   },
   watch: {
@@ -39,8 +44,21 @@
     handleImageUpload(event) {
       const file = event.target.files[0];
       this.image = file;
-    }
-  }
+    },
+    submit() {
+      const contactEmail = 'liu@marketplace.com'
+      const subject = this.subject; // Subject line for the email
+      const body = this.description + '\n\nMed vänliga hälsningar,\n' + this.name + '\n' + this.email; // Body of the email
+
+      // Generate the mailto link with the seller's email, subject, and body
+      const mailtoLink = 'mailto:' + encodeURIComponent(contactEmail) +
+                        '?subject=' + encodeURIComponent(subject) +
+                        '&body=' + encodeURIComponent(body);
+
+      // Open the email client with the pre-filled email
+      window.location.href = mailtoLink;
+      }
+}
 };
 
   </script>
@@ -88,3 +106,11 @@
     text-align: center; 
   }
 </style>
+
+
+
+
+
+
+
+
