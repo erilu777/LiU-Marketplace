@@ -22,6 +22,7 @@
 
     <div class="page">
       <!-- Search Bar -->
+      <h2>Vad letar du efter?</h2>
       <div class="search-bar">
         <input type="search" v-model="searchTerm" placeholder="&#128269;" class="search-input">
       </div>
