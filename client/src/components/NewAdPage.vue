@@ -29,7 +29,21 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
+          <div class="row drop-zone" 
+            @dragover.prevent="dragOver"
+            @dragleave.prevent.stop="dragLeave"
+            @drop.prevent="handleImageUpload"
+            @click="openFileExplorer"
+            :class="{ 'isDragging': isDragging }">
+            <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload" style="display: none;" ref="fileInput">
+            <div :class="{ dragging: isDragging }">
+              <i class="fa fa-cloud-upload"></i> 
+              <div class="add-photos-text">
+                <p class="header"><strong>Lägg till foton</strong></p> 
+                <p class="subheader">eller dra och släpp</p> 
+              </div>
+            </div>
+          </div>
           <div class="image-preview-row">
             <div v-for="(imagePreview, index) in imagePreviews" :key="index" class="image-container">
               <img :src="imagePreview" alt="Image preview">
@@ -54,6 +68,7 @@ export default {
       condition: '',
       images: [],
       imagePreviews: [],
+      isDragging: false,
     };
   },
   created() {
@@ -103,9 +118,23 @@ export default {
       this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      const newImages = Array.from(event.target.files);
+
+      this.isDragging = false;
+      let newImages;
+
+      if (event.type === 'drop') {
+        event.preventDefault();
+        newImages = Array.from(event.dataTransfer.files);
+      }else{
+        newImages = Array.from(event.target.files);
+      }
+      for (let i = 0; i < newImages.length; i++) {
+        if (!newImages[i].type.startsWith('image/')) {
+          alert('Alla filer måste vara bilder.');
+          return;
+        }
+      }
       const newImagePreviews = newImages.map(image => URL.createObjectURL(image));
-  
       this.images = [...this.images, ...newImages];
       this.imagePreviews = [...this.imagePreviews, ...newImagePreviews];
     },
@@ -113,6 +142,15 @@ export default {
       event.preventDefault();
       this.images.splice(index, 1);
       this.imagePreviews.splice(index, 1);
+    },
+    openFileExplorer() {
+      this.$refs.fileInput.click();
+    },
+    dragOver() {
+    this.isDragging = true;
+    },
+    dragLeave() {
+    this.isDragging = false;
     },
     navigateToHome() {
       this.$router.push('/');
@@ -199,4 +237,36 @@ button {
   cursor: pointer;
   font-size: 20px;
 }
-</style>
+.drop-zone {
+  background-color: #e7f2f7;
+  border: 3px dashed #bbd5e9; /* Use dashed border for drop zone indication */
+  border-radius: 20px;
+  width: 95%;
+  height: 200px;
+  margin: 20px auto;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop-zone.isDragging { 
+  border-color: #8b8c95; /* Update border color when dragging */
+  background-color: #a6c2d7;  /* Add a subtle background color change */
+  width: 100%;
+  height: 220px;
+}
+.drop-zone .add-photos-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #3d4056;
+}
+.drop-zone .add-photos-text .header {
+  font-size: 20px;
+  font-weight: bold;
+}
+.drop-zone .add-photos-text .subheader {
+  font-size: 16px;
+}
+</style>b
