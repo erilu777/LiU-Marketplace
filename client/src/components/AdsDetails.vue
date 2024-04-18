@@ -19,11 +19,11 @@
 
     <div class="ad-info">
       <h1 class="ad-title"><strong>{{ item.title }}</strong></h1>
-      <p class="ad-description"> {{ item.description }}</p>
-      <p class="ad-price"><strong>Pris: {{ item.price }} kr</strong> </p>
-      <p class="ad-condition"><strong>Skick: {{ item.condition }}</strong></p>
-      <p class="ad-area"><strong>Plats: {{ item.area }}</strong></p>
-      <p class="ad-category"><strong>Kategori: {{ item.category }}</strong></p>
+      <p class="ad-description">{{ item.description }}</p>
+      <p class="ad-price"><strong>Pris: </strong> {{ item.price }} kr</p>
+      <p class="ad-condition"><strong>Skick: </strong>{{ item.condition }}</p>
+      <p class="ad-area"><strong>Plats: </strong>{{ item.area }}</p>
+      <p class="ad-category"><strong>Kategori: </strong>{{ item.category }}</p>
       <p class="ad-date">🕒 {{ formatDate(item.date) }}</p>
       <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>

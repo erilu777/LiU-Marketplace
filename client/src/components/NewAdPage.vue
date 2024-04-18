@@ -4,23 +4,23 @@
     <div class="container">
       <form @submit.prevent="addItem">
         <div class="row">
-          <input type="text" id="title" v-model="title" placeholder="Titel" class="ctrph">
+          <input type="text" id="title" v-model="title" required placeholder="Titel" class="ctrph">
         </div>
         <div class="row">
-          <textarea id="description" v-model="description" placeholder="Beskrivning" class="ctrph"></textarea>
+          <textarea id="description" v-model="description" required placeholder="Beskrivning" class="ctrph"></textarea>
         </div>
         <div class="row">
-          <input type="number" id="price" v-model="price" placeholder="Pris" class="ctrph">
+          <input type="number" id="price" v-model="price" required placeholder="Pris" class="ctrph">
         </div>
         <div class="row">
-          <select id="area" v-model="area">
+          <select id="area" required v-model="area">
             <option value="" disabled selected>Område</option>
             <option value="Linköping">Linköping</option>
             <option value="Norrköping">Norrköping</option>
           </select>
         </div>
         <div class="row">
-          <select id="condition" v-model="condition">
+          <select id="condition" required v-model="condition">
             <option value="" disabled selected>Skick</option>
             <option value="Nytt">Nytt</option>
             <option value="Använd_Nyskick">Använd - nyskick</option>
@@ -29,7 +29,7 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
+          <input type="file" id="image" accept="image/*" required multiple @change="handleImageUpload">
         </div>
         <button type="submit">Gå till betalning</button>
         <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
@@ -56,11 +56,6 @@ export default {
     addItem() {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
-
-      if (!this.image || this.image.length === 0) {
-        alert('Glöm inte att lägga till en bild.');
-        return;
-      }
 
       const formData = new FormData();
       formData.append('category', this.category);
