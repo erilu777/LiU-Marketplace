@@ -30,6 +30,12 @@
         </div>
         <div class="row">
           <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
+          <div class="image-preview-row">
+            <div v-for="(imagePreview, index) in imagePreviews" :key="index" class="image-container">
+              <img :src="imagePreview" alt="Image preview">
+              <button @click="removeImage(index)">✖</button>
+            </div>
+          </div>
         </div>
         <button type="submit">Gå till betalning</button>
         <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
@@ -47,6 +53,7 @@ export default {
       area: '',
       condition: '',
       images: [],
+      imagePreviews: [],
     };
   },
   created() {
@@ -75,7 +82,6 @@ export default {
       for (let i = 0; i < this.images.length; i++) {
         formData.append('images', this.images[i]);
       }
-      
 
       axios.post('/items', formData, {
         headers: {
@@ -93,6 +99,12 @@ export default {
     },
     handleImageUpload(event) {
       this.images = Array.from(event.target.files);
+      this.imagePreviews = this.images.map(image => URL.createObjectURL(image));
+    },
+    removeImage(index) {
+      event.preventDefault();
+      this.images.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
     },
     navigateToHome() {
       this.$router.push('/');
@@ -148,5 +160,35 @@ button {
 
 .ctrph::placeholder {
   text-align: center;
+}
+.image-preview-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.image-container {
+  position: relative;
+  display: inline-block;
+  width: 170px;
+  height: 170px;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: transparent;
+}
+.image-container button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  color: red;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 20px;
 }
 </style>
