@@ -10,7 +10,7 @@
                 <div v-for="(ad, index) in availableAds" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseleave="hideButtons(index)">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
-                    <p>{{ ad.description }}</p>
+                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
                     <div class="buttons" v-show="ad.showButtons">
                       <button class="small-button" @click="editAd(index)">Redigera</button>
                       <button class="small-button" @click="deleteAd(index)">Ta bort</button>
@@ -43,7 +43,7 @@
                 <div v-for="(ad, index) in soldAds" :key="index" class="ad-box">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
-                    <p>{{ ad.description }}</p>
+                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 <div v-for="(ad, index) in boughtAds" :key="index" class="ad-box">
                     <!-- Visa annonsens innehåll här -->
                     <p>{{ ad.title }}</p>
-                    <p>{{ ad.description }}</p>
+                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
                 </div>
             </div>
         </div>
@@ -270,6 +270,7 @@
     padding: 3px;
     margin-left: 2px;
     margin-right: 2px;
+    margin-top: 10px;
   }
   
   .ad-box {
@@ -284,6 +285,16 @@
 
   .ad-box:hover .buttons {
   display: block; /* Visa knapparna när annonsen är hovrad */
+}
+
+.ad-image {
+  width: 200px;
+  height: 200px;
+  padding: 10px;
+  align-items: center;
+  max-width: 100%;
+  margin-top: 10px;
+  object-fit: cover;
 }
 
 .modal {
