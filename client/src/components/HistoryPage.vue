@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <router-link to="/profile" v-slot="{ navigate }">
-            <button @click="navigate">Till din profil</button>
+            <button class="ToProfile" @click="navigate">Till din profil</button>
         </router-link>
         <h1>Min köphistorik</h1>
         <h4>Nuvarande annonser</h4>
@@ -281,10 +281,21 @@
     display: inline-block; /* Håll annonserna i en rad */
     vertical-align: top; /* Justera vertikalt till toppen av containern */
     padding: 10px;
+    overflow: hidden;
+  }
+
+  .ad-box p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ad-box:hover .buttons {
   display: block; /* Visa knapparna när annonsen är hovrad */
+}
+
+.ToProfile {
+  margin-top: 0;
 }
 
 .ad-image {
