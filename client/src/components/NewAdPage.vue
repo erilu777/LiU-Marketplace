@@ -106,7 +106,7 @@ export default {
       axios.post('/items', formData, {
         headers: {
           "Authorization": "Bearer " + token,
-          'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+          'Content-Type': 'multipart/form-data' 
         }
       })
         .then(response => {
