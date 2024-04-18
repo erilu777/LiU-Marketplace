@@ -7,13 +7,13 @@
 
   <div class="ad-details" v-if="item">
     <div class="image-container">
-    <div class="carousel">    
-    <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
-      <div class="arrow left" @click="prevImage">&#10094;</div>
-      <div class="arrow right" @click="nextImage">&#10095;</div>
-    </div>
-    <div class="thumbnails">
-          <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" :class="{ 'active-thumbnail': currentIndex === index }" @click="currentIndex = index">
+      <div class="carousel">    
+        <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
+        <div class="arrow left" @click="prevImage">&#10094;</div>
+        <div class="arrow right" @click="nextImage">&#10095;</div>
+      </div>
+      <div class="thumbnails">
+            <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" :class="{ 'active-thumbnail': currentIndex === index }" @click="currentIndex = index">
       </div>
     </div>
 
@@ -130,9 +130,10 @@ export default {
 }
 
 .ad-image {
-  width: 450px; 
-  height: 450px;
-  object-fit: cover;
+  width: 550px; 
+  height: 550px;
+  object-fit: contain;
+  background-color: transparent;
 }
 
 .arrow {
