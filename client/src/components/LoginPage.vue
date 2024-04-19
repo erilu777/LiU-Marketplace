@@ -47,7 +47,7 @@
       <form @submit.prevent="register">
         <div>
           <label>
-            <h3>Liu-ID:</h3>
+            <h3>LiU-ID:</h3>
             <input v-model="new_username" type="text" required placeholder="LiU-ID">
           </label>
         </div>
