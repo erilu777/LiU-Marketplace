@@ -19,13 +19,13 @@
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
-          <input type="text" id="name" v-model="name" placeholder="Namn">
+          <input type="text" id="name" v-model="name" required placeholder="Namn">
         </div>
         <div class="row">
-          <input type="text" id="program" v-model="program" placeholder="Utbildning">
+          <input type="text" id="program" v-model="program" required placeholder="Utbildning">
         </div>
         <div class="row">
-          <select id="year" v-model="year">
+          <select id="year" required v-model="year">
             <option value="" disabled selected>Årskurs</option>
             <option value=1>1</option>
             <option value=2>2</option>
