@@ -1,60 +1,34 @@
 <template>
-    <div class="page">
-        <router-link to="/profile" v-slot="{ navigate }">
-            <button class="ToProfile" @click="navigate">Till din profil</button>
-        </router-link>
-        <h1>Min köphistorik</h1>
-        <h4>Nuvarande annonser</h4>
-        <div class="container" ref="container" @scroll="checkScroll">
-            <div class="ads-container">
-                <div v-for="(ad, index) in availableAds" :key="index" class="ad-box" @mouseover="showButtons(index)" @mouseleave="hideButtons(index)">
-                    <!-- Visa annonsens innehåll här -->
-                    <p>{{ ad.title }}</p>
-                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
-                    <div class="buttons" v-show="ad.showButtons">
-                      <button class="small-button" @click="editAd(index)">Redigera</button>
-                      <button class="small-button" @click="deleteAd(index)">Ta bort</button>
-                      <button class="small-button" @click="showModal(index)">Såld</button>
-                        <div class="modal" :class="{ 'is-active': isModalActive }">
-                          <div class="modal-background" @click="closeModal(index)"></div>
-                          <div class="modal-content">
-                            <div class="box">
-                              <p>Vem har du sålt varan till?</p>
-                              <!-- Input för att ange köpare -->
-                              <input type="text" v-model="buyer" placeholder="Köparens LiU-id">
-                              <!-- Knapp för att bekräfta försäljningen -->
-                              <button @click="confirmSale(index)">Bekräfta försäljning</button>
-                              <div>
-                                <p class="h-button" @click="closeModal(index)">Gå tillbaka</p>
-                              </div>
-                              
-                            </div>
-                          </div>
-                            
-                          </div>
-                </div>
-            </div>
-        </div>
-        </div>
-        
-        <h4>Sålda varor</h4>
-        <div class="container" ref="container" @scroll="checkScroll">
-            <div class="ads-container">
-                <div v-for="(ad, index) in soldAds" :key="index" class="ad-box">
-                    <!-- Visa annonsens innehåll här -->
-                    <p>{{ ad.title }}</p>
-                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
-                </div>
-            </div>
-        </div>
-        
-        <h4>Köpta varor</h4>
-        <div class="container" ref="container" @scroll="checkScroll">
-            <div class="ads-container">
-                <div v-for="(ad, index) in boughtAds" :key="index" class="ad-box">
-                    <!-- Visa annonsens innehåll här -->
-                    <p>{{ ad.title }}</p>
-                    <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
+  <div class="page">
+    <router-link to="/profile" v-slot="{ navigate }">
+      <button class="ToProfile" @click="navigate">Till din profil</button>
+    </router-link>
+    <h1>Min köphistorik</h1>
+    <h4>Nuvarande annonser</h4>
+    <div class="container" ref="container" @scroll="checkScroll">
+      <div class="ads-container">
+        <div v-for="(ad, index) in availableAds" :key="index" class="ad-box" @mouseover="showButtons(index)"
+          @mouseleave="hideButtons(index)">
+          <!-- Visa annonsens innehåll här -->
+          <p>{{ ad.title }}</p>
+          <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
+          <div class="buttons" v-show="ad.showButtons">
+            <button class="small-button" @click="editAd(index)">Redigera</button>
+            <button class="small-button" @click="deleteAd(index)">Ta bort</button>
+            <button class="small-button" @click="showModal(index)">Såld</button>
+            <div class="modal" :class="{ 'is-active': isModalActive }">
+              <div class="modal-background" @click="closeModal(index)"></div>
+              <div class="modal-content">
+                <div class="box">
+                  <p>Vem har du sålt varan till?</p>
+                  <!-- Input för att ange köpare -->
+                  <input type="text" v-model="buyer" placeholder="Köparens LiU-id">
+                  <!-- Knapp för att bekräfta försäljningen -->
+                  <button @click="confirmSale(index)">Bekräfta försäljning</button>
+                  <div>
+                    <p class="h-button" @click="closeModal(index)">Gå tillbaka</p>
+                  </div>
+
                 </div>
               </div>
 
@@ -84,10 +58,9 @@
           <img :src="ad.images[0].image_path" alt="Ad Image" class="ad-image" />
         </div>
       </div>
+
     </div>
   </div>
-
-
 </template>
 
 <script>
@@ -272,30 +245,35 @@ h4 {
   cursor: pointer;
 }
 
-  .small-button {
-    font-size: small;
-    padding: 3px;
-    margin-left: 2px;
-    margin-right: 2px;
-    margin-top: 10px;
-  }
-  
-  .ad-box {
-    width: 200px; /* Bredden på varje annons */
-    min-height: 150px; /* Höjden på varje annons */
-    margin-right: 10px; /* Avstånd mellan annonserna */
-    background-color: #f0f0f0;
-    display: inline-block; /* Håll annonserna i en rad */
-    vertical-align: top; /* Justera vertikalt till toppen av containern */
-    padding: 10px;
-    overflow: hidden;
-  }
+.small-button {
+  font-size: small;
+  padding: 3px;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 10px;
+}
 
-  .ad-box p {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.ad-box {
+  width: 200px;
+  /* Bredden på varje annons */
+  min-height: 150px;
+  /* Höjden på varje annons */
+  margin-right: 10px;
+  /* Avstånd mellan annonserna */
+  background-color: #f0f0f0;
+  display: inline-block;
+  /* Håll annonserna i en rad */
+  vertical-align: top;
+  /* Justera vertikalt till toppen av containern */
+  padding: 10px;
+  overflow: hidden;
+}
+
+.ad-box p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .container {
   width: 100%;
@@ -394,6 +372,6 @@ button {
 }
 
 .profile-button {
-  margin-top: 10px; 
+  margin-top: 10px;
 }
 </style>
