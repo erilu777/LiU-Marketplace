@@ -29,7 +29,27 @@
           </select>
         </div>
         <div class="row">
-          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
+          <div class="row drop-zone" 
+            @dragover.prevent="dragOver"
+            @dragleave.prevent.stop="dragLeave"
+            @drop.prevent="handleImageUpload"
+            @click="openFileExplorer"
+            :class="{ 'isDragging': isDragging }">
+            <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload" style="display: none;" ref="fileInput">
+            <div :class="{ dragging: isDragging }">
+              <i class="fa fa-cloud-upload"></i> 
+              <div class="add-photos-text">
+                <p class="header"><strong>Lägg till foton</strong></p> 
+                <p class="subheader">eller dra och släpp</p> 
+              </div>
+            </div>
+          </div>
+          <div class="image-preview-row">
+            <div v-for="(imagePreview, index) in imagePreviews" :key="index" class="image-container">
+              <img :src="imagePreview" alt="Image preview">
+              <button @click="removeImage(index)">✖</button>
+            </div>
+          </div>
         </div>
         <button type="submit">Gå till betalning</button>
         <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
@@ -45,7 +65,10 @@ export default {
     return {
       category: '',
       area: '',
-      condition: ''
+      condition: '',
+      images: [],
+      imagePreviews: [],
+      isDragging: false,
     };
   },
   created() {
@@ -56,8 +79,13 @@ export default {
     addItem() {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
+      
+      if (!this.category || !this.title || !this.description || !this.price || !this.condition || !this.area) {
+        alert('Fyll i alla fält.');
+        return;
+      }
 
-      if (!this.image || this.image.length === 0) {
+      if (!this.images || this.images.length === 0) {
         alert('Glöm inte att lägga till en bild.');
         return;
       }
@@ -70,16 +98,15 @@ export default {
       formData.append('condition', this.condition);
       formData.append('area', this.area);
       formData.append('date', new Date().toISOString());
-      if (this.image) {
-        for (let i = 0; i < this.image.length; i++) {
-          formData.append('image', this.image[i]);
-        }
+      
+      for (let i = 0; i < this.images.length; i++) {
+        formData.append('images', this.images[i]);
       }
 
       axios.post('/items', formData, {
         headers: {
           "Authorization": "Bearer " + token,
-          'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+          'Content-Type': 'multipart/form-data' 
         }
       })
         .then(response => {
@@ -91,7 +118,39 @@ export default {
       this.$router.push('/payment');
     },
     handleImageUpload(event) {
-      this.image = Array.from(event.target.files);
+
+      this.isDragging = false;
+      let newImages;
+
+      if (event.type === 'drop') {
+        event.preventDefault();
+        newImages = Array.from(event.dataTransfer.files);
+      }else{
+        newImages = Array.from(event.target.files);
+      }
+      for (let i = 0; i < newImages.length; i++) {
+        if (!newImages[i].type.startsWith('image/')) {
+          alert('Alla filer måste vara bilder.');
+          return;
+        }
+      }
+      const newImagePreviews = newImages.map(image => URL.createObjectURL(image));
+      this.images = [...this.images, ...newImages];
+      this.imagePreviews = [...this.imagePreviews, ...newImagePreviews];
+    },
+    removeImage(index) {
+      event.preventDefault();
+      this.images.splice(index, 1);
+      this.imagePreviews.splice(index, 1);
+    },
+    openFileExplorer() {
+      this.$refs.fileInput.click();
+    },
+    dragOver() {
+    this.isDragging = true;
+    },
+    dragLeave() {
+    this.isDragging = false;
     },
     navigateToHome() {
       this.$router.push('/');
@@ -148,4 +207,66 @@ button {
 .ctrph::placeholder {
   text-align: center;
 }
-</style>
+.image-preview-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.image-container {
+  position: relative;
+  display: inline-block;
+  width: 170px;
+  height: 170px;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: transparent;
+}
+.image-container button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  color: red;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 20px;
+}
+.drop-zone {
+  background-color: #e7f2f7;
+  border: 3px dashed #bbd5e9; /* Use dashed border for drop zone indication */
+  border-radius: 20px;
+  width: 95%;
+  height: 200px;
+  margin: 20px auto;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop-zone.isDragging { 
+  border-color: #8b8c95; /* Update border color when dragging */
+  background-color: #a6c2d7;  /* Add a subtle background color change */
+  width: 100%;
+  height: 220px;
+}
+.drop-zone .add-photos-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #3d4056;
+}
+.drop-zone .add-photos-text .header {
+  font-size: 20px;
+  font-weight: bold;
+}
+.drop-zone .add-photos-text .subheader {
+  font-size: 16px;
+}
+</style>b

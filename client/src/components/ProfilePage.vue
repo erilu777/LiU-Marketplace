@@ -3,7 +3,9 @@
     <div class="row">
       <div class="profile-container">
         <div class="row">
-          <img src="../assets/profile.png" alt="LMlogo">
+          <div class="profile-pic-container">
+            <img :src="user.image_path" alt="LMlogo" class="profile-pic">
+          </div>
         </div>
         <div class="row">
           <h1 v-if="user.name">{{ user.name }}</h1>
@@ -80,10 +82,22 @@ h2 {
 h4 {
   color: #0c264d;
 }
-
-img {
-  max-width: 300px;
-  margin: 0 auto;
+.profile-pic-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.profile-pic {
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin-bottom: 20px;
 }
 
 .profile-container {

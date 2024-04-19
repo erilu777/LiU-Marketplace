@@ -36,14 +36,14 @@ class User(db.Model):
     sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
     bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
     password_hash = db.Column(db.String, nullable=False)
-
+    image_path = db.Column(db.String, nullable=True)
 
     @property
     def email(self):
         return self.liu_id + "@student.liu.se"
 
     def __repr__(self):
-        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items}>"
+        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
 
     def serialize(self):
         return {
@@ -56,27 +56,11 @@ class User(db.Model):
             "is_admin":self.is_admin,
             "num_sold_items":self.num_sold_items,
             "num_bought_items":self.num_bought_items,
+            "image_path": request.url_root + self.image_path if self.image_path else None
         } 
     
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
-
-
-class userImage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image_path = db.Column(db.String(120))
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
-    def __repr__(self):
-        return f'<userImage {self.id} : {self.image_path} {self.user_id}>'
-
-    def serialize(self):
-        return {
-            "id":self.id,
-            "image_path": request.url_root + self.image_path,
-            "user_id":self.user_id
-        }
-
 
 class Category(Enum):
     Cyklar = 1
@@ -194,7 +178,7 @@ def handle_users(user_id):
     if request.method == 'GET':
         return jsonify(user.serialize())
     elif request.method == 'PUT':
-        data = request.get_json()
+        data = request.form.to_dict()
         if 'is_admin' in data:
             user.is_admin = data['is_admin']
         if 'num_sold_items' in data:
@@ -205,7 +189,15 @@ def handle_users(user_id):
             user.program = data['program']
         if 'name' in data:
             user.name = data['name']
+        if 'image' in request.files:
+            image = request.files['image']
+            filename = secure_filename(image.filename)
+            image_path = os.path.join('static/uploads', filename)
+            image.save(image_path)
+            user.image_path = image_path
+            print(f"Image at path: {image_path}")
         db.session.commit()
+        print(f"Image path: {user.image_path}")
         return jsonify(user.serialize()), 200
     elif request.method == 'DELETE':
         db.session.delete(user)
@@ -241,9 +233,9 @@ def items():
         db.session.add(new_item)
         db.session.flush()
 
-        if request.files['image']:
+        if request.files['images']:
             print(f"picture added??")
-            for image in request.files.getlist('image'):
+            for image in request.files.getlist('images'):
                 filename = secure_filename(image.filename)
                 image_path = os.path.join('static/uploads', filename)
                 image.save(image_path)
