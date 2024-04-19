@@ -71,6 +71,7 @@ export default {
       })
         .then(response => {
           // Update the form fields with the item data
+          //lets go
           this.title = response.data.title;
           this.description = response.data.description;
           this.price = response.data.price;
