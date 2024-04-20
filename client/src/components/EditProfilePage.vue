@@ -3,7 +3,7 @@
     <div class="profile-container">
       <div class="row">
         <div class="profile-pic-container">
-          <img :src="image_path" alt="LMlogo" class="profile-pic">
+          <img :src="imagePreview || image_path || defaultImage" alt="LMlogo" class="profile-pic">
         </div> 
       </div>
       <div class="row">
@@ -56,7 +56,9 @@ export default {
       name: JSON.parse(sessionStorage.getItem('auth')).user.name,
       Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id,
       image_path: JSON.parse(sessionStorage.getItem('auth')).user.image_path,
-    };
+      previewImage: null,
+      defaultImage: require('@/assets/profile.png'),
+      };
   },
 
   created() {
@@ -108,6 +110,8 @@ export default {
     handleImageUpload(event) {
       console.log('Image uploaded');
       this.image = event.target.files[0];
+      this.imagePreview = URL.createObjectURL(this.image);
+      this.$forceUpdate(); // Force update to show the image preview
     },
     navigateToProfile() {
       this.$router.push('/profile');
@@ -183,22 +187,16 @@ img {
   cursor: pointer;
   border: 2px solid;
 }
-.profile-pic-container {
+.profile-pic {
   width: 200px;
   height: 200px;
-  border-radius: 50%;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
-}
-.profile-pic {
-  border-radius: 50%;
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 50%; /* Makes the image round */
+  object-fit: cover; /* Prevents image from stretching */
+  border: 2px solid #0c264d;
 }
 
 </style>
