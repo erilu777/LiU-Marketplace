@@ -371,7 +371,4 @@ button {
   border-radius: 5px;
 }
 
-.profile-button {
-  margin-top: 10px;
-}
 </style>
