@@ -156,6 +156,30 @@ class ItemImage(db.Model):
 def catch_all(path):
     return app.send_static_file('index.html')
 
+@app.route('/itemimages', methods=['GET'])
+def get_all_images():
+    all_images = ItemImage.query.all()
+    return jsonify([image.serialize() for image in all_images])
+
+@app.route('/itemimages/<int:image_id>', methods=['GET'])
+def get_item_image(image_id):
+    image = ItemImage.query.get(image_id)
+    return jsonify(image.serialize())
+
+@app.route('/itemimages/<int:image_id>', methods=['DELETE'])
+def delete_item_image(image_id):
+    if image_id is None:
+        abort(404)
+    try:
+        os.remove(ItemImage.query.get(image_id).image_path)
+    except FileNotFoundError:
+        print("File not found")
+    image = ItemImage.query.get(image_id)
+    db.session.delete(image)
+    db.session.commit()
+    return '', 200
+
+
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
 def users():
@@ -252,6 +276,12 @@ def items():
 @app.route('/static/uploads/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static/uploads', filename)
+
+@app.route('/items/<int:item_id>/images', methods=['DELETE'])
+@jwt_required()
+def remove_images(item_id):
+    #TODO: Implement this
+    pass
 
 @app.route('/items/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()

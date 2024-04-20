@@ -49,7 +49,7 @@
           <div class="image-preview-row">
             <div v-for="(existingImage, index) in existingImages" :key="index" class="image-container">
               <img :src="existingImage.image_path" alt="Image preview">
-              <button @click="removeImage(index)">✖</button>
+              <button @click="removeExistingImage(index)">✖</button>
             </div>
             <div v-for="(addedImagePreview, index) in addedImagesPreviews" :key="index" class="image-container">
               <img :src="addedImagePreview" alt="Image preview">
@@ -183,6 +183,10 @@ export default {
     },
     openFileExplorer() {
       this.$refs.fileInput.click();
+    },
+    removeExistingImage(index) {
+      //TODO: REMOVE EXISTING IMAGE
+      console.log(index);
     },
     removeAddedImage(index) {
       event.preventDefault();
