@@ -53,7 +53,7 @@
             </div>
             <div v-for="(addedImagePreview, index) in addedImagesPreviews" :key="index" class="image-container">
               <img :src="addedImagePreview" alt="Image preview">
-              <!--<button @click="removeImage(index)">✖</button>-->
+              <button @click="removeAddedImage(index)">✖</button>
             </div>
           </div>
         </div>
@@ -82,6 +82,7 @@ export default {
       addedImages: [],
       addedImagesPreviews: [],
       existingImages: [],
+      isDragging: false,
     };
   },
 
@@ -182,6 +183,18 @@ export default {
     },
     openFileExplorer() {
       this.$refs.fileInput.click();
+    },
+    removeAddedImage(index) {
+      event.preventDefault();
+      this.addedImages.splice(index, 1);
+      this.addedImagesPreviews.splice(index, 1);
+      console.log('Image removed');
+    },
+    dragOver() {
+    this.isDragging = true;
+    },
+    dragLeave() {
+    this.isDragging = false;
     },
     navigateToHistory() {
       this.$router.push('/profile-history')
@@ -295,6 +308,7 @@ button {
 .drop-zone .add-photos-text .subheader {
   font-size: 16px;
 }
+
 .ctrph::placeholder {
   text-align: center;
 }
