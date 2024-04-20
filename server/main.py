@@ -167,6 +167,7 @@ def get_item_image(image_id):
     return jsonify(image.serialize())
 
 @app.route('/itemimages/<int:image_id>', methods=['DELETE'])
+@jwt_required()
 def delete_item_image(image_id):
     if image_id is None:
         abort(404)

@@ -185,8 +185,25 @@ export default {
       this.$refs.fileInput.click();
     },
     removeExistingImage(index) {
-      //TODO: REMOVE EXISTING IMAGE
-      console.log(index);
+
+      const auth = JSON.parse(sessionStorage.getItem('auth'));
+      const token = auth.token;
+
+      event.preventDefault();
+      const image = this.existingImages[index];
+      
+      axios.delete(`/itemimages/${image.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(() => {
+          console.log('Image deleted successfully');
+          this.existingImages.splice(index, 1);
+        })
+        .catch(error => {
+          console.error('Error deleting image:', error);
+        });
     },
     removeAddedImage(index) {
       event.preventDefault();
