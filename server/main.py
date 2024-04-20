@@ -262,7 +262,7 @@ def handle_items(item_id):
     if request.method == 'GET':
         return jsonify(item.serialize())
     elif request.method == 'PUT':
-        data = request.get_json()
+        data = request.form.to_dict()
         if 'title' in data:
             item.title = data['title']
         if 'description' in data:
@@ -277,6 +277,17 @@ def handle_items(item_id):
             item.area = data['area']
         if 'is_sold' in data:
             item.is_sold = data['is_sold']
+        if 'images' in request.files:
+            print(f"picture added??? (not in loop)")
+            for image in request.files.getlist('images'):
+                print(f"picture added??? (in loop)")
+                filename = secure_filename(image.filename)
+                image_path = os.path.join('static/uploads', filename)
+                image.save(image_path)
+                new_image = ItemImage(image_path=image_path, item_id=item.id)
+                db.session.add(new_image)
+                print(f"Image at path: {image_path}")
+            
         db.session.commit()
         return jsonify(item.serialize()), 200
     elif request.method == 'DELETE':
