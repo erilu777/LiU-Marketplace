@@ -43,8 +43,8 @@ export default {
         email: '',
         program: '',
         year: '',
-        defaultImage: require('@/assets/profile.png'),
       },
+      defaultImage: require('@/assets/profile.png'),
     };
   },
 

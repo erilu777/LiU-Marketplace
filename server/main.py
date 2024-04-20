@@ -156,31 +156,6 @@ class ItemImage(db.Model):
 def catch_all(path):
     return app.send_static_file('index.html')
 
-@app.route('/itemimages', methods=['GET'])
-def get_all_images():
-    all_images = ItemImage.query.all()
-    return jsonify([image.serialize() for image in all_images])
-
-@app.route('/itemimages/<int:image_id>', methods=['GET'])
-def get_item_image(image_id):
-    image = ItemImage.query.get(image_id)
-    return jsonify(image.serialize())
-
-@app.route('/itemimages/<int:image_id>', methods=['DELETE'])
-@jwt_required()
-def delete_item_image(image_id):
-    if image_id is None:
-        abort(404)
-    try:
-        os.remove(ItemImage.query.get(image_id).image_path)
-    except FileNotFoundError:
-        print("File not found")
-    image = ItemImage.query.get(image_id)
-    db.session.delete(image)
-    db.session.commit()
-    return '', 200
-
-
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
 def users():
@@ -352,6 +327,21 @@ def sell_item(item_id):
     # TODO: Send an email to the buyer
 
     return jsonify(item.serialize()), 200
+
+@app.route('/itemimages/<int:image_id>', methods=['DELETE'])
+@jwt_required()
+def delete_item_image(image_id):
+    if image_id is None:
+        abort(404)
+    try:
+        os.remove(ItemImage.query.get(image_id).image_path)
+    except FileNotFoundError:
+        print("File not found")
+    image = ItemImage.query.get(image_id)
+    db.session.delete(image)
+    db.session.commit()
+    return '', 200
+
 
 @app.route('/all_available_items', methods=['GET'])
 @jwt_required()

@@ -31,7 +31,7 @@
       <!-- Seller info -->
   <h1 class="seller-about"><strong>Om säljaren</strong></h1>
   <div class="seller-info" v-if="item">
-      <img :src="item.seller.image_path" alt="Profile Image" class="profile-pic">
+      <img :src="item.seller.image_path || defaultImage" alt="Profile Image" class="profile-pic">
       <div class="seller-id">
         <p class="seller-name"><strong>{{ item.seller.name }}</strong></p> 
         <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
@@ -49,6 +49,7 @@ export default {
     return {
       item: null,
       currentIndex: 0,
+      defaultImage: require('@/assets/profile.png')
     }
   },
   async created() {
