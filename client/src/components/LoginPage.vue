@@ -142,7 +142,20 @@ export default {
 
   created() {
   },
-
+  mounted() {
+    console.log("mounted");
+    const urlParams = new URLSearchParams(window.location.search);
+    const accessToken = urlParams.get('access_token');
+    const user = urlParams.get('user');
+    if (accessToken) { 
+        console.log("access token: " + accessToken);  
+        console.log("user: " + user);
+        sessionStorage.setItem('auth' , JSON.stringify({access_token: accessToken, user: user}));
+        this.$emit('login-success');
+        alert("Inloggad.");
+        this.$router.push('/home').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
+    }
+  },
   methods: {
     showTerms() {
       this.showTermsModal = true;
@@ -150,9 +163,11 @@ export default {
     },
     SSOlogin() {
       console.log("inshallah SSO");
-      window.location.href = "http://localhost:8080/ssologin";
+      window.location.href = "http://localhost:8080/ssologin";   
+
+      const accessToken = this.$cookies.get('access_token');
+      console.log(accessToken);
     },
-    
     async login() {
       try {
         const response = await axios.post("/login", {

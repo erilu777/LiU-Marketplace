@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session
+from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 import os
 import msal
 import uuid
+import json
 
 app = Flask(__name__, 
 static_folder='../client/dist', 
@@ -72,20 +73,20 @@ def catch_all(path):
                 scopes=app.config["SCOPE"],
                 redirect_uri='http://localhost:8080' 
             )
-            oid = result.get('id_token_claims')['oid']
-            user = User.query.filter_by(oid=oid).first()
-
-            if not user:
-                user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'])
-                db.session.add(user)
-                db.session.commit()
-                access_token = create_access_token(identity=user.id)
-                print(f"User created: {user}")
-                return jsonify({"token": access_token, "user": user.serialize()}), 200
-            
             if "access_token" in result:
-                session["user"] = result["id_token_claims"]
-                print("User is authenticated!")
+                oid = result.get('id_token_claims')['oid']
+                user = User.query.filter_by(oid=oid).first()
+
+                if not user:
+                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'])
+                    db.session.add(user)
+                    db.session.commit()
+                    access_token = create_access_token(identity=user.id)
+                    print(f"User created: {user}")
+                    return redirect(f"http://localhost:8080?access_token={access_token} &user=user.serialize())")
+                    
+# access_token = create_access_token(identity=user.id)
+#return jsonify({"token": access_token, "user": user.serialize()}), 200 
             else:
                 print("Failed to authenticate user.")
         else:
