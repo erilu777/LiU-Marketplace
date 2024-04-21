@@ -7,23 +7,23 @@
 
   <div class="ad-details" v-if="item">
     <div class="image-container">
-    <div class="carousel">    
-    <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
-      <div class="arrow left" @click="prevImage">&#10094;</div>
-      <div class="arrow right" @click="nextImage">&#10095;</div>
-    </div>
-    <div class="thumbnails">
-          <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" :class="{ 'active-thumbnail': currentIndex === index }" @click="currentIndex = index">
+      <div class="carousel">    
+        <img :src="item.images[currentIndex].image_path" :key="currentImageUrl" alt="Product Image" class="ad-image">
+        <div class="arrow left" @click="prevImage">&#10094;</div>
+        <div class="arrow right" @click="nextImage">&#10095;</div>
+      </div>
+      <div class="thumbnails">
+            <img v-for="(image, index) in item.images" :src="image.image_path" :key="index" alt="Product Thumbnail" class="thumbnail" :class="{ 'active-thumbnail': currentIndex === index }" @click="currentIndex = index">
       </div>
     </div>
 
     <div class="ad-info">
       <h1 class="ad-title"><strong>{{ item.title }}</strong></h1>
       <p class="ad-description"> {{ item.description }}</p>
-      <p class="ad-price"><strong>Pris: {{ item.price }} kr</strong> </p>
-      <p class="ad-condition"><strong>Skick: {{ item.condition }}</strong></p>
-      <p class="ad-area"><strong>Plats: {{ item.area }}</strong></p>
-      <p class="ad-category"><strong>Kategori: {{ item.category }}</strong></p>
+      <p class="ad-price"><strong>Pris: </strong>{{ item.price }} kr </p>
+      <p class="ad-condition"><strong>Skick: </strong>{{ item.condition }}</p>
+      <p class="ad-area"><strong>Plats: </strong>{{ item.area }}</p>
+      <p class="ad-category"><strong>Kategori: </strong>{{ item.category }}</p>
       <p class="ad-date">🕒 {{ formatDate(item.date) }}</p>
       <button @click="contactSeller" class="contact-button" style="color: white">Kontakta säljaren</button>
     </div>
@@ -31,7 +31,7 @@
       <!-- Seller info -->
   <h1 class="seller-about"><strong>Om säljaren</strong></h1>
   <div class="seller-info" v-if="item">
-      <img src='/images/profile.png' alt="Profile Image" class="profile-image">
+      <img :src="item.seller.image_path" alt="Profile Image" class="profile-image">
       <div class="seller-id">
         <p class="seller-name"><strong>{{ item.seller.name }}</strong></p> 
         <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
@@ -130,9 +130,10 @@ export default {
 }
 
 .ad-image {
-  width: 450px; 
-  height: 450px;
-  object-fit: cover;
+  width: 550px; 
+  height: 550px;
+  object-fit: contain;
+  background-color: transparent;
 }
 
 .arrow {
@@ -241,8 +242,10 @@ export default {
  }
 
  .profile-image {
-  width: 5%;
-  height: 5%;
+  width: 8%;
+  height: 8%;
+  border-radius: 50%;
+  margin-right: 20px;
  }
 
  .seller-name, .seller-liuid {

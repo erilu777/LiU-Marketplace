@@ -2,7 +2,9 @@
   <div class="row">
     <div class="profile-container">
       <div class="row">
-        <img src="../assets/profile.png" alt="LMlogo">
+        <div class="profile-pic-container">
+          <img :src="image_path" alt="LMlogo" class="profile-pic">
+        </div> 
       </div>
       <div class="row">
         <label for="image" class="file-input-label">Ändra profilbild</label>
@@ -17,13 +19,13 @@
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
-          <input type="text" id="name" v-model="name" placeholder="Namn">
+          <input type="text" id="name" v-model="name" required placeholder="Namn">
         </div>
         <div class="row">
-          <input type="text" id="program" v-model="program" placeholder="Utbildning">
+          <input type="text" id="program" v-model="program" required placeholder="Utbildning">
         </div>
         <div class="row">
-          <select id="year" v-model="year">
+          <select id="year" required v-model="year">
             <option value="" disabled selected>Årskurs</option>
             <option value=1>1</option>
             <option value=2>2</option>
@@ -52,7 +54,8 @@ export default {
       program: '',
       year: '',
       name: JSON.parse(sessionStorage.getItem('auth')).user.name,
-      Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id
+      Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id,
+      image_path: JSON.parse(sessionStorage.getItem('auth')).user.image_path,
     };
   },
 
@@ -73,6 +76,7 @@ export default {
       this.year = response.data.year;
       this.name = response.data.name;
       this.Liu_ID = response.data.liu_id;
+      this.image_path = response.data.image_path;
     },
 
     editProfile() {
@@ -80,14 +84,17 @@ export default {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token);
       const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
-      const data = {
-        "program": this.program,
-        "year": this.year,
-        "name": this.name,
-      };
-      axios.put('/users/' + userId, data, {
+
+      const formData = new FormData();
+      formData.append('program', this.program);
+      formData.append('year', this.year);
+      formData.append('name', this.name);
+      formData.append('image', this.image);
+
+      axios.put('/users/' + userId, formData, {
         headers: {
-          "Authorization": "Bearer " + token
+          "Authorization": "Bearer " + token,
+          'Content-Type': 'multipart/form-data' 
         }
       })
         .then(response => {
@@ -98,7 +105,10 @@ export default {
         })
       this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
     },
-
+    handleImageUpload(event) {
+      console.log('Image uploaded');
+      this.image = event.target.files[0];
+    },
     navigateToProfile() {
       this.$router.push('/profile');
     }
@@ -173,4 +183,22 @@ img {
   cursor: pointer;
   border: 2px solid;
 }
+.profile-pic-container {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.profile-pic {
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
 </style>

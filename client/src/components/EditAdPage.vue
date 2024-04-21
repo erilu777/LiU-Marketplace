@@ -5,23 +5,23 @@
     <div class="container">
       <form @submit.prevent="submitForm">
         <div class="row">
-          <input type="text" id="title" v-model="title" placeholder="Titel" class="ctrph">
+          <input type="text" id="title" v-model="title" required placeholder="Titel" class="ctrph">
         </div>
         <div class="row">
-          <textarea id="description" v-model="description" placeholder="Beskrivning" class="ctrph"></textarea>
+          <textarea id="description" v-model="description" required placeholder="Beskrivning" class="ctrph"></textarea>
         </div>
         <div class="row">
-          <input type="number" id="price" v-model="price" placeholder="Pris" class="ctrph">
+          <input type="number" id="price" v-model="price" required placeholder="Pris" class="ctrph">
         </div>
         <div class="row">
-          <select id="area" v-model="area">
+          <select id="area" required v-model="area">
             <option value="" disabled>Område</option>
             <option value="Linköping">Linköping</option>
             <option value="Norrköping">Norrköping</option>
           </select>
         </div>
         <div class="row">
-          <select id="condition" v-model="condition">
+          <select id="condition" required v-model="condition">
             <option value="" disabled>Skick</option>
             <option value="Nytt">Nytt</option>
             <option value="Använd_Nyskick">Använd - nyskick</option>
@@ -32,7 +32,7 @@
         <div class="row">
           <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
         </div>
-        <button type="submit" @click.prevent="submitForm">Publicera ändringar</button>
+        <button type="submit-button">Publicera ändringar</button>
         <button type="button" @click="cancelForm">Avbryt</button>
       </form>
     </div>
@@ -70,6 +70,7 @@ export default {
       })
         .then(response => {
           // Update the form fields with the item data
+          //lets go
           this.title = response.data.title;
           this.description = response.data.description;
           this.price = response.data.price;

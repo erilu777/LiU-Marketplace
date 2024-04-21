@@ -260,7 +260,8 @@ p {
   align-items: center;
   max-width: 100%;
   margin-top: 10px;
-  object-fit: cover;
+  object-fit: contain;
+  background-color: transparent;
 }
 
 .ad-details {

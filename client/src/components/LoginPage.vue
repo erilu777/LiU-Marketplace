@@ -15,10 +15,11 @@
       <h3>Registrera dig!</h3>
       <button @click="showModal = true">Registrera dig här</button>
     </div>
+    
     <div v-if="showModal" class="modal">
-
-      <!--<h3>Registrera dig</h3>-->
-
+      
+    <button class="close-buttonX" @click="showModal = false">X</button>
+  
       <div>
         <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
       </div>
@@ -35,63 +36,91 @@
             <input v-model="new_password" type="password" required placeholder="Lösenord">
           </label>
         </div>
+        
+        <div class="terms">
+          <input type="checkbox" id="terms" v-model="acceptedTerms">
+          <label for="terms">I accept the <a href="#" @click.prevent="showTerms">terms and conditions</a></label>
+        </div>
+
         <button type="submit">Submit</button>
       </form>
-      <button class="close-button" @click="showModal = false">Close</button>
-    </div>
-    <div v-if="showModal" class="modal">
 
-      <div>
-        <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
+      <div v-if="showTermsModal" class="TermModal">
+        <h2>Användarvillkor</h2>
+        <div class="terms-container">
+
+          <pre>
+    Villkor för LiU Marketplace<br/><br/>
+
+    Genom att registrera dig på LiU Marketplace godkänner 
+    du följande villkor:<br/><br/>
+
+    §1.<br/> LiU Marketplace är inte säljare av annonserade produkter
+     utan agerar endast som förmedlare av annonser. 
+    LiU Marketplace ansvarar därmed inte för eventuella 
+    problem med produkter som köps via plattformen.<br/><br/>
+
+    §2.<br/> All data hanteras inom EU i enlighet med GDPR. 
+    LiU Marketplace åtar sig att skydda dina personuppgifter och
+     behandla dem konfidentiellt.<br/><br/>
+
+    §3.<br/> Ditt LiU-ID och namn är redan offentliga handlingar inom 
+    Linköpings universitet och kommer därmed att vara synliga för
+     andra användare på LiU Marketplace.<br/><br/>
+
+    §4.<br/> Som användare är du ansvarig för att följa svensk lag och
+     LiU Marketplaces användarvillkor när du lägger upp annonser
+      och interagerar med andra användare.<br/><br/>
+
+    §5.<br/> LiU Marketplace förbehåller sig rätten att ta bort annonser
+     och stänga av användare som godtyckligt bedöms handla i icke 
+     god tro, eller svensk lag.<br/><br/>
+
+    §6.<br/> Tvister mellan köpare och säljare ska i första hand lösas mellan 
+    parterna. LiU Marketplace ansvarar inte för att medla i sådana 
+    tvister.<br/><br/>
+
+    §7.<br/> LiU Marketplace ansvarar inte för eventuella förluster eller skador
+     som uppstår till följd av användning av plattformen.<br/><br/>
+
+    §8.<br/> Genom att använda LiU Marketplace samtycker du till att 
+    LiU Marketplace skickar dig nödvändig information via e-post.<br/><br/>
+
+    §9.<br/> LiU Marketplace förbehåller sig rätten att ändra dessa villkor. 
+    Vid väsentliga ändringar kommer du att meddelas via e-post.<br/><br/>
+</pre>
+
+        </div>
+        <button @click="showTermsModal = false">Close</button>
       </div>
-      <form @submit.prevent="register">
-        <div>
-          <label>
-            <h3>LiU-ID:</h3>
-            <input v-model="new_username" type="text" required placeholder="LiU-ID">
-          </label>
-        </div>
-        <div>
-          <label>
-            <h3>Lösenord:</h3>
-            <input v-model="new_password" type="password" required placeholder="Lösenord">
-          </label>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-      <button class="close-button" @click="showModal = false">Close</button>
     </div>
 
-    <div>
-      <img class="img_login" src="../assets/LMlogo.png" alt="LMlogo">
-    </div>
+    <!-- Footer -->
+    <div class="footer-line"></div>
+    <footer class="footer">
+      <div class="column">
+        <h3 class="h3_footer"><strong>Mer info</strong></h3>
+        <ul>
+          <p><a href="mailto:liu@marketplace.com" target="_blank">liu@marketplace.com</a></p>
+          <p><a href="tel:+46123456789" target="_blank">+46 123 45 67 89</a></p>
+        </ul>
+      </div>
+      <div class="column">
+        <h3 class="h3_footer"><strong>LiU Marketplace</strong></h3>
+        <p>For Students - By Students</p>
+        <p class="copyright">© LiU Marketplace 2024</p>
+      </div>
+      <div class="column">
+        <img src="../assets/LMlogo.png" alt="LMlogo">
+      </div>
+    </footer>
   </div>
-
-  <!-- Footer -->
-  <div class="footer-line"></div>
-  <footer class="footer">
-    <div class="column">
-      <h3 class="h3_footer"><strong>Mer info</strong></h3>
-      <ul>
-        <p><a href="mailto:liu@marketplace.com" target="_blank">liu@marketplace.com</a></p>
-        <p><a href="tel:+46123456789" target="_blank">+46 123 45 67 89</a></p>
-      </ul>
-    </div>
-    <div class="column">
-      <h3 class="h3_footer"><strong>LiU Marketplace</strong></h3>
-      <p>For Students - By Students</p>
-      <p class="copyright">© LiU Marketplace 2024</p>
-    </div>
-    <div class="column">
-      <img src="../assets/LMlogo.png" alt="LMlogo">
-    </div>
-  </footer>
-
 </template>
 
 <script>
 import axios from 'axios';
 import { PublicClientApplication } from "@azure/msal-browser";
+import termsText from 'raw-loader!../assets/Villkor.txt';
 
 export default {
   name: 'LoginPage',
@@ -99,6 +128,9 @@ export default {
 
   data() {
     return {
+      acceptedTerms: false,
+      showTermsModal: false,
+      termsText: '',
       showModal: false,
       liu_id: '',
       password: '',
@@ -126,6 +158,10 @@ export default {
   },
 
   methods: {
+    showTerms() {
+      this.showTermsModal = true;
+      this.termsText = termsText;
+    },
     async initializeMSAL() {
       this.myMSALObj = await new PublicClientApplication(this.msalConfig);
     },
@@ -168,6 +204,10 @@ export default {
 
     async register() {
       try {
+        if (!this.acceptedTerms) {
+          alert('You must accept the terms and conditions to register.');
+          return;
+        }
         const signupResponse = await axios.post("/sign-up", {
           liu_id: this.new_username,
           password: this.new_password
@@ -189,7 +229,7 @@ export default {
             alert("Registrerad och inloggad.");
             console.log(loginResponse.data);
           }
-        } 
+        }
       } catch (error) {
         if (error.response.status == 400) {
           alert("LiU_ID upptaget.");
@@ -216,7 +256,9 @@ h1 {
   color: white;
   font-weight: bold;
 }
-
+.terms-container pre {
+  font-family: inherit; /* This will make the font the same as the parent element */
+}
 h3 {
   font-weight: bold;
   color: #0c264d;
@@ -247,8 +289,8 @@ button {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 40%;
-  height: 47%;
+  width: 50%;
+  height: 55%;
   padding: 20px;
   transform: translate(-50%, -50%);
   display: flex;
@@ -324,12 +366,12 @@ p {
 }
 
 .modal {
-  z-index: 1000;
+  z-index: 900;
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 40%;
-  height: 47%;
+  width: 50%;
+  height: 55%;
   padding: 20px;
   transform: translate(-50%, -50%);
   display: flex;
@@ -340,9 +382,22 @@ p {
   border-radius: 10px;
 }
 
-.close-button {
-  margin-top: 60px;
+.TermModal {
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 110%;
+  height: 100%;
+  padding: 20px;
+  transform: translate(-50%, -50%);
+  border: 1px solid black;
+  background-color: white;
+  border-radius: 10px;
+  overflow: auto;
 }
+
+
 
 .img_login {
   width: 100%;
@@ -351,8 +406,34 @@ p {
   margin-top: 40px;
 }
 
+.terms-container {
+  max-width: 100%;
+  /* Adjust as needed */
+  margin: 0 auto;
+  word-wrap: break-word;
+  /* Add this line */
+}
+
 .copyright {
   font-size: 12px;
   margin-top: 100px;
+}
+
+.close-container {
+  position: relative;
+}
+
+.modal {
+  position: relative;
+  /* other styles */
+}
+
+.close-buttonX {
+  position: absolute;
+  top: -50px; /* adjust as needed */
+  right: 0px; /* adjust as needed */
+  background: none;
+  border: none;
+  font-size: 1.5em;
 }
 </style>
