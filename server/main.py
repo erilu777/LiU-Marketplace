@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, abort, request, send_from_directory
+from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -7,6 +7,8 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 from werkzeug.utils import secure_filename
 import os
+import msal
+import uuid
 
 app = Flask(__name__, 
 static_folder='../client/dist', 
@@ -20,6 +22,67 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+
+"""
+TenantID: 913f18ec-7f26-4c5f-a816-784fe9a58edd
+ClientID: a43a60fc-0797-469d-b195-722df39d414a
+Secret ID: c8c4b13f-c2e5-443d-92ff-262a100d77c5
+Value: 1.N8Q~5DfbaV_CbJtnLm4FUx2Snd_rKRoEzyoacP
+
+redirect URI: localhost:8080
+"""
+
+app.secret_key = "your_secret_key_here"
+
+
+app.config["CLIENT_ID"] = "a43a60fc-0797-469d-b195-722df39d414a"
+app.config["CLIENT_SECRET"] = "1.N8Q~5DfbaV_CbJtnLm4FUx2Snd_rKRoEzyoacP"
+app.config["AUTHORITY"] = "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd"
+app.config["REDIRECT_PATH"] = "/"
+app.config["SCOPE"] = ["User.Read"]
+
+msal_app = msal.PublicClientApplication(
+    app.config["CLIENT_ID"],
+    authority=app.config["AUTHORITY"],
+    #client_credential=app.config["CLIENT_SECRET"],
+)
+
+@app.route("/ssologin")
+def ssologin():
+    print("SSO login bror")
+    session["state"] = str(uuid.uuid4())
+    auth_url = msal_app.get_authorization_request_url(
+        app.config["SCOPE"],
+        state=session["state"],
+        redirect_uri='http://localhost:8080',
+    )
+    return redirect(auth_url)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    if 'code' in request.args:  # This is the authorization response from Microsoft
+        print("Got code from Microsoft!")
+        code = request.args['code']
+        state = request.args['state']
+        if session.get("state") == state:  # Validate the state
+            print("State is valid!")
+            result = msal_app.acquire_token_by_authorization_code(
+                code,
+                scopes=app.config["SCOPE"],
+                redirect_uri='http://localhost:8080'  # This should match the redirect URI in Azure
+            )
+            #print(result)
+            #print(f"Name: {result.get('id_token_claims')['name']}")
+            if "access_token" in result:
+                session["user"] = result["id_token_claims"]
+                print("User is authenticated!")
+            else:
+                print("Failed to authenticate user.")
+        else:
+            print("Invalid state.")
+    print(f"HELLO!")
+    return app.send_static_file('index.html')
 
 class User(db.Model):
 
@@ -150,11 +213,6 @@ class ItemImage(db.Model):
             "image_path": request.url_root + self.image_path,
             "item_id":self.item_id
         }
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    return app.send_static_file('index.html')
 
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
@@ -414,6 +472,6 @@ if __name__ == "__main__":
     with app.app_context():
         #db.drop_all() # Drop all tables before creating them, to avoid conflicts
         db.create_all()
-    app.run(port=5000)
+    app.run(port=8080)
 
 

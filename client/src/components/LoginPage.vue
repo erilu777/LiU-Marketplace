@@ -3,7 +3,7 @@
     <h1>LiU Marketplace</h1>
     <div class="container">
       <h3>Logga in</h3>
-      <button @click="loginSSO">Logga in med SSO via LiU</button>
+      <button @click="SSOlogin">Logga in med SSO via LiU</button>
     </div>
     <form @submit.prevent="login">
       <input type="text" v-model="username" required placeholder="LiU-ID">
@@ -119,7 +119,6 @@
 
 <script>
 import axios from 'axios';
-import { PublicClientApplication } from "@azure/msal-browser";
 import termsText from 'raw-loader!../assets/Villkor.txt';
 
 export default {
@@ -134,27 +133,13 @@ export default {
       showModal: false,
       liu_id: '',
       password: '',
-      msalConfig: {
-        auth: {
-          clientId: "a43a60fc-0797-469d-b195-722df39d414a",
-          authority: "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd",
-          redirectUri: "http://localhost:8080",
-          //redirectUri: "http://127.0.0.1:5000"
-        },
-        cache: {
-          cacheLocation: "sessionStorage", // This configures where your cache will be stored
-          storeAuthStateInCookie: false, // If you set this to "true", you must also set "cacheLocation" to "sessionStorage"
-        }
-      },
       loginRequest: {
         scopes: ["openid", "profile", "User.Read"],
       },
-      myMSALObj: null,
     };
   },
 
   created() {
-    this.initializeMSAL();
   },
 
   methods: {
@@ -162,19 +147,9 @@ export default {
       this.showTermsModal = true;
       this.termsText = termsText;
     },
-    async initializeMSAL() {
-      this.myMSALObj = await new PublicClientApplication(this.msalConfig);
-    },
-
-    loginSSO() {
-      console.log('loginSSO method called');
-      //const myMSALObj = new PublicClientApplication(this.msalConfig);
-      this.myMSALObj.loginPopup(this.loginRequest).then((loginResponse) => {
-        // login success
-        console.log(loginResponse);
-      }).catch((error) => {
-        console.error(error);
-      });
+    SSOlogin() {
+      console.log("inshallah SSO");
+      window.location.href = "http://localhost:8080/ssologin";
     },
 
     async login() {
