@@ -5,6 +5,7 @@
       <h3>Logga in</h3>
       <button @click="SSOlogin">Logga in med SSO via LiU</button>
     </div>
+    <!--
     <form @submit.prevent="login">
       <input type="text" v-model="username" required placeholder="LiU-ID">
       <input type="password" v-model="password" required placeholder="Lösenord">
@@ -94,7 +95,7 @@
         <button @click="showTermsModal = false">Close</button>
       </div>
     </div>
-
+-->
     <!-- Footer -->
     <div class="footer-line"></div>
     <footer class="footer">
@@ -151,7 +152,7 @@ export default {
       console.log("inshallah SSO");
       window.location.href = "http://localhost:8080/ssologin";
     },
-
+    
     async login() {
       try {
         const response = await axios.post("/login", {

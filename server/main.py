@@ -70,10 +70,19 @@ def catch_all(path):
             result = msal_app.acquire_token_by_authorization_code(
                 code,
                 scopes=app.config["SCOPE"],
-                redirect_uri='http://localhost:8080'  # This should match the redirect URI in Azure
+                redirect_uri='http://localhost:8080' 
             )
-            #print(result)
-            #print(f"Name: {result.get('id_token_claims')['name']}")
+            oid = result.get('id_token_claims')['oid']
+            user = User.query.filter_by(oid=oid).first()
+
+            if not user:
+                user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'])
+                db.session.add(user)
+                db.session.commit()
+                access_token = create_access_token(identity=user.id)
+                print(f"User created: {user}")
+                return jsonify({"token": access_token, "user": user.serialize()}), 200
+            
             if "access_token" in result:
                 session["user"] = result["id_token_claims"]
                 print("User is authenticated!")
@@ -98,8 +107,9 @@ class User(db.Model):
     #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
     sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
     bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
-    password_hash = db.Column(db.String, nullable=False)
+    #password_hash = db.Column(db.String, nullable=False)
     image_path = db.Column(db.String, nullable=True)
+    oid = db.Column(db.String, nullable=True)
 
     @property
     def email(self):
@@ -119,11 +129,9 @@ class User(db.Model):
             "is_admin":self.is_admin,
             "num_sold_items":self.num_sold_items,
             "num_bought_items":self.num_bought_items,
-            "image_path": request.url_root + self.image_path if self.image_path else None
+            "image_path": request.url_root + self.image_path if self.image_path else None,
+            "oid": self.oid if self.oid else ""
         } 
-    
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
 
 class Category(Enum):
     Cyklar = 1
@@ -437,7 +445,7 @@ def get_bought_items():
     bought_items = [item.serialize() for item in user.bought_items]
     return jsonify(bought_items), 200
 
-
+"""
 @app.route('/sign-up', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -466,7 +474,7 @@ def login():
         return jsonify({"token": access_token, "user": user.serialize()}), 200    
     else:
         return jsonify({'msg': 'Invalid email or password'}), 401
-
+"""
 
 if __name__ == "__main__":
     with app.app_context():
