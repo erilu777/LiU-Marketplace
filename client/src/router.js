@@ -20,7 +20,7 @@ import ConfirmPage from './components/ConfirmPage.vue';
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: HomePage
   },

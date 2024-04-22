@@ -78,12 +78,12 @@ def catch_all(path):
                 user = User.query.filter_by(oid=oid).first()
 
                 if not user:
-                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'])
+                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
                     db.session.add(user)
                     db.session.commit()
                     access_token = create_access_token(identity=user.id)
                     print(f"User created: {user}")
-                    return redirect(f"http://localhost:8080?access_token={access_token} &user=user.serialize())")
+                    return redirect(f"http://localhost:8080?access_token={access_token}&user={json.dumps(user.serialize())}")
                     
 # access_token = create_access_token(identity=user.id)
 #return jsonify({"token": access_token, "user": user.serialize()}), 200 
