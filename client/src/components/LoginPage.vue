@@ -3,7 +3,7 @@
     <h1>LiU Marketplace</h1>
     <div class="container">
       <h3>Logga in</h3>
-      <button @click="SSOlogin">Logga in med SSO via LiU</button>
+      <button @click="SSOlogin" class="login-button">Logga in med SSO via<img src="../assets/liulogo.png" class="button-image"></button>
     </div>
     <!--
     <form @submit.prevent="login">
@@ -292,15 +292,26 @@ h3 {
   color: #0c264d;
 }
 
-.container {
-  background-color: #e7f2f7;
-  border: 3px solid #bbd5e9;
-  border-radius: 20px;
-  width: 350px;
-  margin: 0 auto;
-  padding: 50px;
-  margin-top: 60px;
-  height: 250px;
+.container{
+  padding-bottom: 80px;
+}
+
+.login-button{
+  color: rgb(0, 0, 0);
+  background-color: rgb(66, 219, 239);
+  border: 2px solid rgb(66, 219, 239);
+  font-size: 30px;
+  font-weight: bold;
+  font-family: Montserrat, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-image {
+  max-width: 50%;
+  position: relative;
+  top: -8px;
 }
 
 button {

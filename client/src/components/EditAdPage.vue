@@ -266,7 +266,9 @@ button {
   border-radius: 20px;
   color: white;
   font-weight: bold;
+  margin-top: 15px;
 }
+
 .image-preview-row {
   display: flex;
   justify-content: space-between;
@@ -297,6 +299,7 @@ button {
   cursor: pointer;
   font-size: 20px;
 }
+
 .drop-zone {
   background-color: #e7f2f7;
   border: 3px dashed #bbd5e9; /* Use dashed border for drop zone indication */

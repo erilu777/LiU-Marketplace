@@ -86,7 +86,7 @@ def catch_all(path):
                     print(f"User created: {user}")
                     
                 access_token = create_access_token(identity=user.id)
-                response = make_response(redirect(f"http://localhost:8080"))
+                response = make_response(redirect(f"#/home"))
                 response.set_cookie('access_token', access_token)
                 response.set_cookie('user', json.dumps(user.serialize()))
                 return response
