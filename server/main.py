@@ -77,18 +77,19 @@ def catch_all(path):
                 oid = result.get('id_token_claims')['oid']
                 user = User.query.filter_by(oid=oid).first()
 
+                print(f"ACCESS TOKEN IN RESPONSE: {result['access_token']}")
+
                 if not user:
                     user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
                     db.session.add(user)
                     db.session.commit()
-                    access_token = create_access_token(identity=user.id)
                     print(f"User created: {user}")
-                    #return redirect(f"http://localhost:8080?access_token={access_token}&user={json.dumps(user.serialize())}")
-
-                    response = make_response(redirect(f"http://localhost:8080"))
-                    response.set_cookie('access_token', access_token)
-                    response.set_cookie('user', json.dumps(user.serialize()))
-                    return response
+                    
+                access_token = create_access_token(identity=user.id)
+                response = make_response(redirect(f"http://localhost:8080"))
+                response.set_cookie('access_token', access_token)
+                response.set_cookie('user', json.dumps(user.serialize()))
+                return response
 
             else:
                 print("Failed to authenticate user.")
