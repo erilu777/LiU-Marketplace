@@ -141,25 +141,22 @@ export default {
       const auth = JSON.parse(sessionStorage.getItem('auth'));
       const token = auth.token;
 
-      if (auth) {
+      
         // Send a PUT request to update the item
-        axios.put(`/items/${this.id}`, formData, {
-          headers: {
-            "Authorization": "Bearer " + token,
-            'Content-Type': 'multipart/form-data'
-          }
+      axios.put(`/items/${this.id}`, formData, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(() => {
+          console.log('Item updated successfully');
+          this.navigateToHistory();
+          // Navigate to another page if needed
         })
-          .then(() => {
-            console.log('Item updated successfully');
-            this.navigateToHistory();
-            // Navigate to another page if needed
-          })
-          .catch(error => {
-            console.error('Error updating item:', error);
-          });
-      } else {
-        console.error('Auth token not found in sessionStorage');
-      }
+        .catch(error => {
+          console.error('Error updating item:', error);
+        });
     },
     handleImageUpload(event) {
       this.isDragging = false;

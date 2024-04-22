@@ -4,7 +4,7 @@
       <!-- Update the menu items to use router-link -->
       <div class="menu-bar-left">
         <img src="../assets/LMlogo.png" alt="LMlogo">
-        <router-link to="/" active-class="active-link">LiU Marketplace</router-link>
+        <router-link to="/home" active-class="active-link">LiU Marketplace</router-link>
         <router-link to="/buy" active-class="active-link">Köpa</router-link>
         <router-link to="/sell" active-class="active-link">Sälja</router-link>
       </div>

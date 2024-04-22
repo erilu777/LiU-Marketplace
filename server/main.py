@@ -83,10 +83,13 @@ def catch_all(path):
                     db.session.commit()
                     access_token = create_access_token(identity=user.id)
                     print(f"User created: {user}")
-                    return redirect(f"http://localhost:8080?access_token={access_token}&user={json.dumps(user.serialize())}")
-                    
-# access_token = create_access_token(identity=user.id)
-#return jsonify({"token": access_token, "user": user.serialize()}), 200 
+                    #return redirect(f"http://localhost:8080?access_token={access_token}&user={json.dumps(user.serialize())}")
+
+                    response = make_response(redirect(f"http://localhost:8080"))
+                    response.set_cookie('access_token', access_token)
+                    response.set_cookie('user', json.dumps(user.serialize()))
+                    return response
+
             else:
                 print("Failed to authenticate user.")
         else:

@@ -144,6 +144,24 @@ export default {
   },
   mounted() {
     console.log("mounted");
+    console.log("THIS IS FROM COOKIES:",this.$cookies.get('access_token'));
+    const accessToken = this.$cookies.get('access_token');
+    const user = this.$cookies.get('user');
+    if (accessToken) { 
+        const response = {
+        token: accessToken,
+        user: user,
+        };
+        console.log(response);
+
+        sessionStorage.setItem('auth', JSON.stringify(response));
+        console.log(user.is_admin);
+        console.log("sessionStorage: " + sessionStorage.getItem('auth'));
+        this.$emit('login-success');
+        alert("Inloggad.");
+        this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
+    }
+    /*
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
     const user = urlParams.get('user');
@@ -157,13 +175,12 @@ export default {
 
         sessionStorage.setItem('auth', JSON.stringify(response));
         console.log(user.is_admin);
-        sessionStorage.setItem('is_admin', user.is_admin);
         console.log("sessionStorage: " + sessionStorage.getItem('auth'));
         this.$emit('login-success');
         alert("Inloggad.");
         this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
     }
-
+*/
 /*
 this is the old login function:
           sessionStorage.setItem('auth', JSON.stringify(response.data));
@@ -213,7 +230,6 @@ this is the old login function:
         }
       }
     },
-
     async register() {
       try {
         if (!this.acceptedTerms) {

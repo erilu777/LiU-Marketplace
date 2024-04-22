@@ -37,7 +37,7 @@ export default {
   data() {
     return {
       user: {
-        real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
+        //real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
         firstName: '',
         lastName: '',
         email: '',

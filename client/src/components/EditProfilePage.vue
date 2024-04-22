@@ -60,7 +60,6 @@ export default {
       defaultImage: require('@/assets/profile.png'),
       };
   },
-
   created() {
     this.fetchProfileData();
   },
@@ -97,13 +96,12 @@ export default {
         headers: {
           "Authorization": "Bearer " + token,
           'Content-Type': 'multipart/form-data' 
-        }
-      })
+          }
+        })
         .then(response => {
           // Update sessionStorage with the new data
           auth.user = response.data;
           sessionStorage.setItem('auth', JSON.stringify(auth));
-          this.$router.push('/profile');
         })
       this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
     },
