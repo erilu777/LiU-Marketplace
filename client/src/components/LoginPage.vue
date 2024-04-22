@@ -300,16 +300,18 @@ h3 {
   color: rgb(0, 0, 0);
   background-color: rgb(66, 219, 239);
   border: 2px solid rgb(66, 219, 239);
-  font-size: 30px;
+  font-size: 40px;
   font-weight: bold;
   font-family: Montserrat, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
+  display: inline-flex; 
+  padding: 10px 0px;
 }
 
 .button-image {
-  max-width: 50%;
+  max-width: 30%;
   position: relative;
   top: -8px;
 }

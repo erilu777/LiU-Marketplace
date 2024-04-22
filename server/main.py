@@ -77,7 +77,7 @@ def catch_all(path):
                 oid = result.get('id_token_claims')['oid']
                 user = User.query.filter_by(oid=oid).first()
 
-                print(f"ACCESS TOKEN IN RESPONSE: {result['access_token']}")
+                print(f"{result.get('id_token_claims')}")
 
                 if not user:
                     user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
