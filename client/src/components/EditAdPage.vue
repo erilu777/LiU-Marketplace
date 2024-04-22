@@ -137,10 +137,14 @@ export default {
         formData.append('images', this.addedImages[i]);
       }
 
+      if (this.addedImages.length + this.existingImages.length < 1) {
+        alert('Annonsen måste minst ha en bild.');
+        return;
+      }
+
       // Get the token from the session storage
       const auth = JSON.parse(sessionStorage.getItem('auth'));
       const token = auth.token;
-
       
         // Send a PUT request to update the item
       axios.put(`/items/${this.id}`, formData, {
@@ -152,7 +156,6 @@ export default {
         .then(() => {
           console.log('Item updated successfully');
           this.navigateToHistory();
-          // Navigate to another page if needed
         })
         .catch(error => {
           console.error('Error updating item:', error);

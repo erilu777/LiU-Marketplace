@@ -118,7 +118,7 @@ class User(db.Model):
 
     @property
     def email(self):
-        return self.liu_id + "@student.liu.se"
+        return self.liu_id 
 
     def __repr__(self):
         return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"

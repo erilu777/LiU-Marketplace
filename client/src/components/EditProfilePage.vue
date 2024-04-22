@@ -58,6 +58,7 @@ export default {
       image_path: JSON.parse(sessionStorage.getItem('auth')).user.image_path,
       previewImage: null,
       defaultImage: require('@/assets/profile.png'),
+      user_id: '',
       };
   },
   created() {
@@ -78,13 +79,10 @@ export default {
       this.name = response.data.name;
       this.Liu_ID = response.data.liu_id;
       this.image_path = response.data.image_path;
+      this.user_id = response.data.id;
     },
 
     editProfile() {
-      const auth = JSON.parse(sessionStorage.getItem('auth'));
-      const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
-      console.log('Token:', token);
-      const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
 
       const formData = new FormData();
       formData.append('program', this.program);
@@ -92,18 +90,19 @@ export default {
       formData.append('name', this.name);
       formData.append('image', this.image);
 
-      axios.put('/users/' + userId, formData, {
+      const token = JSON.parse(sessionStorage.getItem('auth')).token; 
+      
+      console.log("User ID IN EDIT PROFILE: " + this.user_id);
+
+      axios.put('/users/' + this.user_id, formData, {
         headers: {
           "Authorization": "Bearer " + token,
           'Content-Type': 'multipart/form-data' 
           }
         })
-        .then(response => {
-          // Update sessionStorage with the new data
-          auth.user = response.data;
-          sessionStorage.setItem('auth', JSON.stringify(auth));
+        .then(() => {
+          this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
         })
-      this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
     },
     handleImageUpload(event) {
       console.log('Image uploaded');
