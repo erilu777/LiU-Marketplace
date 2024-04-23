@@ -481,7 +481,7 @@ def login():
 
 if __name__ == "__main__":
     with app.app_context():
-        db.drop_all() # Drop all tables before creating them, to avoid conflicts
+        #db.drop_all() # Drop all tables before creating them, to avoid conflicts
         db.create_all()
     app.run(port=8080)
 
