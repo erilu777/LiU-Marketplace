@@ -15,7 +15,7 @@
         <h1 v-else>Förnamn Efternamn</h1>
       </div>
       <div class="row">
-        <h4>{{ Liu_ID }}</h4>
+        <h4>{{ email }}</h4>
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
@@ -54,7 +54,7 @@ export default {
       program: '',
       year: '',
       name: JSON.parse(sessionStorage.getItem('auth')).user.name,
-      Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id,
+      email: JSON.parse(sessionStorage.getItem('auth')).user.email,
       image_path: JSON.parse(sessionStorage.getItem('auth')).user.image_path,
       previewImage: null,
       defaultImage: require('@/assets/profile.png'),
@@ -77,7 +77,7 @@ export default {
       this.program = response.data.program;
       this.year = response.data.year;
       this.name = response.data.name;
-      this.Liu_ID = response.data.liu_id;
+      this.email = response.data.email;
       this.image_path = response.data.image_path;
       this.user_id = response.data.id;
     },

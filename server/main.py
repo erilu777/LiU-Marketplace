@@ -80,7 +80,7 @@ def catch_all(path):
                 print(f"{result.get('id_token_claims')}")
 
                 if not user:
-                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
+                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'].split('@')[0], email=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
                     db.session.add(user)
                     db.session.commit()
                     print(f"User created: {user}")
@@ -103,7 +103,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     liu_id = db.Column(db.String, nullable=False)
-    #email = db.Column(db.String)
+    email = db.Column(db.String)
     program = db.Column(db.String)
     year = db.Column(db.Integer)
     is_admin = db.Column(db.Boolean, default=False)
@@ -116,9 +116,7 @@ class User(db.Model):
     image_path = db.Column(db.String, nullable=True)
     oid = db.Column(db.String, nullable=True)
 
-    @property
-    def email(self):
-        return self.liu_id 
+
 
     def __repr__(self):
         return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
@@ -483,7 +481,7 @@ def login():
 
 if __name__ == "__main__":
     with app.app_context():
-        #db.drop_all() # Drop all tables before creating them, to avoid conflicts
+        db.drop_all() # Drop all tables before creating them, to avoid conflicts
         db.create_all()
     app.run(port=8080)
 
