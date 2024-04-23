@@ -15,7 +15,7 @@
         <h1 v-else>Förnamn Efternamn</h1>
       </div>
       <div class="row">
-        <h4>{{ Liu_ID }}@student.liu.se</h4>
+        <h4>{{ Liu_ID }}</h4>
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
