@@ -5,13 +5,12 @@
       <h3>Logga in</h3>
       <button @click="SSOlogin" class="login-button">Logga in med SSO via<img src="../assets/liulogo.png" class="button-image"></button>
     </div>
-    <!--
+    
     <form @submit.prevent="login">
-      <input type="text" v-model="username" required placeholder="LiU-ID">
-      <input type="password" v-model="password" required placeholder="Lösenord">
+      <input type="text" v-model="liu_id" required placeholder="liu_id">
       <button type="submit">Logga in</button>
     </form>
-
+    <!--
     <div>
       <h3>Registrera dig!</h3>
       <button @click="showModal = true">Registrera dig här</button>
@@ -192,7 +191,6 @@ this is the old login function:
         
 */
 
-
   },
   methods: {
     showTerms() {
@@ -207,20 +205,44 @@ this is the old login function:
       console.log(accessToken);
     },
     async login() {
+
+      console.log("LOGIN MED ANVÄNDARNAMN");
+
       try {
         const response = await axios.post("/login", {
-          liu_id: this.username,
-          password: this.password
-        }, {
-          withCredentials: true
+          liu_id: this.liu_id,
         });
-        if (response.status >= 200 && response.status < 300) {
+        if (response) {
+          console.log(response.data);
           sessionStorage.setItem('auth', JSON.stringify(response.data));
           sessionStorage.setItem('is_admin', response.data.is_admin);
           this.$emit('login-success');
           alert("Inloggad.");
           console.log(response.data);
-          this.$router.push('/').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+          this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+        }
+      } catch (error) {
+        if (error.response.status == 401) {
+          alert("LOGIN ERROR");
+        } else {
+          console.error(error);
+        }
+      }
+
+      //TODO: LOGIN WITH USERNAME ONLY
+      /*
+      try {
+        const response = await axios.post("/login", {
+          liu_id: this.username,
+        });
+        if (response.status >= 200 && response.status < 300) {
+          console.log(response.data);
+          sessionStorage.setItem('auth', JSON.stringify(response.data));
+          sessionStorage.setItem('is_admin', response.data.is_admin);
+          this.$emit('login-success');
+          alert("Inloggad.");
+          console.log(response.data);
+          this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
         }
       } catch (error) {
         if (error.response.status == 401) {
@@ -229,6 +251,7 @@ this is the old login function:
           console.error(error);
         }
       }
+    */
     },
     async register() {
       try {

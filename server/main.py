@@ -23,7 +23,6 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
-
 """
 TenantID: 913f18ec-7f26-4c5f-a816-784fe9a58edd
 ClientID: a43a60fc-0797-469d-b195-722df39d414a
@@ -63,7 +62,7 @@ def ssologin():
 @app.route('/<path:path>')
 def catch_all(path):
     if 'code' in request.args:  # This is the authorization response from Microsoft
-        print("Got code from Microsoft!")
+        print(f"Got code from Microsoft!")
         code = request.args['code']
         state = request.args['state']
         if session.get("state") == state:  # Validate the state
@@ -98,6 +97,48 @@ def catch_all(path):
     print(f"HELLO!")
     return app.send_static_file('index.html')
 
+@app.route('/login', methods=['POST', 'OPTIONS'])
+def login():
+
+    data = request.get_json()
+
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+
+    if not user:
+        user = User(liu_id=data['liu_id'], is_admin=True, email=f"{data['liu_id']}@student.liu.se")
+        db.session.add(user)
+        db.session.commit()
+        print(f"User created: {user}")
+
+    access_token = create_access_token(identity=user.id)
+    response = make_response(redirect(f"http://localhost:8080/#/home"))
+    response.set_cookie('access_token', access_token)
+    response.set_cookie('user', json.dumps(user.serialize()))
+    print(f"RESPONSE: {response.headers}")
+    return response
+
+    #TODO: Implement login with username
+
+    """
+    data = request.get_json()
+    if not data or not data.get('liu_id'):
+        return jsonify({'msg': 'Missing liu_id or password'}), 400
+    
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+
+    if not user:
+        user = User(liu_id=data['liu_id'], is_admin=True)
+        db.session.add(user)
+        db.session.commit()
+        print(f"User created: {user}")
+
+    access_token = create_access_token(identity=user.id)
+    response = make_response(redirect(f"http://localhost:8080/#/home"))
+    response.set_cookie('access_token', access_token)
+    response.set_cookie('user', json.dumps(user.serialize()))
+    return response
+    """
+
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -115,8 +156,6 @@ class User(db.Model):
     #password_hash = db.Column(db.String, nullable=False)
     image_path = db.Column(db.String, nullable=True)
     oid = db.Column(db.String, nullable=True)
-
-
 
     def __repr__(self):
         return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
@@ -463,21 +502,12 @@ def signup():
         db.session.commit()
         return jsonify({'message': 'User created successfully'}), 201
 
-
-@app.route('/login', methods=['POST', 'OPTIONS'])
-def login():
-    data = request.get_json()
-    if not data or not data.get('liu_id') or not data.get('password'):
-        return jsonify({'msg': 'Missing liu_id or password'}), 400
-    
-    user = User.query.filter_by(liu_id=data['liu_id']).first()
-
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.id)
         return jsonify({"token": access_token, "user": user.serialize()}), 200    
     else:
         return jsonify({'msg': 'Invalid email or password'}), 401
-"""
+    """
 
 if __name__ == "__main__":
     with app.app_context():
