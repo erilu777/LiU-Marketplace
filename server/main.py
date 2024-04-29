@@ -34,7 +34,6 @@ redirect URI: localhost:8080
 
 app.secret_key = "your_secret_key_here"
 
-
 app.config["CLIENT_ID"] = "a43a60fc-0797-469d-b195-722df39d414a"
 app.config["CLIENT_SECRET"] = "1.N8Q~5DfbaV_CbJtnLm4FUx2Snd_rKRoEzyoacP"
 app.config["AUTHORITY"] = "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd"
@@ -97,6 +96,44 @@ def catch_all(path):
     print(f"HELLO!")
     return app.send_static_file('index.html')
 
+
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    liu_id = db.Column(db.String, nullable=False)
+    email = db.Column(db.String)
+    program = db.Column(db.String)
+    year = db.Column(db.Integer)
+    is_admin = db.Column(db.Boolean, default=False)
+    num_sold_items = db.Column(db.Integer, default=0)
+    num_bought_items = db.Column(db.Integer, default=0)
+    #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
+    sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
+    bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
+    #password_hash = db.Column(db.String, nullable=False)
+    image_path = db.Column(db.String, nullable=True)
+    oid = db.Column(db.String, nullable=True)
+
+    def __repr__(self):
+        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "name": self.name,
+            "email":self.email,
+            "liu_id":self.liu_id,
+            "program":self.program,
+            "year":self.year,
+            "is_admin":self.is_admin,
+            "num_sold_items":self.num_sold_items,
+            "num_bought_items":self.num_bought_items,
+            "image_path": request.url_root + self.image_path if self.image_path else None,
+            "oid": self.oid if self.oid else ""
+        } 
+
+
 @app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
 
@@ -138,42 +175,6 @@ def login():
     response.set_cookie('user', json.dumps(user.serialize()))
     return response
     """
-
-class User(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    liu_id = db.Column(db.String, nullable=False)
-    email = db.Column(db.String)
-    program = db.Column(db.String)
-    year = db.Column(db.Integer)
-    is_admin = db.Column(db.Boolean, default=False)
-    num_sold_items = db.Column(db.Integer, default=0)
-    num_bought_items = db.Column(db.Integer, default=0)
-    #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
-    sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
-    bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
-    #password_hash = db.Column(db.String, nullable=False)
-    image_path = db.Column(db.String, nullable=True)
-    oid = db.Column(db.String, nullable=True)
-
-    def __repr__(self):
-        return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
-
-    def serialize(self):
-        return {
-            "id":self.id,
-            "name": self.name,
-            "email":self.email,
-            "liu_id":self.liu_id,
-            "program":self.program,
-            "year":self.year,
-            "is_admin":self.is_admin,
-            "num_sold_items":self.num_sold_items,
-            "num_bought_items":self.num_bought_items,
-            "image_path": request.url_root + self.image_path if self.image_path else None,
-            "oid": self.oid if self.oid else ""
-        } 
 
 class Category(Enum):
     Cyklar = 1
