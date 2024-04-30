@@ -31,7 +31,7 @@
       <!-- Seller info -->
   <h1 class="seller-about"><strong>Om säljaren</strong></h1>
   <div class="seller-info" v-if="item">
-      <img :src="item.seller.image_path" alt="Profile Image" class="profile-image">
+      <img :src="item.seller.image_path || defaultImage" alt="Profile Image" class="profile-pic">
       <div class="seller-id">
         <p class="seller-name"><strong>{{ item.seller.name }}</strong></p> 
         <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
@@ -49,6 +49,7 @@ export default {
     return {
       item: null,
       currentIndex: 0,
+      defaultImage: require('@/assets/profile.png')
     }
   },
   async created() {
@@ -233,20 +234,33 @@ export default {
   margin-bottom: 0px;
  }
 
- .seller-info {
-  display: flex;
-  margin-left: 15%;
-  text-align: left;
-  margin-bottom: 20px;
-  margin-top: 10px;
- }
+ .seller-info { 
+  display: flex; 
+  margin-left: 15%; 
+  text-align: left; 
+  margin-bottom: 20px; 
+  margin-top: 10px; 
+}
 
- .profile-image {
-  width: 8%;
-  height: 8%;
-  border-radius: 50%;
+.seller-id {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center; 
+}
+
+ .profile-pic {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 50%; /* Makes the image round */
+  object-fit: cover; /* Prevents image from stretching */
+  border: 2px solid #0c264d;
   margin-right: 20px;
- }
+}
 
  .seller-name, .seller-liuid {
   margin-bottom: 0;

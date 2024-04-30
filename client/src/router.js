@@ -17,10 +17,11 @@ import HistoryPage from './components/HistoryPage.vue';
 import EditProfilePage from './components/EditProfilePage.vue';
 import PayPage from './components/PayPage.vue';
 import ConfirmPage from './components/ConfirmPage.vue';
+import MessagePage from './components/MessagePage.vue';
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: HomePage
   },
@@ -117,6 +118,11 @@ const routes = [
     path: '/ad-confirm',
     name: 'confirm',
     component: ConfirmPage
+  },
+  {
+    path: '/message',
+    name: 'message',
+    component: MessagePage
   }
 ];
 

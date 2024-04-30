@@ -29,8 +29,33 @@
             <option value="Använd_Slitet_skick">Använd - använt skick</option>
           </select>
         </div>
+
         <div class="row">
-          <input type="file" id="image" accept="image/*" multiple @change="handleImageUpload">
+          <div class="row drop-zone" 
+            @dragover.prevent="dragOver"
+            @dragleave.prevent.stop="dragLeave"
+            @drop.prevent="handleImageUpload"
+            @click="openFileExplorer"
+            :class="{ 'isDragging': isDragging }">
+            <input type="file" id="addedImages" accept="image/*" multiple @change="handleImageUpload" style="display: none;" ref="fileInput">
+            <div :class="{ dragging: isDragging }">
+              <i class="fa fa-cloud-upload"></i> 
+              <div class="add-photos-text">
+                <p class="header"><strong>Lägg till foton</strong></p> 
+                <p class="subheader">eller dra och släpp</p> 
+              </div>
+            </div>
+          </div>
+          <div class="image-preview-row">
+            <div v-for="(existingImage, index) in existingImages" :key="index" class="image-container">
+              <img :src="existingImage.image_path" alt="Image preview">
+              <button @click="removeExistingImage(index)">✖</button>
+            </div>
+            <div v-for="(addedImagePreview, index) in addedImagesPreviews" :key="index" class="image-container">
+              <img :src="addedImagePreview" alt="Image preview">
+              <button @click="removeAddedImage(index)">✖</button>
+            </div>
+          </div>
         </div>
         <button type="submit-button">Publicera ändringar</button>
         <button type="button" @click="cancelForm">Avbryt</button>
@@ -44,6 +69,7 @@
 import axios from 'axios';
 
 export default {
+
   data() {
     return {
       id: null,
@@ -52,8 +78,11 @@ export default {
       price: null,
       area: '',
       condition: '',
-      image: null,
-      buttonText: ''
+      buttonText: '',
+      addedImages: [],
+      addedImagesPreviews: [],
+      existingImages: [],
+      isDragging: false,
     };
   },
 
@@ -76,6 +105,7 @@ export default {
           this.price = response.data.price;
           this.area = response.data.area || '';
           this.condition = response.data.condition || '';
+          this.existingImages = response.data.images;
 
           // ... handle the image field ...
         })
@@ -96,42 +126,96 @@ export default {
     submitForm() {
       console.log('Submit form method called');
 
-      // Prepare the form data
-      // Prepare the form data
-      const itemData = {
-        title: this.title,
-        description: this.description,
-        price: this.price,
-        area: this.area,
-        condition: this.condition,
-        image: this.image
-      };
+      const formData = new FormData();
+      formData.append('title', this.title);
+      formData.append('description', this.description);
+      formData.append('price', this.price);
+      formData.append('area', this.area);
+      formData.append('condition', this.condition);
+
+      for (let i = 0; i < this.addedImages.length; i++) {
+        formData.append('images', this.addedImages[i]);
+      }
+
+      if (this.addedImages.length + this.existingImages.length < 1) {
+        alert('Annonsen måste minst ha en bild.');
+        return;
+      }
 
       // Get the token from the session storage
       const auth = JSON.parse(sessionStorage.getItem('auth'));
-      if (auth) {
-        const token = auth.token;
-
+      const token = auth.token;
+      
         // Send a PUT request to update the item
-        axios.put(`/items/${this.id}`, itemData, {
-          headers: {
-            "Authorization": "Bearer " + token
-          }
+      axios.put(`/items/${this.id}`, formData, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(() => {
+          console.log('Item updated successfully');
+          this.navigateToHistory();
         })
-          .then(() => {
-            console.log('Item updated successfully');
-            this.navigateToHistory();
-            // Navigate to another page if needed
-          })
-          .catch(error => {
-            console.error('Error updating item:', error);
-          });
-      } else {
-        console.error('Auth token not found in sessionStorage');
-      }
+        .catch(error => {
+          console.error('Error updating item:', error);
+        });
     },
     handleImageUpload(event) {
-      this.image = Array.from(event.target.files);
+      this.isDragging = false;
+      let newImages;
+
+      if (event.type === 'drop') {
+        event.preventDefault();
+        newImages = Array.from(event.dataTransfer.files);
+      }else{
+        newImages = Array.from(event.target.files);
+      }
+      for (let i = 0; i < newImages.length; i++) {
+        if (!newImages[i].type.startsWith('image/')) {
+          alert('Alla filer måste vara bilder.');
+          return;
+        }
+      }
+      const newImagePreviews = newImages.map(image => URL.createObjectURL(image));
+      this.addedImages = [...this.addedImages, ...newImages];
+      this.addedImagesPreviews = [...this.addedImagesPreviews, ...newImagePreviews];
+    },
+    openFileExplorer() {
+      this.$refs.fileInput.click();
+    },
+    removeExistingImage(index) {
+
+      const auth = JSON.parse(sessionStorage.getItem('auth'));
+      const token = auth.token;
+
+      event.preventDefault();
+      const image = this.existingImages[index];
+      
+      axios.delete(`/itemimages/${image.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(() => {
+          console.log('Image deleted successfully');
+          this.existingImages.splice(index, 1);
+        })
+        .catch(error => {
+          console.error('Error deleting image:', error);
+        });
+    },
+    removeAddedImage(index) {
+      event.preventDefault();
+      this.addedImages.splice(index, 1);
+      this.addedImagesPreviews.splice(index, 1);
+      console.log('Image removed');
+    },
+    dragOver() {
+    this.isDragging = true;
+    },
+    dragLeave() {
+    this.isDragging = false;
     },
     navigateToHistory() {
       this.$router.push('/profile-history')
@@ -182,6 +266,71 @@ button {
   border-radius: 20px;
   color: white;
   font-weight: bold;
+  margin-top: 15px;
+}
+
+.image-preview-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.image-container {
+  position: relative;
+  display: inline-block;
+  width: 170px;
+  height: 170px;
+  margin-top: 20px;
+  margin-right: 10px;
+}
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: transparent;
+}
+.image-container button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: transparent;
+  color: red;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.drop-zone {
+  background-color: #e7f2f7;
+  border: 3px dashed #bbd5e9; /* Use dashed border for drop zone indication */
+  border-radius: 20px;
+  width: 95%;
+  height: 200px;
+  margin: 20px auto;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop-zone.isDragging { 
+  border-color: #8b8c95; /* Update border color when dragging */
+  background-color: #a6c2d7;  /* Add a subtle background color change */
+  width: 100%;
+  height: 220px;
+}
+.drop-zone .add-photos-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #3d4056;
+}
+.drop-zone .add-photos-text .header {
+  font-size: 20px;
+  font-weight: bold;
+}
+.drop-zone .add-photos-text .subheader {
+  font-size: 16px;
 }
 
 .ctrph::placeholder {

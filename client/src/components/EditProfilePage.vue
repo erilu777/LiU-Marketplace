@@ -3,7 +3,7 @@
     <div class="profile-container">
       <div class="row">
         <div class="profile-pic-container">
-          <img :src="image_path" alt="LMlogo" class="profile-pic">
+          <img :src="imagePreview || image_path || defaultImage" alt="LMlogo" class="profile-pic">
         </div> 
       </div>
       <div class="row">
@@ -15,7 +15,7 @@
         <h1 v-else>Förnamn Efternamn</h1>
       </div>
       <div class="row">
-        <h4>{{ Liu_ID }}@student.liu.se</h4>
+        <h4>{{ email }}</h4>
       </div>
       <form @submit.prevent="editProfile">
         <div class="row">
@@ -54,11 +54,13 @@ export default {
       program: '',
       year: '',
       name: JSON.parse(sessionStorage.getItem('auth')).user.name,
-      Liu_ID: JSON.parse(sessionStorage.getItem('auth')).user.liu_id,
+      email: JSON.parse(sessionStorage.getItem('auth')).user.email,
       image_path: JSON.parse(sessionStorage.getItem('auth')).user.image_path,
-    };
+      previewImage: null,
+      defaultImage: require('@/assets/profile.png'),
+      user_id: '',
+      };
   },
-
   created() {
     this.fetchProfileData();
   },
@@ -75,15 +77,12 @@ export default {
       this.program = response.data.program;
       this.year = response.data.year;
       this.name = response.data.name;
-      this.Liu_ID = response.data.liu_id;
+      this.email = response.data.email;
       this.image_path = response.data.image_path;
+      this.user_id = response.data.id;
     },
 
     editProfile() {
-      const auth = JSON.parse(sessionStorage.getItem('auth'));
-      const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
-      console.log('Token:', token);
-      const userId = JSON.parse(sessionStorage.getItem('auth')).user.id;
 
       const formData = new FormData();
       formData.append('program', this.program);
@@ -91,23 +90,25 @@ export default {
       formData.append('name', this.name);
       formData.append('image', this.image);
 
-      axios.put('/users/' + userId, formData, {
+      const token = JSON.parse(sessionStorage.getItem('auth')).token; 
+      
+      console.log("User ID IN EDIT PROFILE: " + this.user_id);
+
+      axios.put('/users/' + this.user_id, formData, {
         headers: {
           "Authorization": "Bearer " + token,
           'Content-Type': 'multipart/form-data' 
-        }
-      })
-        .then(response => {
-          // Update sessionStorage with the new data
-          auth.user = response.data;
-          sessionStorage.setItem('auth', JSON.stringify(auth));
-          this.$router.push('/profile');
+          }
         })
-      this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
+        .then(() => {
+          this.$router.push('/profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
+        })
     },
     handleImageUpload(event) {
       console.log('Image uploaded');
       this.image = event.target.files[0];
+      this.imagePreview = URL.createObjectURL(this.image);
+      this.$forceUpdate(); // Force update to show the image preview
     },
     navigateToProfile() {
       this.$router.push('/profile');
@@ -183,22 +184,16 @@ img {
   cursor: pointer;
   border: 2px solid;
 }
-.profile-pic-container {
+.profile-pic {
   width: 200px;
   height: 200px;
-  border-radius: 50%;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
-}
-.profile-pic {
-  border-radius: 50%;
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 50%; /* Makes the image round */
+  object-fit: cover; /* Prevents image from stretching */
+  border: 2px solid #0c264d;
 }
 
 </style>

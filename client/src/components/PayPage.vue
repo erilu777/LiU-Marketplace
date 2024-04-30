@@ -22,8 +22,8 @@ export default {
       const { error } = await stripeI.redirectToCheckout({
         lineItems: [{ price: 'price_1P2BtYRxv3wNoBa5KtgSnE4g', quantity: 1 }],
         mode: 'payment',
-        successUrl: 'http://127.0.0.1:5000/#/ad-confirm',
-        cancelUrl: 'http://127.0.0.1:5000/#/payment',
+        successUrl: 'http://localhost:8080/#/ad-confirm',
+        cancelUrl: 'http://localhost:8080/#/sell',
       });
 
       if (error) {

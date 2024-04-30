@@ -3,14 +3,14 @@
     <h1>LiU Marketplace</h1>
     <div class="container">
       <h3>Logga in</h3>
-      <button @click="loginSSO">Logga in med SSO via LiU</button>
+      <button @click="SSOlogin" class="login-button">Logga in med SSO via<img src="../assets/liulogo.png" class="button-image"></button>
     </div>
+    
     <form @submit.prevent="login">
-      <input type="text" v-model="username" required placeholder="LiU-ID">
-      <input type="password" v-model="password" required placeholder="Lösenord">
+      <input type="text" v-model="liu_id" required placeholder="liu_id">
       <button type="submit">Logga in</button>
     </form>
-
+    <!--
     <div>
       <h3>Registrera dig!</h3>
       <button @click="showModal = true">Registrera dig här</button>
@@ -94,7 +94,7 @@
         <button @click="showTermsModal = false">Close</button>
       </div>
     </div>
-
+-->
     <!-- Footer -->
     <div class="footer-line"></div>
     <footer class="footer">
@@ -119,7 +119,6 @@
 
 <script>
 import axios from 'axios';
-import { PublicClientApplication } from "@azure/msal-browser";
 import termsText from 'raw-loader!../assets/Villkor.txt';
 
 export default {
@@ -134,64 +133,85 @@ export default {
       showModal: false,
       liu_id: '',
       password: '',
-      msalConfig: {
-        auth: {
-          clientId: "a43a60fc-0797-469d-b195-722df39d414a",
-          authority: "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd",
-          redirectUri: "http://localhost:8080",
-          //redirectUri: "http://127.0.0.1:5000"
-        },
-        cache: {
-          cacheLocation: "sessionStorage", // This configures where your cache will be stored
-          storeAuthStateInCookie: false, // If you set this to "true", you must also set "cacheLocation" to "sessionStorage"
-        }
-      },
       loginRequest: {
         scopes: ["openid", "profile", "User.Read"],
       },
-      myMSALObj: null,
     };
   },
 
   created() {
-    this.initializeMSAL();
   },
+  mounted() {
+    console.log("mounted");
+    console.log("THIS IS FROM COOKIES:",this.$cookies.get('access_token'));
+    const accessToken = this.$cookies.get('access_token');
+    const user = this.$cookies.get('user');
+    if (accessToken) { 
+        const response = {
+        token: accessToken,
+        user: user,
+        };
+        console.log(response);
 
+        sessionStorage.setItem('auth', JSON.stringify(response));
+        console.log(user.is_admin);
+        console.log("sessionStorage: " + sessionStorage.getItem('auth'));
+        this.$emit('login-success');
+        alert("Inloggad.");
+        this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan
+    } 
+  },
   methods: {
     showTerms() {
       this.showTermsModal = true;
       this.termsText = termsText;
     },
-    async initializeMSAL() {
-      this.myMSALObj = await new PublicClientApplication(this.msalConfig);
-    },
+    SSOlogin() {
+      console.log("inshallah SSO");
+      window.location.href = "http://localhost:8080/ssologin";   
 
-    loginSSO() {
-      console.log('loginSSO method called');
-      //const myMSALObj = new PublicClientApplication(this.msalConfig);
-      this.myMSALObj.loginPopup(this.loginRequest).then((loginResponse) => {
-        // login success
-        console.log(loginResponse);
-      }).catch((error) => {
-        console.error(error);
-      });
+      const accessToken = this.$cookies.get('access_token');
+      console.log(accessToken);
     },
-
     async login() {
+
+      console.log("LOGIN MED ANVÄNDARNAMN");
+
       try {
         const response = await axios.post("/login", {
-          liu_id: this.username,
-          password: this.password
-        }, {
-          withCredentials: true
+          liu_id: this.liu_id,
         });
-        if (response.status >= 200 && response.status < 300) {
+        if (response) {
+          console.log(response.data);
           sessionStorage.setItem('auth', JSON.stringify(response.data));
           sessionStorage.setItem('is_admin', response.data.is_admin);
           this.$emit('login-success');
           alert("Inloggad.");
           console.log(response.data);
-          this.$router.push('/').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+          this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+        }
+      } catch (error) {
+        if (error.response.status == 401) {
+          alert("LOGIN ERROR");
+        } else {
+          console.error(error);
+        }
+      }
+
+      //TODO: LOGIN WITH USERNAME ONLY
+      /*
+      try {
+        const response = await axios.post("/login", {
+          liu_id: this.username,
+        });
+        if (response.status >= 200 && response.status < 300) {
+          console.log(response.data);
+          sessionStorage.setItem('auth', JSON.stringify(response.data));
+          sessionStorage.setItem('is_admin', response.data.is_admin);
+          this.$emit('login-success');
+          alert("Inloggad.");
+          console.log(response.data);
+          this.$router.push('/edit-profile').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
         }
       } catch (error) {
         if (error.response.status == 401) {
@@ -200,8 +220,8 @@ export default {
           console.error(error);
         }
       }
+    */
     },
-
     async register() {
       try {
         if (!this.acceptedTerms) {
@@ -264,15 +284,28 @@ h3 {
   color: #0c264d;
 }
 
-.container {
-  background-color: #e7f2f7;
-  border: 3px solid #bbd5e9;
-  border-radius: 20px;
-  width: 350px;
-  margin: 0 auto;
-  padding: 50px;
-  margin-top: 60px;
-  height: 250px;
+.container{
+  padding-bottom: 80px;
+}
+
+.login-button{
+  color: rgb(0, 0, 0);
+  background-color: rgb(66, 219, 239);
+  border: 2px solid rgb(66, 219, 239);
+  font-size: 40px;
+  font-weight: bold;
+  font-family: Montserrat, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex; 
+  padding: 10px 0px;
+}
+
+.button-image {
+  max-width: 30%;
+  position: relative;
+  top: -8px;
 }
 
 button {

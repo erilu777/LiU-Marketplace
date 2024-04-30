@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, abort, request, send_from_directory
+from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -7,6 +7,9 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 from werkzeug.utils import secure_filename
 import os
+import msal
+import uuid
+import json
 
 app = Flask(__name__, 
 static_folder='../client/dist', 
@@ -20,13 +23,86 @@ CORS(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+"""
+TenantID: 913f18ec-7f26-4c5f-a816-784fe9a58edd
+ClientID: a43a60fc-0797-469d-b195-722df39d414a
+Secret ID: c8c4b13f-c2e5-443d-92ff-262a100d77c5
+Value: 1.N8Q~5DfbaV_CbJtnLm4FUx2Snd_rKRoEzyoacP
+
+redirect URI: localhost:8080
+"""
+
+app.secret_key = "your_secret_key_here"
+
+app.config["CLIENT_ID"] = "a43a60fc-0797-469d-b195-722df39d414a"
+app.config["CLIENT_SECRET"] = "1.N8Q~5DfbaV_CbJtnLm4FUx2Snd_rKRoEzyoacP"
+app.config["AUTHORITY"] = "https://login.microsoftonline.com/913f18ec-7f26-4c5f-a816-784fe9a58edd"
+app.config["REDIRECT_PATH"] = "/"
+app.config["SCOPE"] = ["User.Read"]
+
+msal_app = msal.PublicClientApplication(
+    app.config["CLIENT_ID"],
+    authority=app.config["AUTHORITY"],
+    #client_credential=app.config["CLIENT_SECRET"],
+)
+
+@app.route("/ssologin")
+def ssologin():
+    print("SSO login bror")
+    session["state"] = str(uuid.uuid4())
+    auth_url = msal_app.get_authorization_request_url(
+        app.config["SCOPE"],
+        state=session["state"],
+        redirect_uri='http://localhost:8080',
+    )
+    return redirect(auth_url)
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    if 'code' in request.args:  # This is the authorization response from Microsoft
+        print(f"Got code from Microsoft!")
+        code = request.args['code']
+        state = request.args['state']
+        if session.get("state") == state:  # Validate the state
+            print("State is valid!")
+            result = msal_app.acquire_token_by_authorization_code(
+                code,
+                scopes=app.config["SCOPE"],
+                redirect_uri='http://localhost:8080' 
+            )
+            if "access_token" in result:
+                oid = result.get('id_token_claims')['oid']
+                user = User.query.filter_by(oid=oid).first()
+
+                print(f"{result.get('id_token_claims')}")
+
+                if not user:
+                    user = User(oid=oid, liu_id=result.get('id_token_claims')['preferred_username'].split('@')[0], email=result.get('id_token_claims')['preferred_username'], name=result.get('id_token_claims')['name'], year=result.get('id_token_claims')['ageGroup'], is_admin=True)
+                    db.session.add(user)
+                    db.session.commit()
+                    print(f"User created: {user}")
+                    
+                access_token = create_access_token(identity=user.id)
+                response = make_response(redirect(f"http://localhost:8080/#/home"))
+                response.set_cookie('access_token', access_token)
+                response.set_cookie('user', json.dumps(user.serialize()))
+                return response
+
+            else:
+                print("Failed to authenticate user.")
+        else:
+            print("Invalid state.")
+    print(f"HELLO!")
+    return app.send_static_file('index.html')
+
 
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     liu_id = db.Column(db.String, nullable=False)
-    #email = db.Column(db.String)
+    email = db.Column(db.String)
     program = db.Column(db.String)
     year = db.Column(db.Integer)
     is_admin = db.Column(db.Boolean, default=False)
@@ -35,12 +111,9 @@ class User(db.Model):
     #items = db.relationship('Item', backref="user", foreign_keys="Item.user_id")
     sold_items = db.relationship('Item', backref="seller", foreign_keys="Item.seller_id")
     bought_items = db.relationship('Item', backref="buyer", foreign_keys="Item.buyer_id")
-    password_hash = db.Column(db.String, nullable=False)
+    #password_hash = db.Column(db.String, nullable=False)
     image_path = db.Column(db.String, nullable=True)
-
-    @property
-    def email(self):
-        return self.liu_id + "@student.liu.se"
+    oid = db.Column(db.String, nullable=True)
 
     def __repr__(self):
         return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
@@ -56,11 +129,52 @@ class User(db.Model):
             "is_admin":self.is_admin,
             "num_sold_items":self.num_sold_items,
             "num_bought_items":self.num_bought_items,
-            "image_path": request.url_root + self.image_path if self.image_path else None
+            "image_path": request.url_root + self.image_path if self.image_path else None,
+            "oid": self.oid if self.oid else ""
         } 
+
+
+@app.route('/login', methods=['POST', 'OPTIONS'])
+def login():
+
+    data = request.get_json()
+
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+
+    if not user:
+        user = User(liu_id=data['liu_id'], is_admin=True, email=f"{data['liu_id']}@student.liu.se")
+        db.session.add(user)
+        db.session.commit()
+        print(f"User created: {user}")
+
+    access_token = create_access_token(identity=user.id)
+    response = make_response(redirect(f"http://localhost:8080/#/home"))
+    response.set_cookie('access_token', access_token)
+    response.set_cookie('user', json.dumps(user.serialize()))
+    print(f"RESPONSE: {response.headers}")
+    return response
+
+    #TODO: Implement login with username
+
+    """
+    data = request.get_json()
+    if not data or not data.get('liu_id'):
+        return jsonify({'msg': 'Missing liu_id or password'}), 400
     
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf8')
+    user = User.query.filter_by(liu_id=data['liu_id']).first()
+
+    if not user:
+        user = User(liu_id=data['liu_id'], is_admin=True)
+        db.session.add(user)
+        db.session.commit()
+        print(f"User created: {user}")
+
+    access_token = create_access_token(identity=user.id)
+    response = make_response(redirect(f"http://localhost:8080/#/home"))
+    response.set_cookie('access_token', access_token)
+    response.set_cookie('user', json.dumps(user.serialize()))
+    return response
+    """
 
 class Category(Enum):
     Cyklar = 1
@@ -150,11 +264,6 @@ class ItemImage(db.Model):
             "image_path": request.url_root + self.image_path,
             "item_id":self.item_id
         }
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    return app.send_static_file('index.html')
 
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
@@ -253,6 +362,12 @@ def items():
 def serve_static(filename):
     return send_from_directory('static/uploads', filename)
 
+@app.route('/items/<int:item_id>/images', methods=['DELETE'])
+@jwt_required()
+def remove_images(item_id):
+    #TODO: Implement this
+    pass
+
 @app.route('/items/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def handle_items(item_id):
@@ -262,7 +377,7 @@ def handle_items(item_id):
     if request.method == 'GET':
         return jsonify(item.serialize())
     elif request.method == 'PUT':
-        data = request.get_json()
+        data = request.form.to_dict()
         if 'title' in data:
             item.title = data['title']
         if 'description' in data:
@@ -277,6 +392,17 @@ def handle_items(item_id):
             item.area = data['area']
         if 'is_sold' in data:
             item.is_sold = data['is_sold']
+        if 'images' in request.files:
+            print(f"picture added??? (not in loop)")
+            for image in request.files.getlist('images'):
+                print(f"picture added??? (in loop)")
+                filename = secure_filename(image.filename)
+                image_path = os.path.join('static/uploads', filename)
+                image.save(image_path)
+                new_image = ItemImage(image_path=image_path, item_id=item.id)
+                db.session.add(new_image)
+                print(f"Image at path: {image_path}")
+            
         db.session.commit()
         return jsonify(item.serialize()), 200
     elif request.method == 'DELETE':
@@ -310,6 +436,21 @@ def sell_item(item_id):
     # TODO: Send an email to the buyer
 
     return jsonify(item.serialize()), 200
+
+@app.route('/itemimages/<int:image_id>', methods=['DELETE'])
+@jwt_required()
+def delete_item_image(image_id):
+    if image_id is None:
+        abort(404)
+    try:
+        os.remove(ItemImage.query.get(image_id).image_path)
+    except FileNotFoundError:
+        print("File not found")
+    image = ItemImage.query.get(image_id)
+    db.session.delete(image)
+    db.session.commit()
+    return '', 200
+
 
 @app.route('/all_available_items', methods=['GET'])
 @jwt_required()
@@ -347,7 +488,7 @@ def get_bought_items():
     bought_items = [item.serialize() for item in user.bought_items]
     return jsonify(bought_items), 200
 
-
+"""
 @app.route('/sign-up', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -362,26 +503,17 @@ def signup():
         db.session.commit()
         return jsonify({'message': 'User created successfully'}), 201
 
-
-@app.route('/login', methods=['POST', 'OPTIONS'])
-def login():
-    data = request.get_json()
-    if not data or not data.get('liu_id') or not data.get('password'):
-        return jsonify({'msg': 'Missing liu_id or password'}), 400
-    
-    user = User.query.filter_by(liu_id=data['liu_id']).first()
-
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.id)
         return jsonify({"token": access_token, "user": user.serialize()}), 200    
     else:
         return jsonify({'msg': 'Invalid email or password'}), 401
-
+    """
 
 if __name__ == "__main__":
     with app.app_context():
         #db.drop_all() # Drop all tables before creating them, to avoid conflicts
         db.create_all()
-    app.run(port=5000)
+    app.run(port=8080)
 
 

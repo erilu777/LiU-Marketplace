@@ -15,8 +15,11 @@
     },
     methods: {
       logout() {
+        console.log('Logging out');
         sessionStorage.removeItem('auth');
-        this.$router.push('/login').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
+        this.$cookies.remove('access_token');
+        this.$cookies.remove('user');
+        this.$router.replace('/').then(() => window.location.reload());  //Fullösning för att uppdatera sidan    
       }
     }
   };

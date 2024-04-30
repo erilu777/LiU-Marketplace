@@ -4,7 +4,7 @@
       <div class="profile-container">
         <div class="row">
           <div class="profile-pic-container">
-            <img :src="user.image_path" alt="LMlogo" class="profile-pic">
+            <img :src="user.image_path || defaultImage" alt="LMlogo" class="profile-pic">
           </div>
         </div>
         <div class="row">
@@ -37,13 +37,14 @@ export default {
   data() {
     return {
       user: {
-        real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
+        //real_name: JSON.parse(sessionStorage.getItem('auth')).user.name,
         firstName: '',
         lastName: '',
         email: '',
         program: '',
         year: '',
       },
+      defaultImage: require('@/assets/profile.png'),
     };
   },
 
@@ -82,22 +83,16 @@ h2 {
 h4 {
   color: #0c264d;
 }
-.profile-pic-container {
+.profile-pic {
   width: 200px;
   height: 200px;
-  border-radius: 50%;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
-}
-.profile-pic {
-  border-radius: 50%;
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 50%; /* Makes the image round */
+  object-fit: cover; /* Prevents image from stretching */
+  border: 2px solid #0c264d;
 }
 
 .profile-container {

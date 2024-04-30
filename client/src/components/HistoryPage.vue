@@ -209,6 +209,9 @@ export default {
             })
             .catch(error => {
               console.error('Error marking ad as sold:', error);
+              if (error.response && (error.response.status === 404 || error.response.status === 400)) {
+                alert('Liu ID not found');
+              }
             });
         } else {
           console.error('Auth token not found in sessionStorage');
