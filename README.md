@@ -1,53 +1,86 @@
-# Kandidat
+# LiU Marketplace - Startup Idea & Bachelor Thesis Project
+<p>
+    LiU Marketplace is a platform for students to buy and sell used items. It utilizes Microsoft's Azure AD for authentication (Single Sign-On (SSO)) to securely manage trusted users within the student community. It is a a secure digital marketplace specifically for Linköping University (LiU) students to address security and trust concerns in existing online marketplaces. 
+</p>
 
 
+## Getting Started
 
-## Getting started
+### Prerequisites
+- Python 3.x
+- Vue.js and npm
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Clone the repository
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Setting Up the Environment
 
-## Add your files
+#### 1. Python Backend Setup - in root directory
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+a. Create and activate a virtual environment (optional but recommended):
+```bash
+python -m venv venv
+source venv/bin/activate
 ```
-cd existing_repo
-git remote add origin https://gitlab.liu.se/frein784/kandidat.git
-git branch -M main
-git push -uf origin main
+
+b. Install the required packages (inside the virtual environment and root directory):
+```bash
+pip install -r requirements.txt
 ```
 
-## Integrate with your tools
+#### 2. Vue.js Frontend Setup - in frontend directory
 
-- [ ] [Set up project integrations](https://gitlab.liu.se/frein784/kandidat/-/settings/integrations)
+a. Navigate to the frontend directory:
+```bash
+cd client
+```
 
-## Collaborate with your team
+b. Install the required packages:
+```bash
+npm install
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Running the Application
 
-## Test and Deploy
+#### 1. Python Backend  
 
-Use the built-in continuous integration in GitLab.
+a. Navigate to the backend directory:
+```bash
+cd server
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+b. Run the Flask server:
+```bash
+python main.py
+```
 
-***
+#### 2. Vue.js Frontend
 
-# Editing this README
+a. Navigate to the frontend directory:
+```bash
+cd client
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+b. Run the Vue.js application:
+```bash
+npm run serve
+```
 
+## Important Notes - How to login
+
+### Login with Microsoft Azure AD - For Linköping University students
+
+1. Press the big blue button to login with SSO from Linköping University.
+2. You will be redirected to the Microsoft Azure AD login page.
+3. Enter your Linköping University email and password.
+4. You will be redirected back to the LiU Marketplace.
+
+### Login WITHOUT Microsoft Azure AD - For everyone else
+
+1. Type in whatever you want in the "liu_id" field under the big blue button.
+2. Press "Logga in"
+3. You will be redirected in to the LiU Marketplace.
+
+<!-- 
 ## Suggestions for a good README
 
 Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
@@ -91,3 +124,4 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+-->
