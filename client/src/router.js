@@ -17,7 +17,7 @@ import HistoryPage from './components/HistoryPage.vue';
 import EditProfilePage from './components/EditProfilePage.vue';
 import PayPage from './components/PayPage.vue';
 import ConfirmPage from './components/ConfirmPage.vue';
-import MessagePage from './components/MessagePage.vue';
+//import MessagePage from './components/MessagePage.vue';
 
 const routes = [
   {
@@ -119,11 +119,11 @@ const routes = [
     name: 'confirm',
     component: ConfirmPage
   },
-  {
+  /*{
     path: '/message',
     name: 'message',
     component: MessagePage
-  }
+  }*/
 ];
 
 const router = createRouter({

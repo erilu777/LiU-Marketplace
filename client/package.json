@@ -19,8 +19,10 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jquery": "^3.7.1",
+    "raw-loader": "^4.0.2",
     "stripe": "^14.24.0",
     "vue": "^3.2.13",
+    "vue-cookies": "^1.8.4",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
