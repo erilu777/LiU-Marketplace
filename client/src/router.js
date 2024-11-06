@@ -15,9 +15,7 @@ import EditAdPage from './components/EditAdPage.vue';
 import LoginPage from './components/LoginPage.vue';
 import HistoryPage from './components/HistoryPage.vue';
 import EditProfilePage from './components/EditProfilePage.vue';
-import PayPage from './components/PayPage.vue';
 import ConfirmPage from './components/ConfirmPage.vue';
-//import MessagePage from './components/MessagePage.vue';
 
 const routes = [
   {
@@ -108,11 +106,6 @@ const routes = [
     path: '/edit-profile',
     name: 'editprofile',
     component: EditProfilePage
-  },
-  {
-    path: '/payment',
-    name: 'payment',
-    component: PayPage
   },
   {
     path: '/ad-confirm',
