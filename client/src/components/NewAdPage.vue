@@ -51,8 +51,7 @@
             </div>
           </div>
         </div>
-        <button type="submit">Gå till betalning</button>
-        <!--<button type="submit" @click="navigateToPay">Gå till betalning</button>-->
+        <button type="submit">Publicera annons</button>
       </form>
     </div>
   </div>
@@ -75,7 +74,6 @@ export default {
     this.category = this.$route.params.category;
   },
   methods: {
-
     addItem() {
       const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
       console.log('Token:', token); // Log the value of the token
@@ -115,7 +113,7 @@ export default {
         .catch(error => {
           console.log('Error:', error);
         });
-      this.$router.push('/payment');
+      this.$router.push('/home');
     },
     handleImageUpload(event) {
 
@@ -151,15 +149,7 @@ export default {
     },
     dragLeave() {
     this.isDragging = false;
-    },
-    navigateToHome() {
-      this.$router.push('/');
-    },
-    navigateToPay() {
-      this.addItem();
-      this.$router.push('/payment');
     }
-
   }
 };
 </script>
