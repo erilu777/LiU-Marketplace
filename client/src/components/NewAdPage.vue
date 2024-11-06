@@ -113,7 +113,7 @@ export default {
         .catch(error => {
           console.log('Error:', error);
         });
-      this.$router.push('/home');
+      this.$router.push('/ad-confirm');
     },
     handleImageUpload(event) {
 
