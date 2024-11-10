@@ -69,13 +69,13 @@ export default {
       imagePreviews: [],
       isDragging: false,
     };
-  },
+  }, 
   created() {
     this.category = this.$route.params.category;
   },
   methods: {
     addItem() {
-      const token = JSON.parse(sessionStorage.getItem('auth')).token; // Hämta token från sessionStorage
+      const token = JSON.parse(sessionStorage.getItem('auth')).token; // Get token från sessionStorage
       console.log('Token:', token); // Log the value of the token
       
       if (!this.category || !this.title || !this.description || !this.price || !this.condition || !this.area) {

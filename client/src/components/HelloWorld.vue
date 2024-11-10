@@ -9,6 +9,7 @@
         <router-link to="/sell" active-class="active-link">Sälja</router-link>
       </div>
       <div class="menu-bar-right">
+        <router-link to="/messages" active-class="active-link">Meddelanden</router-link>
         <router-link to="/profile" active-class="active-link">Min Profil</router-link>
         <router-link to="/logout" active-class="active-link">Logga Ut</router-link>
       </div>
@@ -37,16 +38,18 @@
 </template>
 
 <script>
+//import router from '@/router';
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String,
-    auth: {
-      type: Boolean,
-      required: true,
-      default: true
-    }
-  },
+    name: 'HelloWorld',
+    props: {
+        msg: String,
+        auth: {
+            type: Boolean,
+            required: true,
+            default: true
+        }
+    },
+    //components: { router }
 }
 </script>
 

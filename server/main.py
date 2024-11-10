@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session, make_response
+from flask import Flask, jsonify, abort, request, send_from_directory, redirect, session, make_response, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from enum import Enum
@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity, JWTManager
 from werkzeug.utils import secure_filename
+from datetime import datetime
 import os
 import msal
 import uuid
@@ -45,6 +46,7 @@ msal_app = msal.PublicClientApplication(
     authority=app.config["AUTHORITY"],
     #client_credential=app.config["CLIENT_SECRET"],
 )
+
 
 @app.route("/ssologin")
 def ssologin():
@@ -115,6 +117,9 @@ class User(db.Model):
     image_path = db.Column(db.String, nullable=True)
     oid = db.Column(db.String, nullable=True)
 
+    sent_messages = db.relationship('Message', backref='sender', foreign_keys='Message.sender_id')
+    received_messages = db.relationship('Message', backref='receiver', foreign_keys='Message.receiver_id')
+
     def __repr__(self):
         return f"<User {self.id} : {self.name} {self.email}  {self.liu_id} {self.program} {self.year} {self.is_admin} {self.num_sold_items} {self.num_bought_items} >"
 
@@ -153,28 +158,6 @@ def login():
     response.set_cookie('user', json.dumps(user.serialize()))
     print(f"RESPONSE: {response.headers}")
     return response
-
-    #TODO: Implement login with username
-
-    """
-    data = request.get_json()
-    if not data or not data.get('liu_id'):
-        return jsonify({'msg': 'Missing liu_id or password'}), 400
-    
-    user = User.query.filter_by(liu_id=data['liu_id']).first()
-
-    if not user:
-        user = User(liu_id=data['liu_id'], is_admin=True)
-        db.session.add(user)
-        db.session.commit()
-        print(f"User created: {user}")
-
-    access_token = create_access_token(identity=user.id)
-    response = make_response(redirect(f"http://localhost:8080/#/home"))
-    response.set_cookie('access_token', access_token)
-    response.set_cookie('user', json.dumps(user.serialize()))
-    return response
-    """
 
 class Category(Enum):
     Cyklar = 1
@@ -264,7 +247,171 @@ class ItemImage(db.Model):
             "image_path": request.url_root + self.image_path,
             "item_id":self.item_id
         }
+    
+## MESSAGES
+    
+# Update your Message model's serialize method:
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(500), nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now())
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "timestamp": self.timestamp.isoformat(),
+            "sender": {
+                "id": self.sender.id,
+                "name": self.sender.name,
+                "liu_id": self.sender.liu_id
+            },
+            "receiver": {
+                "id": self.receiver.id,
+                "name": self.receiver.name,
+                "liu_id": self.receiver.liu_id
+            },
+            "item_id": self.item_id
+        }
 
+# Add these routes
+@app.route('/messages', methods=['POST'])
+@jwt_required()
+def create_message():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    if not all(k in data for k in ['content', 'receiver_id', 'item_id']):
+        abort(400, description="Missing required fields")
+    
+    new_message = Message(
+        content=data['content'],
+        sender_id=current_user_id,
+        receiver_id=data['receiver_id'],
+        item_id=data['item_id']
+    )
+    
+    db.session.add(new_message)
+    db.session.commit()
+    
+    return jsonify(new_message.serialize()), 201
+
+
+@app.route('/messages/item/<int:item_id>', methods=['GET'])
+@jwt_required()
+def get_item_messages(item_id):
+    current_user_id = get_jwt_identity()
+    print(f"Getting messages for item {item_id}, user {current_user_id}")
+    
+    messages = Message.query.filter(
+        Message.item_id == item_id,
+        db.or_(
+            Message.sender_id == current_user_id,
+            Message.receiver_id == current_user_id
+        )
+    ).order_by(Message.timestamp.asc()).all()
+    
+    print(f"Found {len(messages)} messages")
+    
+    result = []
+    for message in messages:
+        msg_data = {
+            'id': message.id,
+            'content': message.content,
+            'timestamp': message.timestamp.isoformat(),
+            'sender': {
+                'id': message.sender_id,
+                'liu_id': User.query.get(message.sender_id).liu_id
+            },
+            'receiver': {
+                'id': message.receiver_id,
+                'liu_id': User.query.get(message.receiver_id).liu_id
+            }
+        }
+        result.append(msg_data)
+        
+    print(f"Returning messages: {result}")
+    return jsonify(result)
+
+@app.route('/messages/conversations', methods=['GET'])
+@jwt_required()
+def get_conversations():
+    current_user_id = get_jwt_identity()
+    print(f"Getting conversations for user ID: {current_user_id}")
+    
+    # Get all messages for this user
+    messages = Message.query.filter(
+        db.or_(
+            Message.sender_id == current_user_id,
+            Message.receiver_id == current_user_id
+        )
+    ).order_by(Message.timestamp.desc()).all()
+    
+    print(f"Found {len(messages)} messages")
+    
+    # Group by both item_id AND the other user
+    conversations = {}
+    for message in messages:
+        # Figure out who the other user is
+        other_user_id = message.sender_id if message.receiver_id == current_user_id else message.receiver_id
+        other_user = User.query.get(other_user_id)
+        
+        # Create a unique key for this conversation using both item and other user
+        conversation_key = f"{message.item_id}-{other_user_id}"
+        
+        if conversation_key not in conversations:
+            item = Item.query.get(message.item_id)
+            conversations[conversation_key] = {
+                'item_id': message.item_id,
+                'item_title': item.title,
+                'other_user': {
+                    'id': other_user_id,
+                    'liu_id': other_user.liu_id,
+                    'name': other_user.name
+                },
+                'last_message': message.content,
+                'timestamp': message.timestamp.isoformat()
+            }
+    
+    result = list(conversations.values())
+    print(f"Returning {len(result)} conversations: {result}")
+    return jsonify(result)
+
+@app.route('/create_test_message', methods=['GET'])
+@jwt_required()
+def create_test_message():
+    current_user_id = get_jwt_identity()
+    
+    print(current_user_id)
+
+    # Get another user
+    other_user = User.query.filter(User.id != current_user_id).first()
+    if not other_user:
+        return jsonify({"error": "No other users found"}), 404
+        
+    # Get an item
+    item = Item.query.first()
+    if not item:
+        return jsonify({"error": "No items found"}), 404
+        
+    # Create test message
+    message = Message(
+        content="Test message",
+        sender_id=current_user_id,
+        receiver_id=other_user.id,
+        item_id=item.id
+    )
+    
+    db.session.add(message)
+    db.session.commit()
+    
+    return jsonify(message.serialize())
+
+### MESSAGES END HERE
+    
 @app.route('/users', methods=['GET', 'POST'])
 @jwt_required()
 def users():
@@ -487,28 +634,6 @@ def get_bought_items():
         abort(404, description="User not found")
     bought_items = [item.serialize() for item in user.bought_items]
     return jsonify(bought_items), 200
-
-"""
-@app.route('/sign-up', methods=['POST'])
-def signup():
-    data = request.get_json()
-    user = User.query.filter_by(liu_id=data['liu_id']).first()
-    if user:
-        return jsonify({'message': 'User already exists'}), 400
-    else:
-        new_user = User(liu_id=data['liu_id'])
-        password = data['password']
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        return jsonify({'message': 'User created successfully'}), 201
-
-    if user and bcrypt.check_password_hash(user.password_hash, data['password']):
-        access_token = create_access_token(identity=user.id)
-        return jsonify({"token": access_token, "user": user.serialize()}), 200    
-    else:
-        return jsonify({'msg': 'Invalid email or password'}), 401
-    """
 
 if __name__ == "__main__":
     with app.app_context():

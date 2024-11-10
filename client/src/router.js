@@ -16,6 +16,7 @@ import LoginPage from './components/LoginPage.vue';
 import HistoryPage from './components/HistoryPage.vue';
 import EditProfilePage from './components/EditProfilePage.vue';
 import ConfirmPage from './components/ConfirmPage.vue';
+import MessagesPage from './components/MessagesPage.vue';
 
 const routes = [
   {
@@ -112,11 +113,11 @@ const routes = [
     name: 'confirm',
     component: ConfirmPage
   },
-  /*{
-    path: '/message',
-    name: 'message',
-    component: MessagePage
-  }*/
+  {
+    path: '/messages',
+    name: 'Messages',
+    component: MessagesPage
+  }
 ];
 
 const router = createRouter({
