@@ -37,11 +37,40 @@
         <p class="seller-liuid"><strong>{{ item.seller.email }}</strong></p>
       </div>
   </div>
+  <!-- Add this modal/popup right before the closing template tag -->
+  <div v-if="showMessageModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4">Skicka meddelande till säljaren</h2>
+      <div class="mb-4">Angående: {{ item.title }}</div>
+      <textarea 
+        v-model="messageText" 
+        class="w-full p-2 border rounded-lg mb-4" 
+        rows="4" 
+        placeholder="Skriv ditt meddelande här..."
+      ></textarea>
+      <div class="flex justify-end gap-2">
+        <button 
+          @click="closeModal" 
+          class="px-4 py-2 border rounded-lg hover:bg-gray-100"
+        >
+          Avbryt
+        </button>
+        <button 
+          @click="sendMessage" 
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          :disabled="!messageText.trim()"
+        >
+          Skicka
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { fetchAdData } from '@/components/AdsItems.js';
 import { getCondition} from '@/components/getCondition.js';
+import axios from 'axios';  // Add this import
 
 export default {
   props: ['id'],
@@ -49,7 +78,10 @@ export default {
     return {
       item: null,
       currentIndex: 0,
-      defaultImage: require('@/assets/profile.png')
+      defaultImage: require('@/assets/profile.png'),
+      // Add these two new data properties
+      showMessageModal: false,
+      messageText: '',
     }
   },
   async created() {
@@ -76,31 +108,44 @@ export default {
       this.currentIndex = (this.currentIndex - 1 + this.item.images.length) % this.item.images.length;
     },
     goBack() {
-      // Navigate back to the all ads page
       this.$router.push({ name: 'buy' });
-     },
-     contactSeller() {
-      // Replace 'seller@example.com' with the actual email address of the seller
-      const sellerEmail = this.item.seller.email;
-      const subject = 'Angående annons på LiU Marketplace: ' + this.item.title; // Subject line for the email
-      const body = 'Hej,\n\nJag är intresserad av din annons "' + this.item.title + '" på LiU Marketplace.\n\nMed vänliga hälsningar,'; // Body of the email
-
-      // Generate the mailto link with the seller's email, subject, and body
-      const mailtoLink = 'mailto:' + encodeURIComponent(sellerEmail) +
-                        '?subject=' + encodeURIComponent(subject) +
-                        '&body=' + encodeURIComponent(body);
-
-      // Open the email client with the pre-filled email
-      window.location.href = mailtoLink;
     },
-    formatDate(dateString) {
-      // Convert the dateString to UTC
-      let date = new Date(dateString + 'Z');
+    // Replace the old contactSeller method with these three new methods
+    contactSeller() {
+      this.showMessageModal = true;
+    },
 
-      // Format the date and time
+    closeModal() {
+      this.showMessageModal = false;
+      this.messageText = '';
+    },
+
+    async sendMessage() {
+      try {
+        const auth = JSON.parse(sessionStorage.getItem('auth'));
+        await axios.post('/messages', {
+          content: this.messageText,
+          item_id: this.item.id,
+          receiver_id: this.item.seller.id
+        }, {
+          headers: {
+            'Authorization': `Bearer ${auth.token}`
+          }
+        });
+
+        this.closeModal();
+        alert('Meddelandet har skickats!');
+        this.$router.push('/messages');
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Kunde inte skicka meddelandet. Försök igen.');
+      }
+    },
+    // Keep your existing formatDate method
+    formatDate(dateString) {
+      let date = new Date(dateString + 'Z');
       let formattedDate = date.toLocaleDateString('sv-SE', { timeZone: 'Europe/Stockholm' });
       let formattedTime = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Stockholm' });
-
       return formattedDate + ', ' + formattedTime;
     }
   }
@@ -308,6 +353,37 @@ export default {
 
 .active-thumbnail {
   border: 3px solid #0C254A;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 </style>

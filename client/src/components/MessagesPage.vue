@@ -1,66 +1,56 @@
 <template>
-    <div class="flex h-screen">
-      <!-- Conversations List (Left Side) -->
-      <div class="w-1/3 border-r p-4">
-        <h2 class="text-xl font-bold mb-4">Meddelanden</h2>
-        
-        <div v-for="conv in conversations" 
+    <div class="messages-container">
+      <!-- Left side: Conversations list -->
+      <div class="conversations-list">
+        <h2>Meddelanden</h2>
+        <div v-for="conv in groupedConversations" 
              :key="`${conv.item_id}-${conv.other_user.id}`" 
-             @click="selectConversation(conv.item_id, conv.other_user.id)"
-             class="p-3 border-b hover:bg-gray-100 cursor-pointer">
-          <div class="font-medium">{{ conv.item_title }}</div>
-          <div class="text-sm font-medium text-gray-600">
-            {{ conv.other_user.liu_id }}
-          </div>
-          <div class="text-sm text-gray-500">
-            {{ conv.last_message }}
-          </div>
-          <div class="text-xs text-gray-400">
-            {{ new Date(conv.timestamp).toLocaleString() }}
-          </div>
+             @click="selectConversation(conv)"
+             class="conversation-item"
+             :class="{'selected': isSelectedConversation(conv)}">
+          <div class="conversation-title">{{ conv.item_title }}</div>
+          <div class="conversation-user">{{ conv.other_user.liu_id }}</div>
+          <div class="conversation-preview">{{ conv.last_message }}</div>
+          <div class="conversation-time">{{ new Date(conv.timestamp).toLocaleString() }}</div>
         </div>
       </div>
   
-      <!-- Messages Area (Middle) -->
-      <div class="w-2/3 flex flex-col">
-        <div v-if="!selectedItemId" class="flex-1 p-4 flex items-center justify-center text-gray-500">
+      <!-- Right side: Messages -->
+      <div class="messages-area">
+        <div v-if="!selectedConversation" class="no-conversation">
           Välj en konversation för att visa meddelanden
         </div>
-        
-        <div v-else class="flex flex-col h-full">
-          <!-- Messages Display -->
-          <div class="flex-1 p-4 overflow-y-auto">
-            <div v-for="message in filteredMessages" 
-                 :key="message.id" 
-                 class="mb-4 p-3 border rounded"
-                 :class="{
-                   'ml-auto bg-blue-100 w-3/4': message.sender.id === currentUserId,
-                   'mr-auto bg-gray-100 w-3/4': message.sender.id !== currentUserId
-                 }">
-              <div>{{ message.content }}</div>
-              <div class="text-xs mt-1 text-gray-500">
-                {{ message.sender.liu_id }} - {{ new Date(message.timestamp).toLocaleString() }}
-              </div>
-            </div>
-          </div>
   
-          <!-- Message Input -->
-          <div class="p-4 border-t bg-white">
-            <form @submit.prevent="sendMessage" class="flex gap-2">
-              <input 
-                v-model="newMessage" 
-                type="text"
-                placeholder="Skriv ett meddelande..."
-                class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-              />
-              <button 
-                type="submit"
-                class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-                :disabled="!newMessage.trim()"
-              >
-                Skicka
-              </button>
-            </form>
+        <div v-else class="conversation-view">
+            <div class="messages-list">
+                <div v-for="message in messages" 
+                    :key="message.id" 
+                    class="message"
+                    :class="{
+                        'sent': message.sender?.id === currentUserId?.value,
+                        'received': message.sender?.id !== currentUserId?.value
+                    }">
+                    <!-- For debugging -->
+                    <pre style="font-size: 10px; color: gray;">
+                    message sender: {{ message.sender?.id }}
+                    currentUserId: {{ currentUserId }}
+                    </pre>
+                    <div class="message-wrapper">
+                    <div class="message-content">{{ message.content }}</div>
+                    <div class="message-info">
+                        {{ message.sender.liu_id }} - {{ new Date(message.timestamp).toLocaleString() }}
+                    </div>
+                    </div>
+                </div>
+            </div>
+  
+          <div class="message-input">
+            <input 
+              v-model="newMessage" 
+              @keyup.enter="sendMessage"
+              placeholder="Skriv ett meddelande..."
+            />
+            <button @click="sendMessage">Skicka</button>
           </div>
         </div>
       </div>
@@ -68,140 +58,113 @@
   </template>
   
   <script>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed } from 'vue'
   import axios from 'axios'
   
   export default {
     setup() {
       const conversations = ref([])
       const messages = ref([])
-      const selectedItemId = ref(null)
-      const selectedUserId = ref(null)
-      const currentUserId = ref(null)
+      const selectedConversation = ref(null)
       const newMessage = ref('')
+      const currentUserId = ref(null)
   
-      const getAuthHeaders = () => {
-        try {
-          const auth = JSON.parse(sessionStorage.getItem('auth'))
-          return {
-            headers: {
-              'Authorization': `Bearer ${auth.token}`
-            }
-          }
-        } catch (error) {
-          console.error('Error getting auth headers:', error)
-          return {}
-        }
-      }
-  
+      // Move sorting to the loadConversations function
       const loadConversations = async () => {
         try {
           const response = await axios.get('/messages/conversations', getAuthHeaders())
-          conversations.value = response.data
-          console.log('Loaded conversations:', conversations.value)
+          // Sort conversations here instead of in computed property
+          conversations.value = response.data.sort((a, b) => 
+            new Date(b.timestamp) - new Date(a.timestamp)
+          )
         } catch (error) {
           console.error('Error loading conversations:', error)
-          conversations.value = []
         }
       }
   
-      const loadMessages = async (itemId) => {
+      // Computed property now just returns the sorted array
+      const groupedConversations = computed(() => conversations.value)
+  
+      const getAuthHeaders = () => {
+        const auth = JSON.parse(sessionStorage.getItem('auth'))
+        return {
+          headers: {
+            'Authorization': `Bearer ${auth.token}`
+          }
+        }
+      }
+  
+      const isSelectedConversation = (conv) => {
+        return selectedConversation.value && 
+               selectedConversation.value.item_id === conv.item_id && 
+               selectedConversation.value.other_user.id === conv.other_user.id
+      }
+  
+      const loadMessages = async () => {
+        if (!selectedConversation.value) return
+  
         try {
-          const response = await axios.get(`/messages/item/${itemId}`, getAuthHeaders())
+          const response = await axios.get(
+            `/messages/item/${selectedConversation.value.item_id}?user_id=${selectedConversation.value.other_user.id}`, 
+            getAuthHeaders()
+          )
           messages.value = response.data
-          console.log('Loaded messages:', messages.value)
         } catch (error) {
           console.error('Error loading messages:', error)
           messages.value = []
         }
       }
   
-      const selectConversation = async (itemId, userId) => {
-        console.log('Selecting conversation:', itemId, userId)
-        selectedItemId.value = itemId
-        selectedUserId.value = userId
-        await loadMessages(itemId)
-        
-        // Scroll to bottom when conversation is selected
-        setTimeout(() => {
-          const messagesContainer = document.querySelector('.overflow-y-auto')
-          if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight
-          }
-        }, 50)
+      const selectConversation = async (conversation) => {
+        selectedConversation.value = conversation
+        await loadMessages()
       }
   
       const sendMessage = async () => {
-        if (!newMessage.value.trim()) return
+        if (!newMessage.value.trim() || !selectedConversation.value) return
   
         try {
           const response = await axios.post('/messages', {
             content: newMessage.value,
-            item_id: selectedItemId.value,
-            receiver_id: selectedUserId.value
+            item_id: selectedConversation.value.item_id,
+            receiver_id: selectedConversation.value.other_user.id
           }, getAuthHeaders())
-  
-          // Add the new message to the messages list
+          
           messages.value.push(response.data)
-          
-          // Clear the input
           newMessage.value = ''
-          
-          // Scroll to bottom
-          setTimeout(() => {
-            const messagesContainer = document.querySelector('.overflow-y-auto')
-            if (messagesContainer) {
-              messagesContainer.scrollTop = messagesContainer.scrollHeight
-            }
-          }, 50)
-  
         } catch (error) {
           console.error('Error sending message:', error)
-          alert('Kunde inte skicka meddelandet. Försök igen.')
         }
       }
   
-      const filteredMessages = computed(() => {
-        if (!selectedUserId.value) return messages.value
-        return messages.value.filter(message => 
-          message.sender.id === selectedUserId.value || 
-          message.receiver.id === selectedUserId.value
-        )
-      })
-  
-      // Replace just the onMounted section in your current code with this:
-    onMounted(() => {
-    // Get current user ID from auth
-    try {
-        const auth = JSON.parse(sessionStorage.getItem('auth'))
-        if (auth?.token) {  // If we have a valid auth token
-        // Try to get user data - if it fails, fallback to getting ID from JWT
+      const getCurrentUserId = () => {
         try {
-            const userStr = auth?.user
-            if (userStr) {
-            const cleanedStr = userStr.replace(/^"/, '').replace(/"$/, '').replace(/\\\\/g, '\\')
-            const userData = JSON.parse(cleanedStr)
-            currentUserId.value = userData.id
+            const auth = JSON.parse(sessionStorage.getItem('auth'))
+            if (auth?.user) {
+            try {
+                const cleanedStr = auth.user.replace(/^"/, '').replace(/"$/, '').replace(/\\\\/g, '\\')
+                const userData = JSON.parse(cleanedStr)
+                currentUserId.value = userData.id
+            } catch {
+                // Silently continue - no need to log anything
             }
-        } catch (error) {
-            // If parsing fails, we can still continue since messaging works
-            console.log('Note: Could not parse user data, but messaging will still work')
+            }
+        } catch {
+            // Silently continue - no need to log anything
         }
         }
-    } catch (error) {
-        console.log('Note: Using fallback auth method')
-    }
-    
-    // Load conversations regardless of whether we got the user ID
-    loadConversations()
-    })
+  
+      // Initialize
+      getCurrentUserId()
+      loadConversations()
   
       return {
-        conversations,
-        filteredMessages,
-        selectedItemId,
+        groupedConversations,
+        messages,
+        selectedConversation,
         currentUserId,
         newMessage,
+        isSelectedConversation,
         selectConversation,
         sendMessage
       }
@@ -209,25 +172,211 @@
   }
   </script>
   
-  <style scoped>
-  .overflow-y-auto {
-    scroll-behavior: smooth;
-  }
+  <!-- Keep your existing styles -->
   
-  .overflow-y-auto::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .overflow-y-auto::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-  
-  .overflow-y-auto::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-  }
-  
-  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
+<style scoped>
+.messages-container {
+  display: flex;
+  height: calc(100vh - 380px);
+  background-color: white;
+}
+
+.conversations-list {
+  width: 300px;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.conversations-list h2 {
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #0C254A;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.conversation-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.conversation-item:hover {
+  background-color: #f3f4f6;
+}
+
+.conversation-item.selected {
+  background-color: #e5e7eb;
+}
+
+.conversation-title {
+  font-weight: bold;
+  color: #0C254A;
+}
+
+.conversation-user {
+  font-size: 14px;
+  color: #4b5563;
+  margin-top: 4px;
+}
+
+.conversation-preview {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-time {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.messages-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+
+.no-conversation {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.conversation-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-list {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f0f2f5;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.message-wrapper {
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sent .message-wrapper {
+  margin-left: auto;  /* This pushes sent messages to the right */
+  margin-right: 0;
+  align-items: flex-end;
+}
+
+.received .message-wrapper {
+  margin-right: auto;  /* This keeps received messages on the left */
+  margin-left: 0;
+  align-items: flex-start;
+}
+
+.message-content {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  max-width: fit-content;
+}
+
+.sent .message-content {
+  background-color: #0c264d;  /* Your site's dark blue */
+  color: white;
+  border-bottom-right-radius: 4px;  /* Small point on bottom right */
+  border-bottom-left-radius: 18px;  /* Keep other corners rounded */
+}
+
+.received .message-content {
+  background-color: #4e8cff;  /* Light blue */
+  color: white;
+  border-bottom-left-radius: 4px;  /* Small point on bottom left */
+  border-bottom-right-radius: 18px;  /* Keep other corners rounded */
+}
+
+.message-info {
+  font-size: 11px;
+  color: #65676B;
+  margin-top: 4px;
+  padding: 0 8px;
+}
+
+.sent .message-info {
+  text-align: right;
+}
+
+.received .message-info {
+  text-align: left;
+}
+
+.message-input {
+  padding: 16px;
+  background-color: white;
+  border-top: 1px solid #E4E6EB;
+  display: flex;
+  gap: 12px;
+}
+
+.message-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #E4E6EB;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.message-input input:focus {
+  border-color: #0c264d;
+}
+
+.message-input button {
+  padding: 8px 20px;
+  background-color: #0c264d;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.message-input button:hover {
+  background-color: #0a1f3d;
+}
+
+/* Scrollbar styling */
+.messages-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.messages-list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
   </style>

@@ -299,22 +299,34 @@ def create_message():
     
     return jsonify(new_message.serialize()), 201
 
-
 @app.route('/messages/item/<int:item_id>', methods=['GET'])
 @jwt_required()
 def get_item_messages(item_id):
     current_user_id = get_jwt_identity()
-    print(f"Getting messages for item {item_id}, user {current_user_id}")
+    # Get the other user's ID from query parameter
+    other_user_id = request.args.get('user_id')
     
+    print(f"Getting messages for item {item_id} between users {current_user_id} and {other_user_id}")
+    
+    if not other_user_id:
+        return jsonify({"error": "user_id parameter is required"}), 400
+        
     messages = Message.query.filter(
         Message.item_id == item_id,
+        # Only get messages between these two specific users
         db.or_(
-            Message.sender_id == current_user_id,
-            Message.receiver_id == current_user_id
+            db.and_(
+                Message.sender_id == current_user_id,
+                Message.receiver_id == other_user_id
+            ),
+            db.and_(
+                Message.sender_id == other_user_id,
+                Message.receiver_id == current_user_id
+            )
         )
     ).order_by(Message.timestamp.asc()).all()
     
-    print(f"Found {len(messages)} messages")
+    print(f"Found {len(messages)} messages between these users")
     
     result = []
     for message in messages:
@@ -333,7 +345,6 @@ def get_item_messages(item_id):
         }
         result.append(msg_data)
         
-    print(f"Returning messages: {result}")
     return jsonify(result)
 
 @app.route('/messages/conversations', methods=['GET'])
