@@ -39,11 +39,11 @@
           <textarea 
             v-model="newMessage" 
             @keydown.enter.exact.prevent="sendMessage"
-            @keydown.shift.enter.prevent="newMessage += '\n'"
+            @keydown.enter.shift.prevent="handleShiftEnter"
             @input="adjustTextareaHeight"
             placeholder="Skriv ett meddelande..."
             ref="messageInput"
-        ></textarea>
+          ></textarea>
           <button @click="sendMessage">Skicka</button>
         </div>
       </div>
@@ -51,7 +51,8 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+
 import axios from 'axios'
 
 export default {
@@ -108,10 +109,16 @@ export default {
   }
 }
 
-    const selectConversation = async (conversation) => {
-      selectedConversation.value = conversation
-      await loadMessages()
+  const selectConversation = async (conversation) => {
+    selectedConversation.value = conversation
+    await loadMessages()
+    
+    // Reset textarea height when switching conversations
+    if (messageInput.value) {
+      messageInput.value.style.height = '24px'
+      newMessage.value = ''  // Clear the message
     }
+  }
 
     const sendMessage = async () => {
       if (!newMessage.value.trim() || !selectedConversation.value) return
@@ -159,23 +166,33 @@ export default {
     const messageInput = ref(null)
 
     const adjustTextareaHeight = () => {
-    const textarea = messageInput.value
-    if (textarea) {
-      // Reset height before calculating scrollHeight
-      textarea.style.height = '36px'  // Match initial height
-      
-      // Calculate new height based on content
-      const newHeight = Math.min(textarea.scrollHeight, 100)
-      textarea.style.height = newHeight + 'px'
-      
-      // Adjust scroll position if needed
-      if (textarea.scrollHeight > 100) {
-        textarea.style.overflowY = 'auto'
-      } else {
-        textarea.style.overflowY = 'hidden'
-      }
-    }
+  const textarea = messageInput.value
+  if (textarea) {
+    // Save scroll position to prevent jumping
+    const scrollPos = textarea.scrollTop
+    
+    // Reset height
+    textarea.style.height = '40px'
+    
+    // Set new height
+    const newHeight = Math.min(textarea.scrollHeight, 100)
+    textarea.style.height = newHeight + 'px'
+    
+    // Restore scroll position
+    textarea.scrollTop = scrollPos
   }
+    }
+
+    const handleShiftEnter = () => {
+      // Add a proper newline character
+      newMessage.value += '\n'
+      // Force the textarea to update immediately
+      nextTick(() => {
+        adjustTextareaHeight()
+      })
+    }
+
+
 
     // Initialize
     onMounted(() => {
@@ -195,7 +212,8 @@ export default {
       getMessageClass,
 
       messageInput,
-      adjustTextareaHeight
+      adjustTextareaHeight,
+      handleShiftEnter
     }
   }
 }
@@ -204,14 +222,13 @@ export default {
   <!-- Keep your existing styles -->
   
   <style scoped>
-  .messages-container {
-    display: flex;
-    /* This will leave space just for header (80px) and a small gap (20px) */
-    height: calc(100vh - 100px);
-    background-color: white;
-    margin-bottom: 20px;  /* Small gap before footer */
-    position: relative;
-  }
+
+.messages-container {
+  display: flex;
+  /* This height should exactly match the space between header and footer */
+  height: calc(100vh - 380px);
+  background-color: white;
+}
   
   .conversations-list {
     width: 300px;
@@ -269,12 +286,13 @@ export default {
   }
   
   .messages-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: #f9fafb;
-    position: relative;
-  }
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
   
   .no-conversation {
     flex: 1;
@@ -286,22 +304,19 @@ export default {
   }
   
   .conversation-view {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
-  
-  .messages-list {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: #f0f2f5;
-  }
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.messages-list {
+  flex: 1;
+  padding: 20px 20px 8px 20px;
+  overflow-y: auto;
+  background-color: #f0f2f5;
+  margin-bottom: 0;
+}
   
   .message {
     display: flex;
@@ -357,16 +372,15 @@ export default {
   .received .message-info {
     text-align: left;
   }
-  
+
   .message-input {
-  padding: 16px;
   background-color: white;
   border-top: 1px solid #E4E6EB;
   display: flex;
-  align-items: center;  /* This centers items vertically */
+  align-items: center;
   gap: 12px;
-  position: sticky;
-  bottom: 0;
+  padding: 8px 16px;
+  margin-top: auto; /* Push to bottom */
 }
 
 .message-input textarea {
@@ -377,11 +391,10 @@ export default {
   outline: none;
   font-size: 14px;
   resize: none;
-  height: 36px;
+  height: 40px;      /* Fixed initial height */
   max-height: 100px;
   line-height: 20px;
   overflow-y: auto;
-  display: block;  /* Added this */
 }
   
   .message-input textarea:focus {
@@ -390,15 +403,9 @@ export default {
   
   .message-input button {
   padding: 8px 20px;
-  background-color: #0c264d;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-  height: 36px;  /* Match textarea height */
-  white-space: nowrap;  /* Prevent button text wrapping */
+  height: 40px;
+  margin-top: 0;
+  align-self: center;
 }
   
   .message-input button:hover {
@@ -422,5 +429,9 @@ export default {
   .messages-list::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.3);
   }
+
+  .message:last-child {
+  margin-bottom: 0;
+}
 
   </style>
