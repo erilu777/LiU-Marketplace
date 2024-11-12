@@ -1,177 +1,206 @@
 <template>
-    <div class="messages-container">
-      <!-- Left side: Conversations list -->
-      <div class="conversations-list">
-        <h2>Meddelanden</h2>
-        <div v-for="conv in groupedConversations" 
-             :key="`${conv.item_id}-${conv.other_user.id}`" 
-             @click="selectConversation(conv)"
-             class="conversation-item"
-             :class="{'selected': isSelectedConversation(conv)}">
-          <div class="conversation-title">{{ conv.item_title }}</div>
-          <div class="conversation-user">{{ conv.other_user.liu_id }}</div>
-          <div class="conversation-preview">{{ conv.last_message }}</div>
-          <div class="conversation-time">{{ new Date(conv.timestamp).toLocaleString() }}</div>
-        </div>
+  <div class="messages-container">
+    <!-- Left side: Conversations list -->
+    <div class="conversations-list">
+      <h2>Meddelanden</h2>
+      <div v-for="conv in groupedConversations" 
+           :key="`${conv.item_id}-${conv.other_user.id}`" 
+           @click="selectConversation(conv)"
+           class="conversation-item"
+           :class="{'selected': isSelectedConversation(conv)}">
+        <div class="conversation-title">{{ conv.item_title }}</div>
+        <div class="conversation-user">{{ conv.other_user.liu_id }}</div>
+        <div class="conversation-preview">{{ conv.last_message }}</div>
+        <div class="conversation-time">{{ new Date(conv.timestamp).toLocaleString() }}</div>
       </div>
-  
-      <!-- Right side: Messages -->
-      <div class="messages-area">
-        <div v-if="!selectedConversation" class="no-conversation">
-          Välj en konversation för att visa meddelanden
-        </div>
-  
-        <div v-else class="conversation-view">
-            <div class="messages-list">
-                <div v-for="message in messages" 
-                    :key="message.id" 
-                    class="message"
-                    :class="{
-                        'sent': message.sender?.id === currentUserId?.value,
-                        'received': message.sender?.id !== currentUserId?.value
-                    }">
-                    <!-- For debugging -->
-                    <pre style="font-size: 10px; color: gray;">
-                    message sender: {{ message.sender?.id }}
-                    currentUserId: {{ currentUserId }}
-                    </pre>
-                    <div class="message-wrapper">
-                    <div class="message-content">{{ message.content }}</div>
-                    <div class="message-info">
-                        {{ message.sender.liu_id }} - {{ new Date(message.timestamp).toLocaleString() }}
-                    </div>
-                    </div>
-                </div>
+    </div>
+
+    <!-- Right side: Messages -->
+    <div class="messages-area">
+      <div v-if="!selectedConversation" class="no-conversation">
+        Välj en konversation för att visa meddelanden
+      </div>
+
+      <div v-else class="conversation-view">
+        <div class="messages-list">
+          <div v-for="message in messages" 
+            :key="message.id" 
+            class="message"
+            :class="getMessageClass(message)">
+            <div class="message-wrapper">
+              <div class="message-content">{{ message.content }}</div>
+              <div class="message-info">
+                {{ message.sender.liu_id }} - {{ new Date(message.timestamp).toLocaleString() }}
+              </div>
             </div>
-  
-          <div class="message-input">
-            <input 
-              v-model="newMessage" 
-              @keyup.enter="sendMessage"
-              placeholder="Skriv ett meddelande..."
-            />
-            <button @click="sendMessage">Skicka</button>
           </div>
+        </div>
+
+        <div class="message-input">
+          <input 
+            v-model="newMessage" 
+            @keyup.enter="sendMessage"
+            placeholder="Skriv ett meddelande..."
+          />
+          <button @click="sendMessage">Skicka</button>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import { ref, computed } from 'vue'
-  import axios from 'axios'
-  
-  export default {
-    setup() {
-      const conversations = ref([])
-      const messages = ref([])
-      const selectedConversation = ref(null)
-      const newMessage = ref('')
-      const currentUserId = ref(null)
-  
-      // Move sorting to the loadConversations function
-      const loadConversations = async () => {
-        try {
-          const response = await axios.get('/messages/conversations', getAuthHeaders())
-          // Sort conversations here instead of in computed property
-          conversations.value = response.data.sort((a, b) => 
-            new Date(b.timestamp) - new Date(a.timestamp)
-          )
-        } catch (error) {
-          console.error('Error loading conversations:', error)
-        }
-      }
-  
-      // Computed property now just returns the sorted array
-      const groupedConversations = computed(() => conversations.value)
-  
-      const getAuthHeaders = () => {
-        const auth = JSON.parse(sessionStorage.getItem('auth'))
-        return {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
-          }
-        }
-      }
-  
-      const isSelectedConversation = (conv) => {
-        return selectedConversation.value && 
-               selectedConversation.value.item_id === conv.item_id && 
-               selectedConversation.value.other_user.id === conv.other_user.id
-      }
-  
-      const loadMessages = async () => {
-        if (!selectedConversation.value) return
-  
-        try {
-          const response = await axios.get(
-            `/messages/item/${selectedConversation.value.item_id}?user_id=${selectedConversation.value.other_user.id}`, 
-            getAuthHeaders()
-          )
-          messages.value = response.data
-        } catch (error) {
-          console.error('Error loading messages:', error)
-          messages.value = []
-        }
-      }
-  
-      const selectConversation = async (conversation) => {
-        selectedConversation.value = conversation
-        await loadMessages()
-      }
-  
-      const sendMessage = async () => {
-        if (!newMessage.value.trim() || !selectedConversation.value) return
-  
-        try {
-          const response = await axios.post('/messages', {
-            content: newMessage.value,
-            item_id: selectedConversation.value.item_id,
-            receiver_id: selectedConversation.value.other_user.id
-          }, getAuthHeaders())
-          
-          messages.value.push(response.data)
-          newMessage.value = ''
-        } catch (error) {
-          console.error('Error sending message:', error)
-        }
-      }
-  
-      const getCurrentUserId = () => {
-        try {
-            const auth = JSON.parse(sessionStorage.getItem('auth'))
-            if (auth?.user) {
-            try {
-                const cleanedStr = auth.user.replace(/^"/, '').replace(/"$/, '').replace(/\\\\/g, '\\')
-                const userData = JSON.parse(cleanedStr)
-                currentUserId.value = userData.id
-            } catch {
-                // Silently continue - no need to log anything
-            }
-            }
-        } catch {
-            // Silently continue - no need to log anything
-        }
-        }
-  
-      // Initialize
-      getCurrentUserId()
-      loadConversations()
-  
-      return {
-        groupedConversations,
-        messages,
-        selectedConversation,
-        currentUserId,
-        newMessage,
-        isSelectedConversation,
-        selectConversation,
-        sendMessage
+  </div>
+</template>
+<script>
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+
+export default {
+  setup() {
+    const conversations = ref([])
+    const messages = ref([])
+    const selectedConversation = ref(null)
+    const newMessage = ref('')
+    const currentUserId = ref(null)
+
+    // Move sorting to the loadConversations function
+    const loadConversations = async () => {
+      try {
+        const response = await axios.get('/messages/conversations', getAuthHeaders())
+        // Sort conversations here instead of in computed property
+        conversations.value = response.data.sort((a, b) => 
+          new Date(b.timestamp) - new Date(a.timestamp)
+        )
+      } catch (error) {
+        console.error('Error loading conversations:', error)
       }
     }
+
+    // Computed property now just returns the sorted array
+    const groupedConversations = computed(() => conversations.value)
+
+    const getAuthHeaders = () => {
+      const auth = JSON.parse(sessionStorage.getItem('auth'))
+      return {
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      }
+    }
+
+    const isSelectedConversation = (conv) => {
+      return selectedConversation.value && 
+             selectedConversation.value.item_id === conv.item_id && 
+             selectedConversation.value.other_user.id === conv.other_user.id
+    }
+
+    const loadMessages = async () => {
+  if (!selectedConversation.value) return
+
+  try {
+    const response = await axios.get(
+      `/messages/item/${selectedConversation.value.item_id}?user_id=${selectedConversation.value.other_user.id}`, 
+      getAuthHeaders()
+    )
+    messages.value = response.data
+    // Add this debug log:
+    console.log('Loaded messages:', messages.value);
+    console.log('Current user ID when loading:', currentUserId.value);
+  } catch (error) {
+    console.error('Error loading messages:', error)
+    messages.value = []
   }
-  </script>
-  
+}
+
+    const selectConversation = async (conversation) => {
+      selectedConversation.value = conversation
+      await loadMessages()
+    }
+
+    const sendMessage = async () => {
+      if (!newMessage.value.trim() || !selectedConversation.value) return
+
+      try {
+        const response = await axios.post('/messages', {
+          content: newMessage.value,
+          item_id: selectedConversation.value.item_id,
+          receiver_id: selectedConversation.value.other_user.id
+        }, getAuthHeaders())
+        
+        messages.value.push(response.data)
+        newMessage.value = ''
+      } catch (error) {
+        console.error('Error sending message:', error)
+      }
+    }
+
+    const getMessageClass = (message) => {
+      console.log('Message sender ID:', message.sender.id, 'type:', typeof message.sender.id);
+      console.log('Current user ID:', currentUserId.value, 'type:', typeof currentUserId.value);
+      
+      // Convert both to numbers for comparison
+      const senderId = Number(message.sender.id);
+      const userId = Number(currentUserId.value);
+      
+      const isSent = senderId === userId;
+      console.log('Is message sent?', isSent);
+      
+      return {
+        'sent': isSent,
+        'received': !isSent
+      };
+    };
+
+    const getCurrentUserId = () => {
+      try {
+        // Try to get from sessionStorage first
+        const auth = sessionStorage.getItem('auth')
+        if (auth) {
+          const authData = JSON.parse(auth)
+          if (authData.user) {
+            // Handle the double-encoded JSON string
+            const userStr = authData.user.replace(/\\054/g, ',').replace(/\\\\/g, '\\')
+            const cleanUserStr = JSON.parse(JSON.parse(userStr))
+            currentUserId.value = cleanUserStr.id
+            console.log('Set currentUserId from session:', currentUserId.value)
+            return
+          }
+        }
+
+        // Fallback to cookie if sessionStorage fails
+        const userCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('user='))
+        
+        if (userCookie) {
+          const cookieValue = decodeURIComponent(userCookie.split('=')[1])
+          const userData = JSON.parse(cookieValue.replace(/\\054/g, ','))
+          currentUserId.value = userData.id
+          console.log('Set currentUserId from cookie:', currentUserId.value)
+        }
+      } catch (error) {
+        console.error('Error in getCurrentUserId:', error)
+      }
+    }
+
+    // Initialize
+    onMounted(() => {
+      getCurrentUserId()
+      loadConversations()
+    })
+
+    return {
+      groupedConversations,
+      messages,
+      selectedConversation,
+      currentUserId,
+      newMessage,
+      isSelectedConversation,
+      selectConversation,
+      sendMessage,
+      getMessageClass
+    }
+  }
+}
+</script>
+
   <!-- Keep your existing styles -->
   
 <style scoped>
@@ -267,48 +296,42 @@
 
 .message {
   display: flex;
-  flex-direction: column;
   margin-bottom: 10px;
   width: 100%;
 }
 
+.message.sent {
+  justify-content: flex-end;
+}
+
+.message.received {
+  justify-content: flex-start;
+}
+
 .message-wrapper {
   max-width: 60%;
-  display: flex;
-  flex-direction: column;
-}
-
-.sent .message-wrapper {
-  margin-left: auto;  /* This pushes sent messages to the right */
-  margin-right: 0;
-  align-items: flex-end;
-}
-
-.received .message-wrapper {
-  margin-right: auto;  /* This keeps received messages on the left */
-  margin-left: 0;
-  align-items: flex-start;
 }
 
 .message-content {
   padding: 12px 16px;
   border-radius: 18px;
   font-size: 14px;
+  word-wrap: break-word;
   max-width: fit-content;
 }
 
 .sent .message-content {
-  background-color: #0c264d;  /* Your site's dark blue */
+  background-color: #0c264d;
   color: white;
-  border-bottom-right-radius: 4px;  /* Small point on bottom right */
-  border-bottom-left-radius: 18px;  /* Keep other corners rounded */
+  border-bottom-right-radius: 4px;
+  margin-left: auto;
 }
 
 .received .message-content {
-  background-color: #4e8cff;  /* Light blue */
+  background-color: #4e8cff;
   color: white;
-  border-bottom-left-radius: 4px;  /* Small point on bottom left */
-  border-bottom-right-radius: 18px;  /* Keep other corners rounded */
+  border-bottom-left-radius: 4px;
+  margin-right: auto;
 }
 
 .message-info {
@@ -379,4 +402,5 @@
 .messages-list::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
-  </style>
+
+</style>
