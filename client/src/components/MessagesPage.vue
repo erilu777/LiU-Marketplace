@@ -100,9 +100,6 @@ export default {
       getAuthHeaders()
     )
     messages.value = response.data
-    // Add this debug log:
-    console.log('Loaded messages:', messages.value);
-    console.log('Current user ID when loading:', currentUserId.value);
   } catch (error) {
     console.error('Error loading messages:', error)
     messages.value = []
@@ -132,53 +129,30 @@ export default {
     }
 
     const getMessageClass = (message) => {
-      console.log('Message sender ID:', message.sender.id, 'type:', typeof message.sender.id);
-      console.log('Current user ID:', currentUserId.value, 'type:', typeof currentUserId.value);
-      
-      // Convert both to numbers for comparison
-      const senderId = Number(message.sender.id);
-      const userId = Number(currentUserId.value);
-      
-      const isSent = senderId === userId;
-      console.log('Is message sent?', isSent);
-      
-      return {
-        'sent': isSent,
-        'received': !isSent
-      };
+    const senderId = Number(message.sender.id);
+    const userId = Number(currentUserId.value);
+    
+    return {
+      'sent': senderId === userId,
+      'received': senderId !== userId
     };
+  };
 
     const getCurrentUserId = () => {
-      try {
-        // Try to get from sessionStorage first
-        const auth = sessionStorage.getItem('auth')
-        if (auth) {
-          const authData = JSON.parse(auth)
-          if (authData.user) {
-            // Handle the double-encoded JSON string
-            const userStr = authData.user.replace(/\\054/g, ',').replace(/\\\\/g, '\\')
-            const cleanUserStr = JSON.parse(JSON.parse(userStr))
-            currentUserId.value = cleanUserStr.id
-            console.log('Set currentUserId from session:', currentUserId.value)
-            return
-          }
-        }
-
-        // Fallback to cookie if sessionStorage fails
-        const userCookie = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('user='))
-        
-        if (userCookie) {
-          const cookieValue = decodeURIComponent(userCookie.split('=')[1])
-          const userData = JSON.parse(cookieValue.replace(/\\054/g, ','))
-          currentUserId.value = userData.id
-          console.log('Set currentUserId from cookie:', currentUserId.value)
-        }
-      } catch (error) {
-        console.error('Error in getCurrentUserId:', error)
+  try {
+    const auth = sessionStorage.getItem('auth')
+    if (auth) {
+      const authData = JSON.parse(auth)
+      if (authData.user) {
+        const userStr = authData.user.replace(/\\054/g, ',').replace(/\\\\/g, '\\')
+        const cleanUserStr = JSON.parse(JSON.parse(userStr))
+        currentUserId.value = cleanUserStr.id
       }
     }
+  } catch (error) {
+    console.error('Error getting user ID')
+  }
+}
 
     // Initialize
     onMounted(() => {
