@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <LoginPage v-if="!isLoggedIn" @login-success="handleLoginSuccess" />
-    <HelloWorld v-else msg="Welcome to Your Vue.js App" />
+    <AppLayout v-else msg="Welcome to Your Vue.js App" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import AppLayout from './components/AppLayout.vue'
 import LoginPage from './components/LoginPage.vue';
 import { checkLoginStatus } from './components/checkAuth';
 //import { EventBus } from './components/event-bus.js';
@@ -28,7 +28,7 @@ export default {
   },
   components: {
     LoginPage,
-    HelloWorld
+    AppLayout
   }
 }
 </script>

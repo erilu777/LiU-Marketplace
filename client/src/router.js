@@ -5,7 +5,6 @@ import HomePage from './components/HomePage.vue';
 import BuyPage from './components/BuyPage.vue';
 import SellPage from './components/SellPage.vue';
 import ProfilePage from './components/ProfilePage.vue';
-import LogoutPage from './components/LogoutPage.vue';
 import AdsDetails from './components/AdsDetails.vue';
 import NewAdPage from './components/NewAdPage.vue';
 import FAQPage from './components/FAQPage.vue';
@@ -38,11 +37,6 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: ProfilePage
-  },
-  {
-    path: '/logout',
-    name: 'logout',
-    component: LogoutPage
   },
   {
     path: '/ads/:id',
