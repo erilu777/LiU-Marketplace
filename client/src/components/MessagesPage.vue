@@ -28,7 +28,7 @@
             class="message"
             :class="getMessageClass(message)">
             <div class="message-wrapper">
-              <div class="message-content">{{ message.content }}</div>
+              <div class="message-content" v-html="formatMessageContent(message.content)" :class="getMessageClass(message)"></div>              
               <div class="message-info">
                 {{ message.sender.liu_id }} - {{ new Date(message.timestamp).toLocaleString() }}
               </div>
@@ -192,6 +192,9 @@ export default {
       })
     }
 
+    const formatMessageContent = (content) => {
+      return content.replace(/\n/g, '<br>')
+    }
 
 
     // Initialize
@@ -213,7 +216,8 @@ export default {
 
       messageInput,
       adjustTextareaHeight,
-      handleShiftEnter
+      handleShiftEnter,
+      formatMessageContent
     }
   }
 }
@@ -334,6 +338,8 @@ export default {
   
   .message-wrapper {
     max-width: 60%;
+    display: flex;
+    flex-direction: column;
   }
   
   .message-content {
@@ -341,7 +347,8 @@ export default {
     border-radius: 18px;
     font-size: 14px;
     word-wrap: break-word;
-    max-width: fit-content;
+    white-space: pre-wrap;
+    text-align: left;
   }
   
   .sent .message-content {
@@ -349,6 +356,7 @@ export default {
     color: white;
     border-bottom-right-radius: 4px;
     margin-left: auto;
+    margin-right: 0;
   }
   
   .received .message-content {
@@ -356,6 +364,7 @@ export default {
     color: white;
     border-bottom-left-radius: 4px;
     margin-right: auto;
+    margin-left: 0;
   }
   
   .message-info {
